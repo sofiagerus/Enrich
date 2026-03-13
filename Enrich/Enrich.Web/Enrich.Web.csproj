@@ -12,6 +12,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -19,8 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Enrich.Application\Enrich.Application.csproj" />
-    <ProjectReference Include="..\Enrich.Infrastructure\Enrich.Infrastructure.csproj" />
+    <ProjectReference Include="..\Enrich.BLL\Enrich.BLL.csproj" />
+    <ProjectReference Include="..\Enrich.DAL\Enrich.DAL.csproj" />
   </ItemGroup>
 
 </Project>
