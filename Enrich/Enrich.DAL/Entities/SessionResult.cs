@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
 
-namespace Enrich.Infrastructure.Models;
+namespace Enrich.DAL.Entities;
 
-public partial class SessionResult
+public class SessionResult
 {
     public int Id { get; set; }
 
@@ -11,7 +9,9 @@ public partial class SessionResult
 
     public int WordId { get; set; }
 
-    public bool IsCorrect { get; set; }
+    public bool IsKnown { get; set; }
+
+    public int PointsAwarded { get; set; }
 
     public virtual TrainingSession Session { get; set; } = null!;
 
