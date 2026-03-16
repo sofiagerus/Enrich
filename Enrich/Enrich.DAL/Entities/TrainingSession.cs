@@ -1,25 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+namespace Enrich.DAL.Entities;
 
-namespace Enrich.Infrastructure.Models;
-
-public partial class TrainingSession
+public class TrainingSession
 {
     public int Id { get; set; }
 
     public int UserId { get; set; }
 
-    public int? BundleId { get; set; }
+    public int BundleId { get; set; }
 
-    public int? Score { get; set; }
+    public DateTime StartedAt { get; set; }
 
-    public string? TrainingType { get; set; }
+    public DateTime? FinishedAt { get; set; }
 
-    public DateTime StartTime { get; set; }
+    public int TotalCards { get; set; }
 
-    public virtual Bundle? Bundle { get; set; }
+    public int KnownCount { get; set; }
 
-    public virtual ICollection<SessionResult> SessionResults { get; set; } = new List<SessionResult>();
+    public int UnknownCount { get; set; }
 
     public virtual User User { get; set; } = null!;
+
+    public virtual Bundle Bundle { get; set; } = null!;
+
+    public virtual ICollection<SessionResult> SessionResults { get; set; } = new List<SessionResult>();
 }

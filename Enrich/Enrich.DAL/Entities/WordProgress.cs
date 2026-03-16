@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+namespace Enrich.DAL.Entities;
 
-namespace Enrich.Infrastructure.Models;
-
-public partial class WordProgress
+public class WordProgress
 {
     public int Id { get; set; }
 
@@ -11,11 +8,11 @@ public partial class WordProgress
 
     public int WordId { get; set; }
 
-    public string? Status { get; set; }
+    public int Points { get; set; } // Accumulated score: +10 for "know", +5 for "don't know". Max 100.
 
-    public double? SuccessRate { get; set; }
+    public bool IsLearned { get; set; } // Set to true when Points reach 100.
 
-    public DateTime? LastReviewed { get; set; }
+    public DateTime? LastReviewedAt { get; set; }
 
     public virtual User User { get; set; } = null!;
 

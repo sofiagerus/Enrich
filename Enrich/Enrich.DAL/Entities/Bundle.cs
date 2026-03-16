@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+using Enrich.DAL.Entities.Enums;
 
-namespace Enrich.Infrastructure.Models;
+namespace Enrich.DAL.Entities;
 
-public partial class Bundle
+public class Bundle
 {
     public int Id { get; set; }
 
@@ -11,23 +10,39 @@ public partial class Bundle
 
     public string? Description { get; set; }
 
-    public int OwnerId { get; set; }
+    public string[] DifficultyLevels { get; set; } = Array.Empty<string>();
 
-    public string? Status { get; set; }
+    public string? ImageUrl { get; set; }
+
+    public BundleStatus Status { get; set; } = BundleStatus.Draft;
 
     public bool IsSystem { get; set; }
 
-    public int? AdminId { get; set; }
+    public bool IsPublic { get; set; }
+
+    public string? ShareCode { get; set; }
+
+    public int OwnerId { get; set; }
+
+    public int? ReviewedByAdminId { get; set; }
+
+    public DateTime? ReviewedAt { get; set; }
 
     public DateTime CreatedAt { get; set; }
 
-    public virtual User? Admin { get; set; }
-
-    public virtual ICollection<CommunityImport> CommunityImports { get; set; } = new List<CommunityImport>();
+    public DateTime UpdatedAt { get; set; }
 
     public virtual User Owner { get; set; } = null!;
 
-    public virtual ICollection<TrainingSession> TrainingSessions { get; set; } = new List<TrainingSession>();
+    public virtual User? ReviewedByAdmin { get; set; }
 
     public virtual ICollection<Word> Words { get; set; } = new List<Word>();
+
+    public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
+
+    public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();
+
+    public virtual ICollection<UserBundle> UserBundles { get; set; } = new List<UserBundle>();
+
+    public virtual ICollection<TrainingSession> TrainingSessions { get; set; } = new List<TrainingSession>();
 }

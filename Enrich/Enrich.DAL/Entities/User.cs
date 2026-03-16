@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+using Enrich.DAL.Entities.Enums;
 
-namespace Enrich.Infrastructure.Models;
+namespace Enrich.DAL.Entities;
 
-public partial class User
+public class User
 {
     public int Id { get; set; }
 
@@ -13,23 +12,29 @@ public partial class User
 
     public string PasswordHash { get; set; } = null!;
 
-    public int RoleId { get; set; }
+    public UserRole Role { get; set; } = UserRole.User;
 
     public string? ThemePreference { get; set; }
 
+    public string? LocalePreference { get; set; }
+
+    public string? AvatarUrl { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
-    public virtual ICollection<Bundle> BundleAdmins { get; set; } = new List<Bundle>();
+    public DateTime UpdatedAt { get; set; }
+
+    public virtual ICollection<Word> Words { get; set; } = new List<Word>();
 
     public virtual ICollection<Bundle> BundleOwners { get; set; } = new List<Bundle>();
 
-    public virtual ICollection<CommunityImport> CommunityImports { get; set; } = new List<CommunityImport>();
+    public virtual ICollection<Bundle> BundleReviews { get; set; } = new List<Bundle>();
 
-    public virtual Role Role { get; set; } = null!;
+    public virtual ICollection<UserWord> UserWords { get; set; } = new List<UserWord>();
 
-    public virtual ICollection<TrainingSession> TrainingSessions { get; set; } = new List<TrainingSession>();
+    public virtual ICollection<UserBundle> UserBundles { get; set; } = new List<UserBundle>();
 
     public virtual ICollection<WordProgress> WordProgresses { get; set; } = new List<WordProgress>();
 
-    public virtual ICollection<Word> Words { get; set; } = new List<Word>();
+    public virtual ICollection<TrainingSession> TrainingSessions { get; set; } = new List<TrainingSession>();
 }
