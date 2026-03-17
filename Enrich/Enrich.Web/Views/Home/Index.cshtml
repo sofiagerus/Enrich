@@ -1,8 +1,223 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@inject IViewLocalizer L
+@{
+    ViewData["Title"] = L["Page.Title"].Value;
+    Layout = "_LandingLayout";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Hero -->
+<section class="py-5  bg-success bg-opacity-10">
+    <div class="container px-4 px-md-5">
+        <div class="row align-items-end my-5">
+            <div class="col-lg-7">
+                <h1 class="display-4 fw-bold">
+                    <span class="text-decoration-underline">@L["Hero.Title.Brand"]</span> @L["Hero.Title.Rest"]
+                </h1>
+            </div>
+            <div class="col-lg-5">
+                <p class="mt-3 ms-md-5 hero-lead">
+                    @L["Hero.Subtitle"]
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!--  -->
+<section id="features" class="container py-5 my-5">
+    <div class="text-center mb-5">
+        <h3 class="fw-medium">@L["Feature.SectionTitle"]</h3>
+    </div>
+
+    <div class="row align-items-end g-5">
+
+        <div class="col-lg-6 pe-lg-5">
+            <h4 class="fw-medium mb-3">@L["Feature.Cards.Translation.Title"]</h4>
+            <p class="lead">
+                @L["Feature.Cards.Translation.Text"]
+            </p>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="p-4 rounded-4 position-relative shadow-sm ms-auto"
+                 style="background-color: #e5e5e5; max-width: 550px; color: #1a1a1a; font-family: system-ui, -apple-system, sans-serif;">
+
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fs-4">Innermost</span>
+                        <span class="badge rounded-3 text-dark px-2 py-1"
+                              style="background-color: #a8a8a8; font-weight: normal;">B2</span>
+                    </div>
+                    <span class="fs-5">найпотаємніший</span>
+                </div>
+
+                <div>adjective</div>
+                <div class="mb-3">[/ˈɪnərˌmoʊst/]</div>
+
+                <div>@L["Feature.Mock.Meaning"]</div>
+                <div class="mb-3">most secret and hidden</div>
+
+                <div>@L["Feature.Mock.Example"]</div>
+                <div class="pe-4 mb-2">
+                    This was the diary in which Gina recorded her innermost thoughts and secrets.
+                </div>
+
+                <div class="position-absolute" style="bottom: 1.5rem; right: 1.5rem; cursor: pointer;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section id="bundles-feature" class="container py-5  my-5">
+    <div class="row align-items-end g-5">
+
+        <div class="col-lg-6 order-2 order-lg-1">
+            <div class="p-4 rounded-4 shadow-sm me-auto d-flex gap-4"
+                 style="background-color: #e5e5e5; max-width: 550px; color: #1a1a1a; font-family: system-ui, -apple-system, sans-serif;">
+
+                <div class="d-flex flex-column" style="width: 140px; flex-shrink: 0;">
+                    <div class="rounded-4 w-100" style="background-color: #b8b8b8; aspect-ratio: 1;"></div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <span class="rounded-2 d-flex align-items-center justify-content-center" style="background-color: #d4d4d4; width: 30px; height: 26px; font-size: 0.85rem;">C2</span>
+                        <span class="rounded-2 d-flex align-items-center justify-content-center" style="background-color: #d4d4d4; width: 30px; height: 26px; font-size: 0.85rem;">C1</span>
+                        <span class="rounded-2 d-flex align-items-center justify-content-center" style="background-color: #d4d4d4; width: 30px; height: 26px; font-size: 0.85rem;">B2</span>
+                        <span class="rounded-2 d-flex align-items-center justify-content-center" style="background-color: #d4d4d4; width: 30px; height: 26px; font-size: 0.85rem;">B1</span>
+                        <span class="rounded-2 d-flex align-items-center justify-content-center" style="background-color: #d4d4d4; width: 30px; height: 26px; font-size: 0.85rem;">A2</span>
+                        <span class="rounded-2 d-flex align-items-center justify-content-center" style="background-color: #d4d4d4; width: 30px; height: 26px; font-size: 0.85rem;">A1</span>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-column w-100">
+                    <div class="fs-4 mb-1">Fruits</div>
+                    <div class="mb-2">@L["Feature.Mock.Words"] 87</div>
+
+                    <div>@L["Feature.Mock.Description"]</div>
+                    <div class="mb-3" style="line-height: 1.4;">
+                        Essential fruit vocabulary for daily life. Perfect for navigating supermarkets, reading recipes, or discussing healthy eating habits.
+                    </div>
+
+                    <div class="mt-auto">
+                        <span class="rounded-2 px-3 py-1 d-inline-block" style="background-color: #b8b8b8; font-size: 0.95rem;">Fruits</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-lg-6 order-1 order-lg-2 ps-lg-5">
+            <h4 class="fw-medium mb-3">@L["Feature.Bundles.Title"]</h4>
+            <p class="lead">
+                @L["Feature.Bundles.Text"]
+            </p>
+        </div>
+
+    </div>
+</section>
+
+<section id="progress-feature" class="container py-5  my-5">
+    <div class="row align-items-end g-5">
+
+        <div class="col-lg-6 pe-lg-5">
+            <h4 class="fw-medium mb-3">@L["Feature.Progress.Title"]</h4>
+            <p class="lead mb-4">
+                @L["Feature.Progress.Text"]
+            </p>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="p-4 rounded-4 position-relative shadow-sm ms-auto"
+                 style="background-color: #e5e5e5; max-width: 550px; color: #1a1a1a; font-family: system-ui, -apple-system, sans-serif;">
+
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fs-4">Innermost</span>
+                        <span class="badge rounded-3 text-dark px-2 py-1"
+                              style="background-color: #a8a8a8; font-weight: normal;">B2</span>
+                    </div>
+                    <span class="fs-5">найпотаємніший</span>
+                </div>
+
+                <div>adjective</div>
+                <div class="mb-3">[/ˈɪnərˌmoʊst/]</div>
+
+                <div>@L["Feature.Mock.Meaning"]</div>
+                <div class="mb-3">most secret and hidden</div>
+
+                <div>@L["Feature.Mock.Example"]</div>
+                <div class="pe-4 mb-4">
+                    This was the diary in which Gina recorded her innermost thoughts and secrets.
+                </div>
+
+                <div class="mt-4 pt-2">
+                    <div class="text-end mb-1" style="font-size: 0.95rem; font-weight: 500;">65%</div>
+
+                    <div class="rounded-pill w-100 mb-2" style="height: 6px; background-color: #d4d4d4;">
+                        <div class="rounded-pill h-100" style="width: 65%; background-color: #8c8c8c;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section id="community-feature" class="container py-5 my-5">
+    <div class="row align-items-end g-5">
+
+        <div class="col-lg-6 order-2 order-lg-1">
+            <div class="p-4 rounded-4 shadow-sm me-auto d-flex gap-4"
+                 style="background-color: #e5e5e5; max-width: 550px; color: #1a1a1a; font-family: system-ui, -apple-system, sans-serif;">
+
+                <div class="d-flex flex-column" style="width: 140px; flex-shrink: 0;">
+                    <div class="rounded-4 w-100" style="background-color: #b8b8b8; aspect-ratio: 1;"></div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <span class="rounded-2 d-flex align-items-center justify-content-center" style="background-color: #d4d4d4; width: 30px; height: 26px; font-size: 0.85rem;">C2</span>
+                        <span class="rounded-2 d-flex align-items-center justify-content-center" style="background-color: #d4d4d4; width: 30px; height: 26px; font-size: 0.85rem;">C1</span>
+                        <span class="rounded-2 d-flex align-items-center justify-content-center" style="background-color: #d4d4d4; width: 30px; height: 26px; font-size: 0.85rem;">B2</span>
+                        <span class="rounded-2 d-flex align-items-center justify-content-center" style="background-color: #d4d4d4; width: 30px; height: 26px; font-size: 0.85rem;">B1</span>
+                        <span class="rounded-2 d-flex align-items-center justify-content-center" style="background-color: #d4d4d4; width: 30px; height: 26px; font-size: 0.85rem;">A2</span>
+                        <span class="rounded-2 d-flex align-items-center justify-content-center" style="background-color: #d4d4d4; width: 30px; height: 26px; font-size: 0.85rem;">A1</span>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-column w-100">
+                    <div class="fs-4 lh-sm mb-1">Ultimate Brainrot Glossary</div>
+                    <div class="mb-2" style="font-size: 0.95rem;">by englishenjoyer</div>
+                    <div class="mb-2">@L["Feature.Mock.Words"] 67</div>
+
+                    <div>@L["Feature.Mock.Description"]</div>
+                    <div class="mb-3" style="line-height: 1.4;">
+                        Stay relevant or get left behind. The ultimate collection of modern internet slang.
+                    </div>
+
+                    <div class="mt-auto d-flex gap-2">
+                        <span class="rounded-2 px-3 py-1" style="background-color: #b8b8b8; font-size: 0.95rem;">Slang</span>
+                        <span class="rounded-2 px-3 py-1" style="background-color: #b8b8b8; font-size: 0.95rem;">@L["Feature.Mock.ByCommunity"]</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-lg-6 order-1 order-lg-2 ps-lg-5">
+            <h4 class="fw-medium mb-3">@L["Feature.Community.Title"]</h4>
+            <p class="lead">
+                @L["Feature.Community.Text"]
+            </p>
+        </div>
+
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="container py-5 text-center my-5">
+    <h2>@L["CTA.Title"]</h2>
+    <p class="text-muted">@L["CTA.Subtitle"]</p>
+    <a asp-controller="Auth" asp-action="Register" class="btn btn-lg btn-success rounded-5 px-4 mt-3">@L["Hero.CTA"]</a>
+</section>

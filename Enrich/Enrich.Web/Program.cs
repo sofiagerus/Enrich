@@ -20,7 +20,9 @@ try
     // Register Services
     builder.Services.AddDalServices(builder.Configuration);
     builder.Services.AddBllServices();
-    builder.Services.AddControllersWithViews();
+    builder.Services.AddLocalization(o => o.ResourcesPath = "Resources");
+    builder.Services.AddControllersWithViews()
+        .AddViewLocalization();
 
     var app = builder.Build();
 
@@ -34,6 +36,15 @@ try
     }
 
     app.UseHttpsRedirection();
+
+    var supportedCultures = new[] { "uk", "en" };
+    app.UseRequestLocalization(options =>
+    {
+        options.SetDefaultCulture("uk")
+               .AddSupportedCultures(supportedCultures)
+               .AddSupportedUICultures(supportedCultures);
+    });
+
     app.UseRouting();
     app.UseAuthorization();
 
