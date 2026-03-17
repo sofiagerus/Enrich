@@ -1,9 +1,10 @@
-namespace Enrich.DAL.Entities.Enums;
-
-public enum BundleStatus
+namespace Enrich.DAL.Entities.Enums
 {
-    Draft = 0,
-    PendingReview = 1,
-    Published = 2,
-    Rejected = 3,
+    public enum BundleStatus
+    {
+        Draft = 0,
+        PendingReview = 1,
+        Published = 2,
+        Rejected = 3,
+    }
 }

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Enrich.BLL
 {
@@ -8,7 +7,6 @@ namespace Enrich.BLL
         public static IServiceCollection AddBllServices(this IServiceCollection services)
         {
             // services.AddScoped<IService, Service>();
-
             return services;
         }
     }
