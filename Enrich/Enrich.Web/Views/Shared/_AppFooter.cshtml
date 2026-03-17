@@ -1,0 +1,23 @@
+@inject IViewLocalizer L
+
+<footer class="border-top py-3 mt-auto">
+    <div class="container-fluid d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span class="text-muted small">&copy; @DateTime.Now.Year Enrich. @L["Footer.Rights"]</span>
+        <div class="d-flex align-items-center gap-2">
+            <!-- Locale switcher -->
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                    @System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToUpper()
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="?culture=uk">🇺🇦 Українська</a></li>
+                    <li><a class="dropdown-item" href="?culture=en">🇬🇧 English</a></li>
+                </ul>
+            </div>
+            <!-- Theme toggle -->
+            <button class="btn btn-sm btn-outline-secondary" onclick="toggleTheme()" title="Toggle theme">
+                <span id="themeIcon">🌙</span>
+            </button>
+        </div>
+    </div>
+</footer>

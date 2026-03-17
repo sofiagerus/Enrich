@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true" />
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
+
+  <data name="Page.Title" xml:space="preserve"><value>Головна</value></data>
+  <data name="Hero.Title.Brand" xml:space="preserve"><value>Збагатіть</value></data>
+  <data name="Hero.Title.Rest" xml:space="preserve"><value>свій англійський словник</value></data>
+  <data name="Hero.Subtitle" xml:space="preserve"><value>Вивчайте слова через картки, відстежуйте прогрес та діліться збірками з іншими.</value></data>
+  <data name="Hero.CTA" xml:space="preserve"><value>Розпочати безкоштовно</value></data>
+  <data name="Hero.LearnMore" xml:space="preserve"><value>Дізнатись більше</value></data>
+  <data name="Features.Title" xml:space="preserve"><value>Що вміє Enrich</value></data>
+  
+  <data name="Feature.SectionTitle" xml:space="preserve"><value>Найкращий спосіб збагатити словниковий запас</value></data>
+  
+  <data name="Feature.Cards.Translation.Title" xml:space="preserve"><value>Більше, ніж просто переклад</value></data>
+  <data name="Feature.Cards.Translation.Text" xml:space="preserve"><value>Звичайної пари "слово-переклад" недостатньо для вільного володіння мовою. Ми створили інтелектуальні картки, які занурюють вас у контекст та допомагають відчувати лексику.</value></data>
+  
+  <data name="Feature.Bundles.Title" xml:space="preserve"><value>Структуруйте своє навчання</value></data>
+  <data name="Feature.Bundles.Text" xml:space="preserve"><value>Об'єднуйте слова у тематичні збірки для системного підходу. Створюйте власні унікальні колекції під конкретні цілі або використовуйте готові матеріали від спільноти, щоб не витрачати час на пошук.</value></data>
+  
+  <data name="Feature.Progress.Title" xml:space="preserve"><value>Візуалізуйте свої знання</value></data>
+  <data name="Feature.Progress.Text" xml:space="preserve"><value>Забудьте про відчуття тупцювання на місці. Система безперервно аналізує ваші успіхи під час квізів та відображає рівень засвоєння кожного слова.</value></data>
+  
+  <data name="Feature.Community.Title" xml:space="preserve"><value>Навчайтеся разом зі спільнотою</value></data>
+  <data name="Feature.Community.Text" xml:space="preserve"><value>Не хочете збирати слова по одному? Зазирніть у Community Hub. Знаходьте готові унікальні колекції від інших користувачів: від суворої академічної лексики до найсвіжіших інтернет-трендів.</value></data>
+  
+  <data name="Feature.Mock.Meaning" xml:space="preserve"><value>Значення</value></data>
+  <data name="Feature.Mock.Example" xml:space="preserve"><value>Приклад</value></data>
+  <data name="Feature.Mock.Words" xml:space="preserve"><value>Слів:</value></data>
+  <data name="Feature.Mock.Description" xml:space="preserve"><value>Опис</value></data>
+  <data name="Feature.Mock.ByCommunity" xml:space="preserve"><value>Від спільноти</value></data>
+  
+  <data name="CTA.Title" xml:space="preserve"><value>Готові почати?</value></data>
+  <data name="CTA.Subtitle" xml:space="preserve"><value>Приєднуйтесь та вчіть нові слова щодня.</value></data>
+</root>

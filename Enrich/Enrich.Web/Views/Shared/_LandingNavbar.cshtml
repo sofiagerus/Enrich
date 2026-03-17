@@ -1,0 +1,37 @@
+@inject IViewLocalizer L
+
+<nav class="navbar navbar-expand-lg sticky-top py-2" style="background-color: var(--bs-body-bg);">
+    <div class="container">
+        <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">Enrich</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#landingNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="landingNav">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0 custom-nav-links">
+                <li class="nav-item">
+                    <a class="nav-link hover-underline" href="#features">
+                        <span>@L["Nav.Words"]</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link hover-underline" href="#bundles-feature">
+                        <span>@L["Nav.Bundles"]</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link hover-underline" href="#progress-feature">
+                        <span>@L["Nav.Progress"]</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link hover-underline" href="#community-feature">
+                        <span>@L["Nav.Community"]</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center gap-2">
+                <a asp-controller="Auth" asp-action="Register" class="btn btn-success text-white rounded-5 px-4 landing-btn">@L["Nav.Register"]</a>
+            </div>
+        </div>
+    </div>
+</nav>
