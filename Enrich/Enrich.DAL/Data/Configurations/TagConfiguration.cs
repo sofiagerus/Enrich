@@ -2,16 +2,17 @@ using Enrich.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Enrich.DAL.Data.Configurations;
-
-public class TagConfiguration : IEntityTypeConfiguration<Tag>
+namespace Enrich.DAL.Data.Configurations
 {
-    public void Configure(EntityTypeBuilder<Tag> builder)
+    public class TagConfiguration : IEntityTypeConfiguration<Tag>
     {
-        builder.ToTable("Tag");
+        public void Configure(EntityTypeBuilder<Tag> builder)
+        {
+            _ = builder.ToTable("Tag");
 
-        builder.HasIndex(t => t.Name).IsUnique();
+            _ = builder.HasIndex(t => t.Name).IsUnique();
 
-        builder.Property(t => t.Name).IsRequired().HasMaxLength(50);
+            _ = builder.Property(t => t.Name).IsRequired().HasMaxLength(50);
+        }
     }
 }

@@ -1,14 +1,15 @@
-namespace Enrich.DAL.Entities;
-
-public class Category
+namespace Enrich.DAL.Entities
 {
-    public int Id { get; set; }
+    public class Category
+    {
+        public int Id { get; set; }
 
-    public string Name { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
-    public string? Description { get; set; }
+        public string? Description { get; set; }
 
-    public virtual ICollection<Word> Words { get; set; } = new List<Word>();
+        public virtual ICollection<Word> Words { get; set; } = new List<Word>();
 
-    public virtual ICollection<Bundle> Bundles { get; set; } = new List<Bundle>();
+        public virtual ICollection<Bundle> Bundles { get; set; } = new List<Bundle>();
+    }
 }

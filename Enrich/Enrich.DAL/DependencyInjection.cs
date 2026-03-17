@@ -9,12 +9,11 @@ namespace Enrich.DAL
     {
         public static IServiceCollection AddDalServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
+            _ = services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(
                     configuration.GetConnectionString("DefaultConnection")));
 
             // services.AddScoped<IRepository, Repository>();
-
             return services;
         }
     }

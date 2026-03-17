@@ -1,7 +1,8 @@
-namespace Enrich.DAL.Entities.Enums;
-
-public enum UserRole
+namespace Enrich.DAL.Entities.Enums
 {
-    User = 0,
-    Admin = 1,
+    public enum UserRole
+    {
+        User = 0,
+        Admin = 1,
+    }
 }

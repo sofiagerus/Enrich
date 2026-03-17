@@ -1,16 +1,17 @@
-namespace Enrich.DAL.Entities;
-
-public class UserWord
+namespace Enrich.DAL.Entities
 {
-    public int Id { get; set; }
+    public class UserWord
+    {
+        public int Id { get; set; }
 
-    public int UserId { get; set; }
+        public int UserId { get; set; }
 
-    public int WordId { get; set; }
+        public int WordId { get; set; }
 
-    public DateTime SavedAt { get; set; }
+        public DateTime SavedAt { get; set; }
 
-    public virtual User User { get; set; } = null!;
+        public virtual User User { get; set; } = null!;
 
-    public virtual Word Word { get; set; } = null!;
+        public virtual Word Word { get; set; } = null!;
+    }
 }

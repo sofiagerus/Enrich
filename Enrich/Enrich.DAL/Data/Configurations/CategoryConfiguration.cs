@@ -2,17 +2,18 @@ using Enrich.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Enrich.DAL.Data.Configurations;
-
-public class CategoryConfiguration : IEntityTypeConfiguration<Category>
+namespace Enrich.DAL.Data.Configurations
 {
-    public void Configure(EntityTypeBuilder<Category> builder)
+    public class CategoryConfiguration : IEntityTypeConfiguration<Category>
     {
-        builder.ToTable("Category");
+        public void Configure(EntityTypeBuilder<Category> builder)
+        {
+            _ = builder.ToTable("Category");
 
-        builder.HasIndex(c => c.Name).IsUnique();
+            _ = builder.HasIndex(c => c.Name).IsUnique();
 
-        builder.Property(c => c.Name).IsRequired().HasMaxLength(50);
-        builder.Property(c => c.Description).HasMaxLength(200);
+            _ = builder.Property(c => c.Name).IsRequired().HasMaxLength(50);
+            _ = builder.Property(c => c.Description).HasMaxLength(200);
+        }
     }
 }
