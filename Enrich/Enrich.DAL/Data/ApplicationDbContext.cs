@@ -1,13 +1,14 @@
 using System.Reflection;
 using Enrich.DAL.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enrich.DAL.Data
 {
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : IdentityDbContext<User>(options)
     {
-        public DbSet<User> Users { get; set; }
-
+        // public DbSet<User> Users { get; set; }
         public DbSet<Word> Words { get; set; }
 
         public DbSet<Bundle> Bundles { get; set; }

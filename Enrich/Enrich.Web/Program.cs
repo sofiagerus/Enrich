@@ -1,5 +1,8 @@
 using Enrich.BLL;
 using Enrich.DAL;
+using Enrich.DAL.Data;
+using Enrich.DAL.Entities;
+using Microsoft.AspNetCore.Identity;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -12,16 +15,31 @@ try
 
     WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-    _ = builder.Host.UseSerilog((context, services, configuration) => configuration
+    builder.Host.UseSerilog((context, services, configuration) => configuration
         .ReadFrom.Configuration(context.Configuration)
         .ReadFrom.Services(services)
         .Enrich.FromLogContext());
 
     // Register Services
-    _ = builder.Services.AddDalServices(builder.Configuration);
-    _ = builder.Services.AddBllServices();
-    _ = builder.Services.AddLocalization(o => o.ResourcesPath = "Resources");
-    _ = builder.Services.AddControllersWithViews()
+    builder.Services.AddDalServices(builder.Configuration);
+    builder.Services.AddBllServices();
+    builder.Services.AddIdentity<User, IdentityRole>(options =>
+    {
+        options.Password.RequireDigit = true;
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = false;
+    })
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
+
+    builder.Services.ConfigureApplicationCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+    });
+
+    builder.Services.AddLocalization(o => o.ResourcesPath = "Resources");
+    builder.Services.AddControllersWithViews()
         .AddViewLocalization();
 
     WebApplication app = builder.Build();
@@ -31,26 +49,26 @@ try
     // Configure the HTTP request pipeline
     if (!app.Environment.IsDevelopment())
     {
-        _ = app.UseExceptionHandler("/Home/Error");
-        _ = app.UseHsts();
+        app.UseExceptionHandler("/Home/Error");
+        app.UseHsts();
     }
 
-    _ = app.UseHttpsRedirection();
+    app.UseHttpsRedirection();
 
     string[] supportedCultures = ["uk", "en"];
 
-    _ = app.UseRequestLocalization(options =>
+    app.UseRequestLocalization(options =>
     {
-        _ = options.SetDefaultCulture("uk")
+        options.SetDefaultCulture("uk")
                .AddSupportedCultures(supportedCultures)
                .AddSupportedUICultures(supportedCultures);
     });
 
-    _ = app.UseRouting();
-    _ = app.UseAuthorization();
+    app.UseRouting();
+    app.UseAuthorization();
 
-    _ = app.MapStaticAssets();
-    _ = app.MapControllerRoute(
+    app.MapStaticAssets();
+    app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}")
         .WithStaticAssets();
