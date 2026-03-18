@@ -4,9 +4,12 @@
 
 @{
     var currentUser = await UserManager.GetUserAsync(User);
-
     var roles = currentUser != null ? await UserManager.GetRolesAsync(currentUser) : new List<string>();
     var displayRole = roles.FirstOrDefault() ?? "Student";
+
+    // Отримуємо поточну дію та контролер для підсвітки меню
+    var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
 }
 
 <!DOCTYPE html>
@@ -41,18 +44,25 @@
                 <div class="sidebar-heading">Main menu</div>
                 <ul class="nav nav-pills flex-column mb-4">
                     <li class="nav-item">
-                        <a href="#" class="nav-link active" aria-current="page">Words</a>
+                        <a href="#" class="nav-link @(currentAction == "Words" ? "active" : "")">Words</a>
                     </li>
-                    <li class="nav-item"><a href="#" class="nav-link">Collections</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link">My words</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link">My collections</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link">Community</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link">Generator</a></li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link @(currentAction == "Collections" ? "active" : "")">Collections</a>
+                    </li>
+                    <li class="nav-item"><a href="#" class="nav-link @(currentAction == "MyWords" ? "active" : "")">My words</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link @(currentAction == "MyCollections" ? "active" : "")">My collections</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link @(currentAction == "Community" ? "active" : "")">Community</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link @(currentAction == "Generator" ? "active" : "")">Generator</a></li>
                 </ul>
 
                 <div class="sidebar-heading">Administration</div>
                 <ul class="nav nav-pills flex-column mb-2">
-                    <li class="nav-item"><a href="#" class="nav-link">Manage users</a></li>
+                    <li class="nav-item">
+                        <a asp-controller="Admin" asp-action="Browse"
+                               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" ? "active" : "")">
+                            Manage users
+                        </a>
+                    </li>
                     <li class="nav-item"><a href="#" class="nav-link">Manage words</a></li>
                     <li class="nav-item"><a href="#" class="nav-link">Manage collections</a></li>
                     <li class="nav-item"><a href="#" class="nav-link">Pending collections</a></li>
@@ -71,13 +81,15 @@
                     </div>
 
                     <div class="lh-1">
-                        <a asp-controller="Account" asp-action="Profile" class="text-decoration-none text-dark fw-semibold mb-1 d-block" style="font-size: 0.95rem;">
+                        <a asp-controller="Account" asp-action="Profile"
+                               class="text-decoration-none text-dark fw-semibold mb-1 d-block @(currentAction == "Profile" ? "text-primary" : "")"
+                               style="font-size: 0.95rem;">
                             @(currentUser?.UserName ?? "Guest")
                         </a>
                         <div class="text-muted mt-1" style="font-size: 0.8rem;">@displayRole</div>
                     </div>
 
-                    <a asp-controller="Account" asp-action="Settings" class="ms-auto link-dark text-decoration-none">
+                    <a asp-controller="Account" asp-action="Settings" class="ms-auto link-dark text-decoration-none @(currentAction == "Settings" ? "text-primary" : "")">
                         <i class="bi bi-gear fs-5"></i>
                     </a>
                 </div>

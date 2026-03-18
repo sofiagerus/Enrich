@@ -1,0 +1,53 @@
+﻿@model IEnumerable<Enrich.Web.ViewModels.UserListViewModel>
+
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+<div class="container-fluid pt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold">Administration: Manage Users</h4>
+        <span class="badge bg-light text-dark border">Total: @(Model == null ? 0 : Model.Count())</span>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 py-3 text-muted fw-semibold">Username</th>
+                            <th class="py-3 text-muted fw-semibold">Email</th>
+                            <th class="py-3 text-muted fw-semibold">Role</th>
+                            <th class="text-end pe-4 py-3 text-muted fw-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model ?? System.Linq.Enumerable.Empty<Enrich.Web.ViewModels.UserListViewModel>())
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-secondary rounded-circle me-2 d-flex justify-content-center align-items-center text-white fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem; opacity: 0.7;">
+                                            @((!string.IsNullOrEmpty(user?.Username) && user.Username.Length > 0) ? user.Username.Substring(0, 1).ToUpper() : "?")
+                                        </div>
+                                        <span class="fw-medium">@((user?.Username) ?? string.Empty)</span>
+                                    </div>
+                                </td>
+                                <td>@(user?.Email ?? string.Empty)</td>
+                                <td>
+                                    <span class="badge rounded-pill bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-3">
+                                        @((user?.Role) ?? string.Empty)
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-outline-light text-dark border shadow-sm">Edit</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
