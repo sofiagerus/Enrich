@@ -1,4 +1,5 @@
-﻿using Enrich.Web.ViewModels;
+using Enrich.BLL.Constants;
+using Enrich.Web.ViewModels;
 using FluentValidation;
 
 namespace Enrich.Web.Validators
@@ -8,8 +9,8 @@ namespace Enrich.Web.Validators
         public SignupViewModelValidator()
         {
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Електронна пошта є обов'язковою")
-                .EmailAddress().WithMessage("Неправильний формат пошти");
+                .NotEmpty().WithMessage(UserConstants.EmailRequired)
+                .EmailAddress().WithMessage(UserConstants.InvalidEmailFormat);
 
             RuleFor(x => x.Username).ApplyUsernameRules();
 

@@ -12,7 +12,7 @@ namespace Enrich.Web.Controllers
     public class AccountController(
         ILogger<AccountController> logger,
         IAuthService authService,
-        IValidator<SignupViewModel> validator,
+        IValidator<SignupViewModel> signupValidator,
         SignInManager<User> signInManager) : Controller
     {
         [HttpGet]
@@ -26,7 +26,7 @@ namespace Enrich.Web.Controllers
         {
             logger.LogInformation("Спроба реєстрації для Username: {Username}, Email: {Email}", model.Username, model.Email);
 
-            var validationResult = await validator.ValidateAsync(model);
+            var validationResult = await signupValidator.ValidateAsync(model);
 
             if (!validationResult.IsValid)
             {
