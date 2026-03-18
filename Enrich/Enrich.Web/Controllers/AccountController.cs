@@ -1,4 +1,4 @@
-﻿using Enrich.BLL.DTOs;
+using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
 using Enrich.DAL.Entities;
 using Enrich.Web.ViewModels;
@@ -12,8 +12,11 @@ namespace Enrich.Web.Controllers
     public class AccountController(
         ILogger<AccountController> logger,
         IAuthService authService,
+        IUserService userService,
         IValidator<SignupViewModel> signupValidator,
-        SignInManager<User> signInManager) : Controller
+        IValidator<UpdateProfileViewModel> profileValidator,
+        SignInManager<User> signInManager,
+        ILogger<AccountController> logger) : Controller
     {
         [HttpGet]
         public IActionResult Signup()
@@ -24,8 +27,6 @@ namespace Enrich.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Signup(SignupViewModel model)
         {
-            logger.LogInformation("Спроба реєстрації для Username: {Username}, Email: {Email}", model.Username, model.Email);
-
             var validationResult = await signupValidator.ValidateAsync(model);
 
             if (!validationResult.IsValid)
@@ -95,12 +96,67 @@ namespace Enrich.Web.Controllers
 
             if (user == null)
             {
-                signInManager.UserManager.GetUserId(User);
-
+                logger.LogWarning("Спроба доступу до профілю неавторизованим користувачем.");
                 return NotFound("Користувача не знайдено.");
             }
 
-            return View(user);
+            var model = new UpdateProfileViewModel
+            {
+                Email = user.Email ?? string.Empty,
+                Username = user.UserName ?? string.Empty,
+                Bio = user.Bio
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Profile(UpdateProfileViewModel model)
+        {
+            var user = await signInManager.UserManager.GetUserAsync(User);
+            if (user == null)
+            {
+                logger.LogWarning("Спроба оновлення профілю неавторизованим користувачем.");
+                return NotFound("Користувача не знайдено.");
+            }
+
+            model.Email = user.Email ?? string.Empty;
+
+            var validationResult = await profileValidator.ValidateAsync(model);
+
+            if (!validationResult.IsValid)
+            {
+                validationResult.AddToModelState(ModelState);
+                return View(model);
+            }
+
+            var updateDto = new UpdateProfileDTO
+            {
+                Username = model.Username,
+                Bio = model.Bio
+            };
+
+            var result = await userService.UpdateProfileAsync(user.Id, updateDto);
+
+            if (result.Succeeded)
+            {
+                logger.LogInformation("Користувач {UserId} успішно оновив свій профіль.", user.Id);
+
+                await signInManager.RefreshSignInAsync(user);
+                return RedirectToAction("Profile");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            logger.LogWarning(
+                "Користувачу {UserId} не вдалося оновити профіль. Помилки: {Errors}",
+                user.Id,
+                string.Join(", ", result.Errors.Select(e => e.Description)));
+
+            return View(model);
         }
     }
 }

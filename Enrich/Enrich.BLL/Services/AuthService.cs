@@ -11,7 +11,7 @@ namespace Enrich.BLL.Services
         {
             var user = new User
             {
-                UserName = dto.Email,
+                UserName = dto.Username,
                 Email = dto.Email
             };
 
