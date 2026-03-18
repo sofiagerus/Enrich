@@ -22,7 +22,7 @@ namespace Enrich.DAL.Entities
 
         public bool IsGlobal { get; set; }
 
-        public int? CreatorId { get; set; }
+        public string? CreatorId { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using Enrich.Web.Models;
+using Enrich.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enrich.Web.Controllers

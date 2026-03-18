@@ -10,7 +10,7 @@ namespace Enrich.DAL.Entities
 
         public string? Description { get; set; }
 
-        public string[] DifficultyLevels { get; set; } = Array.Empty<string>();
+        public string[] DifficultyLevels { get; set; } = [];
 
         public string? ImageUrl { get; set; }
 
@@ -22,9 +22,9 @@ namespace Enrich.DAL.Entities
 
         public string? ShareCode { get; set; }
 
-        public int OwnerId { get; set; }
+        public string? OwnerId { get; set; }
 
-        public int? ReviewedByAdminId { get; set; }
+        public string? ReviewedByAdminId { get; set; }
 
         public DateTime? ReviewedAt { get; set; }
 

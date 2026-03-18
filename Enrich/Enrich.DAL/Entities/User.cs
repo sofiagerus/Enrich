@@ -1,17 +1,10 @@
 using Enrich.DAL.Entities.Enums;
+using Microsoft.AspNetCore.Identity;
 
 namespace Enrich.DAL.Entities
 {
-    public class User
+    public class User : IdentityUser
     {
-        public int Id { get; set; }
-
-        public string Username { get; set; } = null!;
-
-        public string Email { get; set; } = null!;
-
-        public string PasswordHash { get; set; } = null!;
-
         public UserRole Role { get; set; } = UserRole.User;
 
         public string? ThemePreference { get; set; }

@@ -4,7 +4,7 @@ namespace Enrich.DAL.Entities
     {
         public int Id { get; set; }
 
-        public int UserId { get; set; }
+        public required string UserId { get; set; }
 
         public int WordId { get; set; }
 
