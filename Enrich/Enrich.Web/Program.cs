@@ -2,6 +2,9 @@ using Enrich.BLL;
 using Enrich.DAL;
 using Enrich.DAL.Data;
 using Enrich.DAL.Entities;
+using Enrich.Web.Validators;
+using Enrich.Web.ViewModels;
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
 
@@ -35,8 +38,9 @@ try
     builder.Services.ConfigureApplicationCookie(options =>
     {
         options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/Account/AccessDenied";
     });
+
+    builder.Services.AddScoped<IValidator<SignupViewModel>, SignupViewModelValidator>();
 
     builder.Services.AddLocalization(o => o.ResourcesPath = "Resources");
     builder.Services.AddControllersWithViews()

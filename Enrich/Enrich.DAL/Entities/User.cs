@@ -5,8 +5,6 @@ namespace Enrich.DAL.Entities
 {
     public class User : IdentityUser
     {
-        public string Username { get; set; } = null!;
-
         public UserRole Role { get; set; } = UserRole.User;
 
         public string? ThemePreference { get; set; }

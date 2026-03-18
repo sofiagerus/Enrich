@@ -1,4 +1,4 @@
-namespace Enrich.Web.Models
+namespace Enrich.Web.ViewModels
 {
     public class ErrorViewModel
     {

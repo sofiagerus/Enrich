@@ -11,9 +11,6 @@ namespace Enrich.DAL.Data.Configurations
             _ = builder.ToTable("User");
 
             _ = builder.HasIndex(u => u.Email).IsUnique();
-            _ = builder.HasIndex(u => u.Username).IsUnique();
-
-            _ = builder.Property(u => u.Username).IsRequired().HasMaxLength(50);
             _ = builder.Property(u => u.Email).IsRequired().HasMaxLength(255);
             _ = builder.Property(u => u.PasswordHash).IsRequired().HasMaxLength(255);
             _ = builder.Property(u => u.Role).HasConversion<string>().HasMaxLength(20);
