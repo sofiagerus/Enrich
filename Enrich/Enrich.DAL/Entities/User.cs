@@ -13,6 +13,8 @@ namespace Enrich.DAL.Entities
 
         public string? AvatarUrl { get; set; }
 
+        public string? Bio { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }

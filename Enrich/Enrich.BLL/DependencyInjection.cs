@@ -1,4 +1,4 @@
-﻿using Enrich.BLL.Interfaces;
+using Enrich.BLL.Interfaces;
 using Enrich.BLL.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,6 +10,7 @@ namespace Enrich.BLL
         {
             // services.AddScoped<IService, Service>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
 
             return services;
         }
