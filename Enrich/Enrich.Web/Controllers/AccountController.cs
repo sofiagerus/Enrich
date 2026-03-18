@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Enrich.Web.Controllers
 {
     public class AccountController(
+        ILogger<AccountController> logger,
         IAuthService authService,
         IUserService userService,
         IValidator<SignupViewModel> signupValidator,
@@ -30,6 +31,20 @@ namespace Enrich.Web.Controllers
 
             if (!validationResult.IsValid)
             {
+                var validationErrors = validationResult.Errors
+                    .Select(e => new
+                    {
+                        Field = e.PropertyName,
+                        Error = e.ErrorMessage,
+                    })
+                    .ToArray();
+
+                logger.LogWarning(
+                    "Провалена валідація форми реєстрації для Username: {Username}, Email: {Email}. Деталі: {@ValidationErrors}",
+                    model.Username,
+                    model.Email,
+                    validationErrors);
+
                 validationResult.AddToModelState(ModelState);
                 return View(model);
             }
@@ -38,13 +53,18 @@ namespace Enrich.Web.Controllers
             {
                 Email = model.Email,
                 Username = model.Username,
-                Password = model.Password
+                Password = model.Password,
             };
 
             var result = await authService.RegisterUserAsync(userDto);
 
             if (result.Succeeded)
             {
+                logger.LogInformation(
+                    "Успішно зареєстровано нового користувача Username: {Username}, Email: {Email}",
+                    model.Username,
+                    model.Email);
+
                 var user = await signInManager.UserManager.FindByEmailAsync(model.Email);
                 if (user != null)
                 {
@@ -52,6 +72,14 @@ namespace Enrich.Web.Controllers
                     return RedirectToAction("Profile", "Account");
                 }
             }
+
+            var errorCodes = result.Errors.Select(e => e.Code).ToArray();
+
+            logger.LogWarning(
+                "Помилка Identity при реєстрації Username: {Username}, Email: {Email}. Коди помилок: {@ErrorCodes}",
+                model.Username,
+                model.Email,
+                errorCodes);
 
             foreach (var error in result.Errors)
             {
