@@ -1,0 +1,48 @@
+@model Enrich.Web.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Log in to Enrich";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+
+            <h1 class="text-center mb-4 fs-4 fw-normal text-dark">Log in to Enrich</h1>
+
+            <form asp-action="Login" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label mb-1">Email</label>
+                    <input asp-for="Email" class="form-control border-1 rounded-4 py-2 custom-gray-bg" placeholder="Email" />
+                    <span asp-validation-for="Email" class="text-danger small d-block mt-1"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Password" class="form-label mb-1">Password</label>
+                    <input asp-for="Password" type="password" class="form-control border-1 rounded-4 py-2 custom-gray-bg" placeholder="Password" />
+                    <span asp-validation-for="Password" class="text-danger small d-block mt-1"></span>
+                </div>
+
+                <div class="mb-4 form-check">
+                    <input asp-for="RememberMe" class="form-check-input" />
+                    <label asp-for="RememberMe" class="form-check-label small text-dark">Remember me</label>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 rounded-4 py-2 custom-btn mb-4">Log in</button>
+            </form>
+
+            <div class="text-center small text-dark">
+                Don't have an account?
+                <a asp-controller="Account" asp-action="Signup" class="text-dark text-decoration-underline">Sign up</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

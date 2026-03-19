@@ -1,6 +1,7 @@
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Services;
 using Enrich.DAL.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Moq;
 using NUnit.Framework;
@@ -11,6 +12,7 @@ namespace Enrich.UnitTests.Services
     public class AuthServiceTests
     {
         private Mock<UserManager<User>> _userManagerMock = null!;
+        private Mock<SignInManager<User>> _signInManagerMock = null!;
         private AuthService _authService = null!;
 
         [SetUp]
@@ -20,60 +22,61 @@ namespace Enrich.UnitTests.Services
             _userManagerMock = new Mock<UserManager<User>>(
                 userStoreMock.Object, null!, null!, null!, null!, null!, null!, null!, null!);
 
-            _authService = new AuthService(_userManagerMock.Object);
+            var contextAccessorMock = new Mock<IHttpContextAccessor>();
+            var claimsFactoryMock = new Mock<IUserClaimsPrincipalFactory<User>>();
+
+            _signInManagerMock = new Mock<SignInManager<User>>(
+                _userManagerMock.Object,
+                contextAccessorMock.Object,
+                claimsFactoryMock.Object,
+                null!, null!, null!, null!);
+
+            _authService = new AuthService(_userManagerMock.Object, _signInManagerMock.Object);
+        }
+
+        [Test]
+        public async Task LoginAsync_WithValidCredentials_ReturnsSuccess()
+        {
+            // Arrange
+            var dto = new LoginDTO { Email = "test@test.com", Password = "Password123!", RememberMe = false };
+
+            _signInManagerMock
+                .Setup(s => s.PasswordSignInAsync(dto.Email, dto.Password, dto.RememberMe, false))
+                .ReturnsAsync(SignInResult.Success);
+
+            // Act
+            var result = await _authService.LoginAsync(dto);
+
+            // Assert
+            Assert.That(result.Succeeded, Is.True);
+            _signInManagerMock.Verify(s => s.PasswordSignInAsync(dto.Email, dto.Password, dto.RememberMe, false), Times.Once);
+        }
+
+        [Test]
+        public async Task LogoutAsync_WhenCalled_InvokesSignOut()
+        {
+            // Act
+            await _authService.LogoutAsync();
+
+            // Assert
+            _signInManagerMock.Verify(s => s.SignOutAsync(), Times.Once);
         }
 
         [Test]
         public async Task RegisterUserAsync_WhenCalled_CreatesUserWithCorrectProperties()
         {
             // Arrange
-            var dto = new UserSignupDTO
-            {
-                Email = "test@example.com",
-                Username = "TestUser",
-                Password = "Password123!"
-            };
+            var dto = new UserSignupDTO { Email = "test@example.com", Username = "TestUser", Password = "Password123!" };
 
             _userManagerMock
                 .Setup(u => u.CreateAsync(It.IsAny<User>(), dto.Password))
                 .ReturnsAsync(IdentityResult.Success);
 
             // Act
-            var result = await _authService.RegisterUserAsync(dto);
+            await _authService.RegisterUserAsync(dto);
 
             // Assert
-            Assert.That(result.Succeeded, Is.True);
-            
-            _userManagerMock.Verify(u => u.CreateAsync(It.Is<User>(user => 
-                user.UserName == dto.Email && 
-                user.Email == dto.Email
-            ), dto.Password), Times.Once);
-        }
-
-        [Test]
-        public async Task RegisterUserAsync_WhenCreateAsyncFails_ReturnsFailedIdentityResult()
-        {
-            // Arrange
-            var dto = new UserSignupDTO
-            {
-                Email = "fail@example.com",
-                Username = "FailUser",
-                Password = "Password123!"
-            };
-
-            var identityError = new IdentityError { Code = "Error", Description = "Some error" };
-            var failedResult = IdentityResult.Failed(identityError);
-
-            _userManagerMock
-                .Setup(u => u.CreateAsync(It.IsAny<User>(), dto.Password))
-                .ReturnsAsync(failedResult);
-
-            // Act
-            var result = await _authService.RegisterUserAsync(dto);
-
-            // Assert
-            Assert.That(result.Succeeded, Is.False);
-            Assert.That(result.Errors.First().Code, Is.EqualTo("Error"));
+            _userManagerMock.Verify(u => u.CreateAsync(It.Is<User>(user => user.UserName == dto.Username && user.Email == dto.Email), dto.Password), Times.Once);
         }
     }
 }

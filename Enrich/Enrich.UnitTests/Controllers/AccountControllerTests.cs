@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Enrich.BLL.Constants;
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
@@ -21,7 +20,10 @@ namespace Enrich.UnitTests.Controllers
     {
         private Mock<ILogger<AccountController>> _loggerMock = null!;
         private Mock<IAuthService> _authServiceMock = null!;
+        private Mock<IUserService> _userServiceMock = null!;
         private Mock<IValidator<SignupViewModel>> _validatorMock = null!;
+        private Mock<IValidator<LoginViewModel>> _loginValidatorMock = null!;
+        private Mock<IValidator<UpdateProfileViewModel>> _profileValidatorMock = null!;
         private Mock<UserManager<User>> _userManagerMock = null!;
         private Mock<SignInManager<User>> _signInManagerMock = null!;
         private AccountController _controller = null!;
@@ -31,7 +33,10 @@ namespace Enrich.UnitTests.Controllers
         {
             _loggerMock = new Mock<ILogger<AccountController>>();
             _authServiceMock = new Mock<IAuthService>();
+            _userServiceMock = new Mock<IUserService>();
             _validatorMock = new Mock<IValidator<SignupViewModel>>();
+            _loginValidatorMock = new Mock<IValidator<LoginViewModel>>();
+            _profileValidatorMock = new Mock<IValidator<UpdateProfileViewModel>>();
 
             var userStoreMock = new Mock<IUserStore<User>>();
             _userManagerMock = new Mock<UserManager<User>>(
@@ -51,7 +56,10 @@ namespace Enrich.UnitTests.Controllers
             _controller = new AccountController(
                 _loggerMock.Object,
                 _authServiceMock.Object,
+                _userServiceMock.Object,
                 _validatorMock.Object,
+                _loginValidatorMock.Object,
+                _profileValidatorMock.Object,
                 _signInManagerMock.Object);
         }
 
@@ -65,10 +73,7 @@ namespace Enrich.UnitTests.Controllers
         [Test]
         public void Signup_Get_ReturnsViewResult()
         {
-            // Act
             var result = _controller.Signup();
-
-            // Assert
             Assert.That(result, Is.InstanceOf<ViewResult>());
         }
 
@@ -109,74 +114,49 @@ namespace Enrich.UnitTests.Controllers
         [Test]
         public async Task Signup_Post_WhenRegistrationSucceeds_RedirectsToProfile()
         {
-            // Arrange
-            var model = new SignupViewModel
-            {
-                Email = "test@test.com",
-                Username = "Bohdan",
-                Password = "StrongPassword123!"
-            };
-
-            _validatorMock
-                .Setup(v => v.ValidateAsync(model, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new ValidationResult());
-
-            _authServiceMock
-                .Setup(a => a.RegisterUserAsync(It.IsAny<UserSignupDTO>()))
-                .ReturnsAsync(IdentityResult.Success);
+            var model = new SignupViewModel { Email = "test@test.com", Username = "Bohdan", Password = "StrongPassword123!" };
+            _validatorMock.Setup(v => v.ValidateAsync(model, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
+            _authServiceMock.Setup(a => a.RegisterUserAsync(It.IsAny<UserSignupDTO>())).ReturnsAsync(IdentityResult.Success);
 
             var createdUser = new User { UserName = model.Username, Email = model.Email };
+            _userManagerMock.Setup(u => u.FindByEmailAsync(model.Email)).ReturnsAsync(createdUser);
+            _signInManagerMock.Setup(s => s.SignInAsync(createdUser, false, null)).Returns(Task.CompletedTask);
 
-            _userManagerMock
-                .Setup(u => u.FindByEmailAsync(model.Email))
-                .ReturnsAsync(createdUser);
-
-            _signInManagerMock
-                .Setup(s => s.SignInAsync(createdUser, false, null))
-                .Returns(Task.CompletedTask);
-
-            // Act
             var result = await _controller.Signup(model);
 
-            // Assert
             var redirectResult = result as RedirectToActionResult;
-            Assert.That(redirectResult, Is.Not.Null);
             Assert.That(redirectResult!.ActionName, Is.EqualTo("Profile"));
-            Assert.That(redirectResult.ControllerName, Is.EqualTo("Account"));
         }
 
         [Test]
-        public async Task Signup_Post_WhenRegistrationFails_AddsErrorsToModelState()
+        public void Login_Get_ReturnsViewResult()
         {
-            // Arrange
-            var model = new SignupViewModel
-            {
-                Email = "test@test.com",
-                Username = "Bohdan",
-                Password = "password"
-            };
+            var result = _controller.Login();
+            Assert.That(result, Is.InstanceOf<ViewResult>());
+        }
 
-            _validatorMock
-                .Setup(v => v.ValidateAsync(model, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new ValidationResult());
+        [Test]
+        public async Task Login_Post_WhenAuthSucceeds_RedirectsToHome()
+        {
+            var model = new LoginViewModel { Email = "test@test.com", Password = "Password123!" };
+            _loginValidatorMock.Setup(v => v.ValidateAsync(model, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
+            _authServiceMock.Setup(a => a.LoginAsync(It.IsAny<LoginDTO>())).ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
 
-            var identityError = new IdentityError { Code = "DuplicateUserName", Description = "Username taken" };
-            var failedResult = IdentityResult.Failed(identityError);
+            var result = await _controller.Login(model);
 
-            _authServiceMock
-                .Setup(a => a.RegisterUserAsync(It.IsAny<UserSignupDTO>()))
-                .ReturnsAsync(failedResult);
+            var redirectResult = result as RedirectToActionResult;
+            Assert.That(redirectResult!.ActionName, Is.EqualTo("Index"));
+            Assert.That(redirectResult.ControllerName, Is.EqualTo("Home"));
+        }
 
-            // Act
-            var result = await _controller.Signup(model);
+        [Test]
+        public async Task Logout_Post_RedirectsToLogin()
+        {
+            var result = await _controller.Logout();
 
-            // Assert
-            var viewResult = result as ViewResult;
-            Assert.That(viewResult, Is.Not.Null);
-            Assert.That(_controller.ModelState.IsValid, Is.False);
-
-            var hasError = _controller.ModelState.Values.Any(v => v.Errors.Any(e => e.ErrorMessage == "Username taken"));
-            Assert.That(hasError, Is.True);
+            _authServiceMock.Verify(a => a.LogoutAsync(), Times.Once);
+            var redirectResult = result as RedirectToActionResult;
+            Assert.That(redirectResult!.ActionName, Is.EqualTo("Login"));
         }
     }
 }

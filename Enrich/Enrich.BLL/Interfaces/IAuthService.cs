@@ -6,5 +6,9 @@ namespace Enrich.BLL.Interfaces
     public interface IAuthService
     {
         Task<IdentityResult> RegisterUserAsync(UserSignupDTO dto);
+
+        Task<SignInResult> LoginAsync(LoginDTO dto);
+
+        Task LogoutAsync();
     }
 }
