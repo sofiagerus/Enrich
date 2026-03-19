@@ -1,0 +1,34 @@
+@model Enrich.Web.ViewModels.RestrictAccountViewModel
+
+@{
+    ViewData["Title"] = "Обмеження доступу";
+}
+
+<div class="container mt-4">
+    <h2>Обмеження доступу для @Model.Username</h2>
+    <p class="text-muted">Ця дія заблокує користувачу можливість входити в систему.</p>
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Restrict" method="post">
+                <input type="hidden" asp-for="UserId" />
+                <input type="hidden" asp-for="Username" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Reason" class="form-label">Причина обмеження:</label>
+                    <textarea asp-for="Reason" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Reason" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-danger">Заблокувати акаунт</button>
+                <a asp-action="Browse" class="btn btn-secondary">Скасувати</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

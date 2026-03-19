@@ -16,7 +16,8 @@ namespace Enrich.Web.Controllers
         IValidator<SignupViewModel> signupValidator,
         IValidator<LoginViewModel> loginValidator,
         IValidator<UpdateProfileViewModel> profileValidator,
-        SignInManager<User> signInManager) : Controller
+        SignInManager<User> signInManager,
+        ILogger<AccountController> logger) : Controller
     {
         [HttpGet]
         public IActionResult Signup()

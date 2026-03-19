@@ -102,5 +102,38 @@ namespace Enrich.UnitTests.Services
             Assert.That(result.Succeeded, Is.False);
             Assert.That(result.Errors.First().Description, Is.EqualTo("Database error."));
         }
+
+        [Test]
+        public async Task RestrictUserAsync_WithValidUser_RestrictsSuccessfully()
+        {
+            var userId = "test-user-id";
+            var dto = new RestrictAccountDTO { UserId = userId, Reason = "Порушення правил", LockoutDays = 36500 };
+            var existingUser = new User { Id = userId, UserName = "bad_user" };
+
+            userManagerMock.Setup(m => m.FindByIdAsync(userId)).ReturnsAsync(existingUser);
+
+            userManagerMock.Setup(m => m.SetLockoutEndDateAsync(existingUser, It.IsAny<DateTimeOffset>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            var result = await userService.RestrictUserAsync(dto);
+
+            Assert.That(result.Succeeded, Is.True);
+            userManagerMock.Verify(m => m.SetLockoutEndDateAsync(existingUser, It.IsAny<DateTimeOffset>()), Times.Once);
+        }
+
+        [Test]
+        public async Task RestrictUserAsync_WhenUserNotFound_ReturnsFailedResult()
+        {
+            var userId = "non-existent-user-id";
+            var dto = new RestrictAccountDTO { UserId = userId, Reason = "Спам" };
+
+            userManagerMock.Setup(m => m.FindByIdAsync(userId)).ReturnsAsync((User?)null);
+
+            var result = await userService.RestrictUserAsync(dto);
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(result.Errors.First().Description, Is.EqualTo("Користувача не знайдено."));
+            userManagerMock.Verify(m => m.SetLockoutEndDateAsync(It.IsAny<User>(), It.IsAny<DateTimeOffset>()), Times.Never);
+        }
     }
 }

@@ -9,6 +9,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -52,15 +53,21 @@ namespace Enrich.UnitTests.Controllers
                 null!,
                 null!,
                 null!);
+            _loggerMock = new Mock<ILogger<AccountController>>();
 
             _controller = new AccountController(
-                _loggerMock.Object,
-                _authServiceMock.Object,
-                _userServiceMock.Object,
-                _validatorMock.Object,
-                _loginValidatorMock.Object,
-                _profileValidatorMock.Object,
-                _signInManagerMock.Object);
+            _authServiceMock.Object,
+            _userServiceMock.Object,
+            _validatorMock.Object,
+            _loginValidatorMock.Object,
+            _profileValidatorMock.Object,
+            _signInManagerMock.Object,
+            _loggerMock.Object);
+
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+            _controller.TempData = tempData;
         }
 
         [TearDown]
@@ -90,7 +97,7 @@ namespace Enrich.UnitTests.Controllers
 
             var validationFailures = new List<ValidationFailure>
             {
-                new ValidationFailure("Email", UserConstants.InvalidEmailFormat)
+                new ("Email", UserConstants.InvalidEmailFormat)
             };
 
             var validationResult = new ValidationResult(validationFailures);
@@ -136,17 +143,22 @@ namespace Enrich.UnitTests.Controllers
         }
 
         [Test]
-        public async Task Login_Post_WhenAuthSucceeds_RedirectsToHome()
+        public async Task Login_Post_WhenAuthSucceeds_RedirectsToProfile()
         {
             var model = new LoginViewModel { Email = "test@test.com", Password = "Password123!" };
-            _loginValidatorMock.Setup(v => v.ValidateAsync(model, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
-            _authServiceMock.Setup(a => a.LoginAsync(It.IsAny<LoginDTO>())).ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
+
+            _loginValidatorMock.Setup(v => v.ValidateAsync(model, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ValidationResult());
+
+            _signInManagerMock.Setup(s => s.PasswordSignInAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
 
             var result = await _controller.Login(model);
 
             var redirectResult = result as RedirectToActionResult;
-            Assert.That(redirectResult!.ActionName, Is.EqualTo("Index"));
-            Assert.That(redirectResult.ControllerName, Is.EqualTo("Home"));
+
+            Assert.That(redirectResult!.ActionName, Is.EqualTo("Profile"));
+            Assert.That(redirectResult.ControllerName, Is.EqualTo("Account"));
         }
 
         [Test]
@@ -156,7 +168,9 @@ namespace Enrich.UnitTests.Controllers
 
             _authServiceMock.Verify(a => a.LogoutAsync(), Times.Once);
             var redirectResult = result as RedirectToActionResult;
-            Assert.That(redirectResult!.ActionName, Is.EqualTo("Login"));
+
+            Assert.That(redirectResult!.ActionName, Is.EqualTo("Index"));
+            Assert.That(redirectResult.ControllerName, Is.EqualTo("Home"));
         }
     }
 }

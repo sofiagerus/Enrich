@@ -8,5 +8,7 @@ namespace Enrich.BLL.Interfaces
         Task<IEnumerable<UserDTO>> GetAllUsersAsync();
 
         Task<IdentityResult> UpdateProfileAsync(string userId, UpdateProfileDTO profileDto);
+
+        Task<IdentityResult> RestrictUserAsync(RestrictAccountDTO dto);
     }
 }
