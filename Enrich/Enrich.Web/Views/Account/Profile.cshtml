@@ -14,15 +14,16 @@
                 <a class="nav-link text-dark fw-semibold mb-5" href="#" role="tab">
                     <i class="bi bi-display me-2"></i>Interface
                 </a>
-                <a class="nav-link text-danger fw-semibold" href="#" role="tab">
-                    <i class="bi bi-box-arrow-right me-2"></i>Logout
-                </a>
+                <form asp-action="Logout" asp-controller="Account" method="post">
+                    <button type="submit" class="nav-link text-danger fw-semibold border-0 bg-transparent p-0">
+                        <i class="bi bi-box-arrow-right me-2"></i>Logout
+                    </button>
+                </form>
             </div>
         </div>
 
         <div class="col-md-9">
             <h4 class="mb-4 fw-bold">Profile Settings</h4>
-            
 
             <div class="mb-4">
                 <div class="bg-secondary rounded-circle d-inline-block shadow-sm" style="width: 80px; height: 80px;"></div>
@@ -58,7 +59,7 @@
                     Save changes
                 </button>
             </form>
-            
+
             @if (!ViewData.ModelState.IsValid)
             {
                 <div class="mt-3">

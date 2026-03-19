@@ -4,6 +4,7 @@ using Enrich.DAL.Entities;
 using Enrich.Web.ViewModels;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,9 +14,9 @@ namespace Enrich.Web.Controllers
         IAuthService authService,
         IUserService userService,
         IValidator<SignupViewModel> signupValidator,
+        IValidator<LoginViewModel> loginValidator,
         IValidator<UpdateProfileViewModel> profileValidator,
-        SignInManager<User> signInManager,
-        ILogger<AccountController> logger) : Controller
+        SignInManager<User> signInManager) : Controller
     {
         [HttpGet]
         public IActionResult Signup()
@@ -89,6 +90,56 @@ namespace Enrich.Web.Controllers
         }
 
         [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            var validationResult = await loginValidator.ValidateAsync(model);
+
+            if (!validationResult.IsValid)
+            {
+                logger.LogWarning(
+                    "Провалена валідація форми входу для Email: {Email}.",
+                    model.Email);
+
+                validationResult.AddToModelState(ModelState);
+                return View(model);
+            }
+
+            var result = await signInManager.PasswordSignInAsync(
+                model.Email,
+                model.Password,
+                isPersistent: model.RememberMe,
+                lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                logger.LogInformation("Користувач з Email: {Email} успішно увійшов.", model.Email);
+                return RedirectToAction("Profile", "Account");
+            }
+
+            logger.LogWarning("Невдала спроба входу для Email: {Email}.", model.Email);
+            ModelState.AddModelError(string.Empty, "Невірний email або пароль.");
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            var userId = signInManager.UserManager.GetUserId(User);
+            await authService.LogoutAsync();
+            logger.LogInformation("Користувач {UserId} вийшов з системи.", userId);
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Profile()
         {
             var user = await signInManager.UserManager.GetUserAsync(User);
@@ -110,6 +161,7 @@ namespace Enrich.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Profile(UpdateProfileViewModel model)
         {
             var user = await signInManager.UserManager.GetUserAsync(User);

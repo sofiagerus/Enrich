@@ -41,6 +41,7 @@ try
     });
 
     builder.Services.AddScoped<IValidator<SignupViewModel>, SignupViewModelValidator>();
+    builder.Services.AddScoped<IValidator<LoginViewModel>, LoginViewModelValidator>();
     builder.Services.AddScoped<IValidator<UpdateProfileViewModel>, UpdateProfileViewModelValidator>();
 
     builder.Services.AddLocalization(o => o.ResourcesPath = "Resources");
