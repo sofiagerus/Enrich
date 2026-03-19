@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace Enrich.Web.Controllers
 {
     public class AccountController(
-        ILogger<AccountController> logger,
         IAuthService authService,
         IUserService userService,
         IValidator<SignupViewModel> signupValidator,

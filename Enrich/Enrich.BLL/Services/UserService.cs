@@ -2,6 +2,7 @@ using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
 using Enrich.DAL.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Enrich.BLL.Services
@@ -54,6 +55,18 @@ namespace Enrich.BLL.Services
             }
 
             return updateResult;
+        }
+
+        public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
+        {
+            var users = await userManager.Users.ToListAsync();
+
+            return users.ConvertAll(u => new UserDTO
+            {
+                Id = u.Id,
+                Username = u.UserName ?? string.Empty,
+                Email = u.Email ?? string.Empty
+            });
         }
     }
 }

@@ -5,6 +5,8 @@ namespace Enrich.BLL.Interfaces
 {
     public interface IUserService
     {
+        Task<IEnumerable<UserDTO>> GetAllUsersAsync();
+
         Task<IdentityResult> UpdateProfileAsync(string userId, UpdateProfileDTO profileDto);
     }
 }
