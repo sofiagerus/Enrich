@@ -1,51 +1,37 @@
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
-using Enrich.DAL.Entities;
 using Enrich.Web.ViewModels;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enrich.Web.Controllers
 {
     public class AccountController(
+        ILogger<AccountController> logger,
         IAuthService authService,
-        IUserService userService,
-        IValidator<SignupViewModel> signupValidator,
-        IValidator<LoginViewModel> loginValidator,
-        IValidator<UpdateProfileViewModel> profileValidator,
-        SignInManager<User> signInManager) : Controller
+        IUserService userService) : Controller
     {
         [HttpGet]
         public IActionResult Signup()
         {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Settings");
+            }
+
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Signup(SignupViewModel model)
         {
-            var validationResult = await signupValidator.ValidateAsync(model);
-
-            if (!validationResult.IsValid)
+            if (!ModelState.IsValid)
             {
-                var validationErrors = validationResult.Errors
-                    .Select(e => new
-                    {
-                        Field = e.PropertyName,
-                        Error = e.ErrorMessage,
-                    })
-                    .ToArray();
-
                 logger.LogWarning(
-                    "Провалена валідація форми реєстрації для Username: {Username}, Email: {Email}. Деталі: {@ValidationErrors}",
+                    "Провалена валідація форми реєстрації для Username: {Username}, Email: {Email}.",
                     model.Username,
-                    model.Email,
-                    validationErrors);
+                    model.Email);
 
-                validationResult.AddToModelState(ModelState);
                 return View(model);
             }
 
@@ -65,12 +51,15 @@ namespace Enrich.Web.Controllers
                     model.Username,
                     model.Email);
 
-                var user = await signInManager.UserManager.FindByEmailAsync(model.Email);
-                if (user != null)
+                var loginDto = new LoginDTO
                 {
-                    await signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Profile", "Account");
-                }
+                    Email = userDto.Email,
+                    Password = userDto.Password,
+                    RememberMe = true,
+                };
+
+                await authService.LoginAsync(loginDto);
+                return RedirectToAction("Settings", "Account");
             }
 
             var errorCodes = result.Errors.Select(e => e.Code).ToArray();
@@ -92,34 +81,39 @@ namespace Enrich.Web.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Settings");
+            }
+
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            var validationResult = await loginValidator.ValidateAsync(model);
-
-            if (!validationResult.IsValid)
+            if (!ModelState.IsValid)
             {
                 logger.LogWarning(
                     "Провалена валідація форми входу для Email: {Email}.",
                     model.Email);
 
-                validationResult.AddToModelState(ModelState);
                 return View(model);
             }
 
-            var result = await signInManager.PasswordSignInAsync(
-                model.Email,
-                model.Password,
-                isPersistent: model.RememberMe,
-                lockoutOnFailure: false);
+            var loginDto = new LoginDTO
+            {
+                Email = model.Email,
+                Password = model.Password,
+                RememberMe = model.RememberMe
+            };
+
+            var result = await authService.LoginAsync(loginDto);
 
             if (result.Succeeded)
             {
                 logger.LogInformation("Користувач з Email: {Email} успішно увійшов.", model.Email);
-                return RedirectToAction("Profile", "Account");
+                return RedirectToAction("Settings", "Account");
             }
 
             logger.LogWarning("Невдала спроба входу для Email: {Email}.", model.Email);
@@ -132,69 +126,60 @@ namespace Enrich.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            var userId = signInManager.UserManager.GetUserId(User);
+            var userId = userService.GetCurrentUserId(User);
             await authService.LogoutAsync();
             logger.LogInformation("Користувач {UserId} вийшов з системи.", userId);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login", "Account");
         }
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> Profile()
+        public async Task<IActionResult> Settings(string tab = "profile")
         {
-            var user = await signInManager.UserManager.GetUserAsync(User);
+            var profileDto = await userService.GetCurrentUserProfileAsync(User);
 
-            if (user == null)
+            if (profileDto == null)
             {
-                logger.LogWarning("Спроба доступу до профілю неавторизованим користувачем.");
+                logger.LogWarning("Спроба доступу до налаштувань неавторизованим користувачем.");
                 return NotFound("Користувача не знайдено.");
             }
 
             var model = new UpdateProfileViewModel
             {
-                Email = user.Email ?? string.Empty,
-                Username = user.UserName ?? string.Empty,
-                Bio = user.Bio
+                Email = profileDto.Email,
+                Username = profileDto.Username,
+                Bio = profileDto.Bio
             };
 
+            ViewBag.ActiveTab = tab;
             return View(model);
         }
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Profile(UpdateProfileViewModel model)
+        public async Task<IActionResult> Settings(UpdateProfileViewModel model, string tab = "profile")
         {
-            var user = await signInManager.UserManager.GetUserAsync(User);
-            if (user == null)
+            var profileDto = await userService.GetCurrentUserProfileAsync(User);
+            if (profileDto == null)
             {
-                logger.LogWarning("Спроба оновлення профілю неавторизованим користувачем.");
-                return NotFound("Користувача не знайдено.");
+                return NotFound();
             }
 
-            model.Email = user.Email ?? string.Empty;
+            model.Email = profileDto.Email;
 
-            var validationResult = await profileValidator.ValidateAsync(model);
-
-            if (!validationResult.IsValid)
+            if (!ModelState.IsValid)
             {
-                validationResult.AddToModelState(ModelState);
+                ViewBag.ActiveTab = tab;
                 return View(model);
             }
 
-            var updateDto = new UpdateProfileDTO
-            {
-                Username = model.Username,
-                Bio = model.Bio
-            };
-
-            var result = await userService.UpdateProfileAsync(user.Id, updateDto);
+            var updateDto = new UpdateProfileDTO { Username = model.Username, Bio = model.Bio };
+            var result = await userService.UpdateProfileAsync(profileDto.Id, updateDto);
 
             if (result.Succeeded)
             {
-                logger.LogInformation("Користувач {UserId} успішно оновив свій профіль.", user.Id);
-
-                await signInManager.RefreshSignInAsync(user);
-                return RedirectToAction("Profile");
+                logger.LogInformation("Користувач {UserId} успішно оновив профіль.", profileDto.Id);
+                return RedirectToAction("Settings", new { tab });
             }
 
             foreach (var error in result.Errors)
@@ -202,11 +187,7 @@ namespace Enrich.Web.Controllers
                 ModelState.AddModelError(string.Empty, error.Description);
             }
 
-            logger.LogWarning(
-                "Користувачу {UserId} не вдалося оновити профіль. Помилки: {Errors}",
-                user.Id,
-                string.Join(", ", result.Errors.Select(e => e.Description)));
-
+            ViewBag.ActiveTab = tab;
             return View(model);
         }
     }

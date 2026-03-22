@@ -81,15 +81,15 @@
                     </div>
 
                     <div class="lh-1">
-                        <a asp-controller="Account" asp-action="Profile"
-                               class="text-decoration-none text-dark fw-semibold mb-1 d-block @(currentAction == "Profile" ? "text-primary" : "")"
+                        <a asp-controller="Account" asp-action="Settings" asp-route-tab="profile"
+                               class="text-decoration-none text-dark fw-semibold mb-1 d-block @(currentAction == "Settings" ? "text-primary" : "")"
                                style="font-size: 0.95rem;">
                             @(currentUser?.UserName ?? "Guest")
                         </a>
                         <div class="text-muted mt-1" style="font-size: 0.8rem;">@displayRole</div>
                     </div>
 
-                    <a asp-controller="Account" asp-action="Settings" class="ms-auto link-dark text-decoration-none @(currentAction == "Settings" ? "text-primary" : "")">
+                    <a asp-controller="Account" asp-action="Settings" class="ms-auto link-dark text-decoration-none @(currentAction == "Settings" ? "text-success" : "")">
                         <i class="bi bi-gear fs-5"></i>
                     </a>
                 </div>

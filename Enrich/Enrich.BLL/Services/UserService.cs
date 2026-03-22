@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
 using Enrich.DAL.Entities;
@@ -67,6 +68,28 @@ namespace Enrich.BLL.Services
                 Username = u.UserName ?? string.Empty,
                 Email = u.Email ?? string.Empty
             });
+        }
+
+        public async Task<UserDTO?> GetCurrentUserProfileAsync(ClaimsPrincipal userPrincipal)
+        {
+            var user = await userManager.GetUserAsync(userPrincipal);
+            if (user == null)
+            {
+                return null;
+            }
+
+            return new UserDTO
+            {
+                Id = user.Id,
+                Email = user.Email ?? string.Empty,
+                Username = user.UserName ?? string.Empty,
+                Bio = user.Bio ?? string.Empty,
+            };
+        }
+
+        public string? GetCurrentUserId(ClaimsPrincipal userPrincipal)
+        {
+            return userManager.GetUserId(userPrincipal);
         }
     }
 }

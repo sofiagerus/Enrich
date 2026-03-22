@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Sign up to Enrich";
-    Layout = "_Layout";
+    Layout = "_AuthLayout";
 }
 
 <div class="container mt-5">
@@ -28,7 +28,7 @@
 
                 <div class="mb-4">
                     <label asp-for="Password" class="form-label mb-1">Password</label>
-                    <input asp-for="Password" class="form-control border-1 rounded-4 py-2 custom-gray-bg" placeholder="Password" />
+                    <input asp-for="Password" type="password" class="form-control border-1 rounded-4 py-2 custom-gray-bg" placeholder="Password" />
                     <span asp-validation-for="Password" class="text-danger small d-block mt-1"></span>
                 </div>
 
@@ -47,3 +47,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
