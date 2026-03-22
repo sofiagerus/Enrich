@@ -1,4 +1,4 @@
-﻿using Enrich.BLL.DTOs;
+using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
 using Enrich.DAL.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -22,8 +22,14 @@ namespace Enrich.BLL.Services
 
         public async Task<SignInResult> LoginAsync(LoginDTO dto)
         {
+            var user = await userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
+            {
+                return SignInResult.Failed;
+            }
+
             return await signInManager.PasswordSignInAsync(
-                dto.Email,
+                user.UserName!,
                 dto.Password,
                 dto.RememberMe,
                 lockoutOnFailure: false);

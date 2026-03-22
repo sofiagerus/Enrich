@@ -1,0 +1,38 @@
+@model Enrich.Web.ViewModels.UpdateProfileViewModel
+
+<h4 class="mb-4 fw-normal fs-4 text-dark">Profile Settings</h4>
+
+<div class="mb-4">
+    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center shadow-sm"
+         style="width: 72px; height: 72px;">
+        <i class="bi bi-person-fill text-white fs-3"></i>
+    </div>
+</div>
+
+<form asp-action="Settings" asp-controller="Account" asp-route-tab="profile" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+
+    <div class="mb-3">
+        <label asp-for="Username" class="form-label mb-1">Username</label>
+        <input asp-for="Username" class="form-control shadow-sm border-1 rounded-4 py-2 custom-gray-bg" placeholder="Username" />
+        <span asp-validation-for="Username" class="text-danger small d-block mt-1"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label mb-1">
+            Email <i class="bi bi-lock-fill ms-1 text-muted" style="font-size: 0.75rem;" title="Email cannot be changed"></i>
+        </label>
+        <input asp-for="Email"
+               class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg text-muted"
+               style="cursor: not-allowed;"
+               readonly />
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="Bio" class="form-label mb-1">Bio</label>
+        <textarea asp-for="Bio" class="form-control  shadow-sm border-1 rounded-4 py-2 custom-gray-bg" rows="3" placeholder="Tell something about yourself..."></textarea>
+        <span asp-validation-for="Bio" class="text-danger small d-block mt-1"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success rounded-4 py-2 px-4 custom-btn">Save changes</button>
+</form>
