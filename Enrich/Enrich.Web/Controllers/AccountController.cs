@@ -116,6 +116,13 @@ namespace Enrich.Web.Controllers
                 return RedirectToAction("Settings", "Account");
             }
 
+            if (result.IsLockedOut)
+            {
+                logger.LogWarning("Спроба входу в заблокований акаунт: {Email}.", model.Email);
+                ModelState.AddModelError(string.Empty, "Ваш акаунт заблоковано. Зверніться до адміністратора.");
+                return View(model);
+            }
+
             logger.LogWarning("Невдала спроба входу для Email: {Email}.", model.Email);
             ModelState.AddModelError(string.Empty, "Невірний email або пароль.");
             return View(model);

@@ -62,12 +62,13 @@ namespace Enrich.BLL.Services
         {
             var users = await userManager.Users.ToListAsync();
 
-            return users.ConvertAll(u => new UserDTO
+            return [.. users.Select(u => new UserDTO
             {
                 Id = u.Id,
                 Username = u.UserName ?? string.Empty,
-                Email = u.Email ?? string.Empty
-            });
+                Email = u.Email ?? string.Empty,
+                IsLockedOut = u.LockoutEnd.HasValue && u.LockoutEnd > DateTimeOffset.UtcNow
+            })];
         }
 
         public async Task<IdentityResult> RestrictUserAsync(RestrictAccountDTO dto)
@@ -94,6 +95,32 @@ namespace Enrich.BLL.Services
             {
                 logger.LogError(
                     "Помилка при блокуванні користувача {UserId}: {Errors}",
+                    dto.UserId,
+                    string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+
+            return result;
+        }
+
+        public async Task<IdentityResult> RestoreUserAsync(RestoreAccountDTO dto)
+        {
+            var user = await userManager.FindByIdAsync(dto.UserId);
+            if (user == null)
+            {
+                logger.LogWarning("Спроба розблокувати неіснуючого користувача з ID: {UserId}", dto.UserId);
+                return IdentityResult.Failed(new IdentityError { Description = "Користувача не знайдено." });
+            }
+
+            var result = await userManager.SetLockoutEndDateAsync(user, null);
+
+            if (result.Succeeded)
+            {
+                logger.LogInformation("Акаунт користувача {UserId} успішно розблоковано.", dto.UserId);
+            }
+            else
+            {
+                logger.LogError(
+                    "Помилка при розблокуванні користувача {UserId}: {Errors}",
                     dto.UserId,
                     string.Join(", ", result.Errors.Select(e => e.Description)));
             }

@@ -11,6 +11,8 @@ namespace Enrich.BLL.Interfaces
 
         Task<IdentityResult> RestrictUserAsync(RestrictAccountDTO dto);
 
+        Task<IdentityResult> RestoreUserAsync(RestoreAccountDTO dto);
+
         Task<UserDTO?> GetCurrentUserProfileAsync(System.Security.Claims.ClaimsPrincipal userPrincipal);
 
         string? GetCurrentUserId(System.Security.Claims.ClaimsPrincipal userPrincipal);
