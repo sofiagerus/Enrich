@@ -70,6 +70,37 @@ namespace Enrich.BLL.Services
             });
         }
 
+        public async Task<IdentityResult> RestrictUserAsync(RestrictAccountDTO dto)
+        {
+            var user = await userManager.FindByIdAsync(dto.UserId);
+            if (user == null)
+            {
+                logger.LogWarning("Спроба заблокувати неіснуючого користувача з ID: {UserId}", dto.UserId);
+                return IdentityResult.Failed(new IdentityError { Description = "Користувача не знайдено." });
+            }
+
+            var lockoutEndDate = DateTimeOffset.UtcNow.AddDays(dto.LockoutDays);
+            var result = await userManager.SetLockoutEndDateAsync(user, lockoutEndDate);
+
+            if (result.Succeeded)
+            {
+                logger.LogInformation(
+                    "Користувача {UserId} успішно заблоковано до {LockoutEndDate}. Причина: {Reason}",
+                    dto.UserId,
+                    lockoutEndDate,
+                    dto.Reason);
+            }
+            else
+            {
+                logger.LogError(
+                    "Помилка при блокуванні користувача {UserId}: {Errors}",
+                    dto.UserId,
+                    string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+
+            return result;
+        }
+
         public async Task<UserDTO?> GetCurrentUserProfileAsync(ClaimsPrincipal userPrincipal)
         {
             var user = await userManager.GetUserAsync(userPrincipal);

@@ -2,7 +2,6 @@ using Enrich.BLL;
 using Enrich.DAL;
 using Enrich.DAL.Data;
 using Enrich.DAL.Entities;
-using Enrich.Web.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
 
@@ -29,6 +28,7 @@ try
         options.Password.RequireDigit = true;
         options.Password.RequiredLength = 8;
         options.Password.RequireNonAlphanumeric = false;
+        options.Lockout.AllowedForNewUsers = true;
     })
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();

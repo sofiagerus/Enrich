@@ -29,6 +29,12 @@ namespace Enrich.UnitTests.Controllers
                 _loggerMock.Object,
                 _authServiceMock.Object,
                 _userServiceMock.Object);
+
+            var user = new System.Security.Claims.ClaimsPrincipal(new System.Security.Claims.ClaimsIdentity());
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new Microsoft.AspNetCore.Http.DefaultHttpContext { User = user }
+            };
         }
 
         [TearDown]
@@ -70,7 +76,7 @@ namespace Enrich.UnitTests.Controllers
         }
 
         [Test]
-        public async Task Signup_Post_WhenRegistrationSucceeds_RedirectsToProfile()
+        public async Task Signup_Post_WhenRegistrationSucceeds_RedirectsToSettings()
         {
             var model = new SignupViewModel { Email = "test@test.com", Username = "Bohdan", Password = "StrongPassword123!" };
             _authServiceMock.Setup(a => a.RegisterUserAsync(It.IsAny<UserSignupDTO>())).ReturnsAsync(IdentityResult.Success);
@@ -79,7 +85,7 @@ namespace Enrich.UnitTests.Controllers
             var result = await _controller.Signup(model);
 
             var redirectResult = result as RedirectToActionResult;
-            Assert.That(redirectResult!.ActionName, Is.EqualTo("Profile"));
+            Assert.That(redirectResult!.ActionName, Is.EqualTo("Settings"));
         }
 
         [Test]
@@ -90,7 +96,7 @@ namespace Enrich.UnitTests.Controllers
         }
 
         [Test]
-        public async Task Login_Post_WhenAuthSucceeds_RedirectsToProfile()
+        public async Task Login_Post_WhenAuthSucceeds_RedirectsToSettings()
         {
             var model = new LoginViewModel { Email = "test@test.com", Password = "Password123!" };
             _authServiceMock.Setup(a => a.LoginAsync(It.IsAny<LoginDTO>())).ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
@@ -98,7 +104,7 @@ namespace Enrich.UnitTests.Controllers
             var result = await _controller.Login(model);
 
             var redirectResult = result as RedirectToActionResult;
-            Assert.That(redirectResult!.ActionName, Is.EqualTo("Profile"));
+            Assert.That(redirectResult!.ActionName, Is.EqualTo("Settings"));
             Assert.That(redirectResult.ControllerName, Is.EqualTo("Account"));
         }
 

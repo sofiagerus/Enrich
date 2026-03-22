@@ -1,7 +1,6 @@
-﻿using Enrich.BLL.Interfaces;
+using Enrich.BLL.DTOs;
+using Enrich.BLL.Interfaces;
 using Enrich.Web.ViewModels;
-
-// using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enrich.Web.Controllers
@@ -24,6 +23,49 @@ namespace Enrich.Web.Controllers
                 Email = u.Email,
                 Role = "User"
             }).ToList();
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult Restrict(string id, string username)
+        {
+            var model = new RestrictAccountViewModel
+            {
+                UserId = id,
+                Username = username
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Restrict(RestrictAccountViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var dto = new RestrictAccountDTO
+            {
+                UserId = model.UserId,
+                Reason = model.Reason
+            };
+
+            var result = await userService.RestrictUserAsync(dto);
+
+            if (result.Succeeded)
+            {
+                logger.LogInformation("Адміністратор заблокував акаунт {UserId}", model.UserId);
+                TempData["SuccessMessage"] = $"Акаунт користувача {model.Username} успішно заблоковано.";
+                return RedirectToAction("Browse");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
 
             return View(model);
         }
