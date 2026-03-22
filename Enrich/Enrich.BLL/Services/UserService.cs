@@ -99,7 +99,8 @@ namespace Enrich.BLL.Services
             }
 
             return result;
-            
+        }
+
         public async Task<UserDTO?> GetCurrentUserProfileAsync(ClaimsPrincipal userPrincipal)
         {
             var user = await userManager.GetUserAsync(userPrincipal);

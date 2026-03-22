@@ -2,7 +2,6 @@ using Enrich.BLL;
 using Enrich.DAL;
 using Enrich.DAL.Data;
 using Enrich.DAL.Entities;
-using Enrich.Web.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
 

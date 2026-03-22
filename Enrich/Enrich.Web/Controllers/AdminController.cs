@@ -1,8 +1,6 @@
-﻿using Enrich.BLL.DTOs;
+using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
 using Enrich.Web.ViewModels;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enrich.Web.Controllers
@@ -10,7 +8,6 @@ namespace Enrich.Web.Controllers
     // [Authorize(Roles = "Admin")]
     public class AdminController(
         IUserService userService,
-        IValidator<RestrictAccountViewModel> restrictValidator,
         ILogger<AdminController> logger) : Controller
     {
         [HttpGet]
@@ -45,11 +42,8 @@ namespace Enrich.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Restrict(RestrictAccountViewModel model)
         {
-            var validationResult = await restrictValidator.ValidateAsync(model);
-
-            if (!validationResult.IsValid)
+            if (!ModelState.IsValid)
             {
-                validationResult.AddToModelState(ModelState);
                 return View(model);
             }
 
