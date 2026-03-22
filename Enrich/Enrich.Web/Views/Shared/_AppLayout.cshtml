@@ -7,13 +7,15 @@
     var roles = currentUser != null ? await UserManager.GetRolesAsync(currentUser) : new List<string>();
     var displayRole = roles.FirstOrDefault() ?? "Student";
 
-    // Отримуємо поточну дію та контролер для підсвітки меню
     var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
     var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+
+    const string activeClass = "bg-success text-white";
+    const string inactiveClass = "text-dark";
 }
 
 <!DOCTYPE html>
-<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" data-bs-theme="light">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -22,74 +24,127 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
-    <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+
+        .sidebar-container i.bi {
+            -webkit-text-stroke: 0.4px;
+        }
+        
+        .sidebar-container .nav-link {
+            transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+        }
+
+        .sidebar-container .nav-link:hover:not(.bg-success) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+    </style>
 
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <div class="d-flex flex-nowrap vh-100 overflow-hidden">
 
-        <div class="enrich-sidebar d-flex flex-column p-2 h-100" style="flex-shrink: 0;">
+        <div class="sidebar-container d-flex flex-column p-2 h-100 bg-success" style="width: 280px; flex-shrink: 0; --bs-bg-opacity: .05;">
 
-            <a href="/" class="d-flex align-items-center mb-2 text-dark text-decoration-none px-3 flex-shrink-0">
-                <span class="fs-4 fw-medium text-dark">Enrich</span>
+            <a href="/" class="d-flex align-items-center mb-4 text-dark text-decoration-none px-3 flex-shrink-0">
+                <span class="fs-4 text-dark" style="font-weight: 600;">Enrich</span>
             </a>
 
-            <div class="flex-grow-1 overflow-y-auto" style="scrollbar-width: none; -ms-overflow-style: none;">
+            <div class="flex-grow-1 overflow-y-auto">
 
-                <div class="sidebar-heading">Main menu</div>
-                <ul class="nav nav-pills flex-column mb-4">
+                <div class="text-secondary mb-2 px-3" style="font-size: 0.85rem; font-weight: 600;">Main menu</div>
+                <ul class="nav flex-column nav-pills gap-1 mb-3">
                     <li class="nav-item">
-                        <a href="#" class="nav-link @(currentAction == "Words" ? "active" : "")">Words</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link @(currentAction == "Collections" ? "active" : "")">Collections</a>
-                    </li>
-                    <li class="nav-item"><a href="#" class="nav-link @(currentAction == "MyWords" ? "active" : "")">My words</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link @(currentAction == "MyCollections" ? "active" : "")">My collections</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link @(currentAction == "Community" ? "active" : "")">Community</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link @(currentAction == "Generator" ? "active" : "")">Generator</a></li>
-                </ul>
-
-                <div class="sidebar-heading">Administration</div>
-                <ul class="nav nav-pills flex-column mb-2">
-                    <li class="nav-item">
-                        <a asp-controller="Admin" asp-action="Browse"
-                               class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" ? "active" : "")">
-                            Manage users
+                        <a href="#" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentAction == "Words" ? activeClass : inactiveClass)"
+                           style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-book me-3 fs-6"></i>Words
                         </a>
                     </li>
-                    <li class="nav-item"><a href="#" class="nav-link">Manage words</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link">Manage collections</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link">Pending collections</a></li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentAction == "Collections" ? activeClass : inactiveClass)"
+                           style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-collection me-3 fs-6"></i>Collections
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentAction == "MyWords" ? activeClass : inactiveClass)"
+                           style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-bookmark me-3 fs-6"></i>My words
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentAction == "MyCollections" ? activeClass : inactiveClass)"
+                           style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-folder me-3 fs-6"></i>My collections
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentAction == "Community" ? activeClass : inactiveClass)"
+                           style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-people me-3 fs-6"></i>Community
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentAction == "Generator" ? activeClass : inactiveClass)"
+                           style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-stars me-3 fs-6"></i>Generator
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="text-secondary mb-2 px-3 mt-5" style="font-size: 0.85rem; font-weight: 600;">Administration</div>
+                <ul class="nav flex-column nav-pills gap-1 mb-1">
+                    <li class="nav-item">
+                        <a asp-controller="Admin" asp-action="Browse"
+                           class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "Admin" ? activeClass : inactiveClass)"
+                           style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-person-gear me-3 fs-6"></i>Manage users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 text-dark" style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-book-fill me-3 fs-6"></i>Manage words
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 text-dark" style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-folder-fill me-3 fs-6"></i>Manage collections
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 text-dark" style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-hourglass-split me-3 fs-6"></i>Pending collections
+                        </a>
+                    </li>
                 </ul>
 
             </div>
 
-            <div class="mt-auto pt-3 flex-shrink-0">
-                <div class="sidebar-heading">Account</div>
+            <div class="mt-auto pt-2 flex-shrink-0">
+                <div class="text-secondary mb-2 px-3" style="font-size: 0.85rem; font-weight: 600;">Account</div>
 
-                <div class="d-flex align-items-center px-2 py-2 text-dark">
-                    <div class="bg-secondary text-white rounded-circle me-3 d-flex justify-content-center align-items-center" style="width: 45px; height: 45px; opacity: 0.8;">
-                        <span class="fs-5 fw-bold">
-                            @(currentUser?.UserName?.Substring(0, 1).ToUpper() ?? "?")
-                        </span>
+                <div class="d-flex align-items-center px-3 py-2 text-dark">
+                    <div class="bg-secondary text-white rounded-circle me-3 d-flex justify-content-center align-items-center flex-shrink-0" style="width: 40px; height: 40px; opacity: 0.8;">
+                        <i class="bi bi-person-fill fs-5"></i>
                     </div>
 
-                    <div class="lh-1">
-                        <a asp-controller="Account" asp-action="Profile"
-                               class="text-decoration-none text-dark fw-semibold mb-1 d-block @(currentAction == "Profile" ? "text-primary" : "")"
-                               style="font-size: 0.95rem;">
+                    <div class="lh-1 overflow-hidden">
+                        <a asp-controller="Account" asp-action="Settings" asp-route-tab="profile"
+                               class="text-decoration-none text-dark d-block text-truncate @(currentAction == "Settings" ? "text-success" : "")"
+                               style="font-weight: 600; font-size: 0.95rem; margin-bottom: 2px;">
                             @(currentUser?.UserName ?? "Guest")
                         </a>
-                        <div class="text-muted mt-1" style="font-size: 0.8rem;">@displayRole</div>
+                        <div class="text-muted mt-1 text-truncate" style="font-size: 0.8rem;">@displayRole</div>
                     </div>
 
-                    <a asp-controller="Account" asp-action="Settings" class="ms-auto link-dark text-decoration-none @(currentAction == "Settings" ? "text-primary" : "")">
+                    <a asp-controller="Account" asp-action="Settings" 
+                       class="nav-link d-flex align-items-center justify-content-center rounded-4 ms-auto me-1" 
+                       style="width: 38px; height: 38px; padding: 0;">
                         <i class="bi bi-gear fs-5"></i>
                     </a>
                 </div>
@@ -97,7 +152,7 @@
 
         </div>
 
-        <main class="flex-grow-1 p-4 bg-white overflow-auto h-100">
+        <main class="flex-grow-1 p-4 bg-success overflow-auto h-100" style="--bs-bg-opacity: .03;">
             @RenderBody()
         </main>
 
@@ -105,7 +160,6 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/theme.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

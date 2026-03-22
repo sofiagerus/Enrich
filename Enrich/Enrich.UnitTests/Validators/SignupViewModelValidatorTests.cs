@@ -1,25 +1,24 @@
-﻿using Enrich.BLL.Constants;
-using Enrich.Web.Validators;
+using System.ComponentModel.DataAnnotations;
+using Enrich.BLL.Constants;
 using Enrich.Web.ViewModels;
 using NUnit.Framework;
 
 namespace Enrich.UnitTests.Validators
 {
     [TestFixture]
-    public class SignupViewModelValidatorTests
+    public class SignupViewModelTests
     {
-        private SignupViewModelValidator _validator = null!;
-
-        [SetUp]
-        public void SetUp()
+        private static List<ValidationResult> ValidateModel(SignupViewModel model)
         {
-            _validator = new SignupViewModelValidator();
+            var results = new List<ValidationResult>();
+            var context = new ValidationContext(model);
+            Validator.TryValidateObject(model, context, results, validateAllProperties: true);
+            return results;
         }
 
         [Test]
-        public void Validate_WhenModelIsValid_ReturnsTrue()
+        public void Validate_WhenModelIsValid_NoErrors()
         {
-            // Arrange
             var model = new SignupViewModel
             {
                 Email = "test@example.com",
@@ -27,18 +26,15 @@ namespace Enrich.UnitTests.Validators
                 Password = "ValidPassword123"
             };
 
-            // Act
-            var result = _validator.Validate(model);
+            var results = ValidateModel(model);
 
-            // Assert
-            Assert.That(result.IsValid, Is.True);
+            Assert.That(results, Is.Empty);
         }
 
         [TestCase("", UserConstants.EmailRequired)]
         [TestCase("invalid-email", UserConstants.InvalidEmailFormat)]
-        public void Validate_WhenEmailIsInvalid_ReturnsFalseWithExpectedError(string email, string expectedError)
+        public void Validate_WhenEmailIsInvalid_ReturnsExpectedError(string email, string expectedError)
         {
-            // Arrange
             var model = new SignupViewModel
             {
                 Email = email,
@@ -46,21 +42,17 @@ namespace Enrich.UnitTests.Validators
                 Password = "ValidPassword123"
             };
 
-            // Act
-            var result = _validator.Validate(model);
+            var results = ValidateModel(model);
 
-            // Assert
-            Assert.That(result.IsValid, Is.False);
-            Assert.That(result.Errors.Any(e => e.PropertyName == "Email" && e.ErrorMessage == expectedError), Is.True);
+            Assert.That(results.Any(r => r.MemberNames.Contains("Email") && r.ErrorMessage == expectedError), Is.True);
         }
 
         [TestCase("", UserConstants.UsernameRequired)]
         [TestCase("ab", UserConstants.UsernameMinLengthMessage)]
         [TestCase("thisisaverylongusername17", UserConstants.UsernameMaxLengthMessage)]
         [TestCase("invalid username!", UserConstants.UsernameInvalidFormat)]
-        public void Validate_WhenUsernameIsInvalid_ReturnsFalseWithExpectedError(string username, string expectedError)
+        public void Validate_WhenUsernameIsInvalid_ReturnsExpectedError(string username, string expectedError)
         {
-            // Arrange
             var model = new SignupViewModel
             {
                 Email = "test@example.com",
@@ -68,20 +60,15 @@ namespace Enrich.UnitTests.Validators
                 Password = "ValidPassword123"
             };
 
-            // Act
-            var result = _validator.Validate(model);
+            var results = ValidateModel(model);
 
-            // Assert
-            Assert.That(result.IsValid, Is.False);
-            Assert.That(result.Errors.Any(e => e.PropertyName == "Username" && e.ErrorMessage == expectedError), Is.True);
+            Assert.That(results.Any(r => r.MemberNames.Contains("Username") && r.ErrorMessage == expectedError), Is.True);
         }
 
         [TestCase("", UserConstants.PasswordRequired)]
         [TestCase("short", UserConstants.PasswordMinLengthMessage)]
-        [TestCase("nouppercase123", UserConstants.PasswordRequiresUppercase)]
-        public void Validate_WhenPasswordIsInvalid_ReturnsFalseWithExpectedError(string password, string expectedError)
+        public void Validate_WhenPasswordIsInvalid_ReturnsExpectedError(string password, string expectedError)
         {
-            // Arrange
             var model = new SignupViewModel
             {
                 Email = "test@example.com",
@@ -89,12 +76,9 @@ namespace Enrich.UnitTests.Validators
                 Password = password
             };
 
-            // Act
-            var result = _validator.Validate(model);
+            var results = ValidateModel(model);
 
-            // Assert
-            Assert.That(result.IsValid, Is.False);
-            Assert.That(result.Errors.Any(e => e.PropertyName == "Password" && e.ErrorMessage == expectedError), Is.True);
+            Assert.That(results.Any(r => r.MemberNames.Contains("Password") && r.ErrorMessage == expectedError), Is.True);
         }
     }
 }

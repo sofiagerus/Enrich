@@ -28,9 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Enrich.BLL\Enrich.BLL.csproj" /> 
-    <ProjectReference Include="..\Enrich.DAL\Enrich.DAL.csproj" /> 
     <ProjectReference Include="..\Enrich.Web\Enrich.Web.csproj" />
+    <ProjectReference Include="..\Enrich.BLL\Enrich.BLL.csproj" />
   </ItemGroup>
 
 </Project>

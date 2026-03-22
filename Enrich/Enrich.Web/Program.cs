@@ -2,9 +2,7 @@ using Enrich.BLL;
 using Enrich.DAL;
 using Enrich.DAL.Data;
 using Enrich.DAL.Entities;
-using Enrich.Web.Validators;
 using Enrich.Web.ViewModels;
-using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
 
@@ -40,10 +38,6 @@ try
     {
         options.LoginPath = "/Account/Login";
     });
-
-    builder.Services.AddScoped<IValidator<SignupViewModel>, SignupViewModelValidator>();
-    builder.Services.AddScoped<IValidator<LoginViewModel>, LoginViewModelValidator>();
-    builder.Services.AddScoped<IValidator<UpdateProfileViewModel>, UpdateProfileViewModelValidator>();
 
     builder.Services.AddLocalization(o => o.ResourcesPath = "Resources");
     builder.Services.AddControllersWithViews()

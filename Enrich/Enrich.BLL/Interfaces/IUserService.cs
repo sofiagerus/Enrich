@@ -10,5 +10,9 @@ namespace Enrich.BLL.Interfaces
         Task<IdentityResult> UpdateProfileAsync(string userId, UpdateProfileDTO profileDto);
 
         Task<IdentityResult> RestrictUserAsync(RestrictAccountDTO dto);
+      
+        Task<UserDTO?> GetCurrentUserProfileAsync(System.Security.Claims.ClaimsPrincipal userPrincipal);
+
+        string? GetCurrentUserId(System.Security.Claims.ClaimsPrincipal userPrincipal);
     }
 }

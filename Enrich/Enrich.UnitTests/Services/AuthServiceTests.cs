@@ -39,9 +39,14 @@ namespace Enrich.UnitTests.Services
         {
             // Arrange
             var dto = new LoginDTO { Email = "test@test.com", Password = "Password123!", RememberMe = false };
+            var user = new User { UserName = "TestUser", Email = dto.Email };
+
+            _userManagerMock
+                .Setup(u => u.FindByEmailAsync(dto.Email))
+                .ReturnsAsync(user);
 
             _signInManagerMock
-                .Setup(s => s.PasswordSignInAsync(dto.Email, dto.Password, dto.RememberMe, false))
+                .Setup(s => s.PasswordSignInAsync(user.UserName, dto.Password, dto.RememberMe, false))
                 .ReturnsAsync(SignInResult.Success);
 
             // Act
@@ -49,7 +54,24 @@ namespace Enrich.UnitTests.Services
 
             // Assert
             Assert.That(result.Succeeded, Is.True);
-            _signInManagerMock.Verify(s => s.PasswordSignInAsync(dto.Email, dto.Password, dto.RememberMe, false), Times.Once);
+            _signInManagerMock.Verify(s => s.PasswordSignInAsync(user.UserName, dto.Password, dto.RememberMe, false), Times.Once);
+        }
+
+        [Test]
+        public async Task LoginAsync_WithInvalidEmail_ReturnsFailed()
+        {
+            // Arrange
+            var dto = new LoginDTO { Email = "wrong@test.com", Password = "Password123!", RememberMe = false };
+
+            _userManagerMock
+                .Setup(u => u.FindByEmailAsync(dto.Email))
+                .ReturnsAsync((User)null!);
+
+            // Act
+            var result = await _authService.LoginAsync(dto);
+
+            // Assert
+            Assert.That(result.Succeeded, Is.False);
         }
 
         [Test]

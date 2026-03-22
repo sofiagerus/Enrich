@@ -1,12 +1,7 @@
-using Enrich.BLL.Constants;
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
-using Enrich.DAL.Entities;
 using Enrich.Web.Controllers;
 using Enrich.Web.ViewModels;
-using FluentValidation;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -22,11 +17,7 @@ namespace Enrich.UnitTests.Controllers
         private Mock<ILogger<AccountController>> _loggerMock = null!;
         private Mock<IAuthService> _authServiceMock = null!;
         private Mock<IUserService> _userServiceMock = null!;
-        private Mock<IValidator<SignupViewModel>> _validatorMock = null!;
-        private Mock<IValidator<LoginViewModel>> _loginValidatorMock = null!;
-        private Mock<IValidator<UpdateProfileViewModel>> _profileValidatorMock = null!;
-        private Mock<UserManager<User>> _userManagerMock = null!;
-        private Mock<SignInManager<User>> _signInManagerMock = null!;
+
         private AccountController _controller = null!;
 
         [SetUp]
@@ -35,46 +26,16 @@ namespace Enrich.UnitTests.Controllers
             _loggerMock = new Mock<ILogger<AccountController>>();
             _authServiceMock = new Mock<IAuthService>();
             _userServiceMock = new Mock<IUserService>();
-            _validatorMock = new Mock<IValidator<SignupViewModel>>();
-            _loginValidatorMock = new Mock<IValidator<LoginViewModel>>();
-            _profileValidatorMock = new Mock<IValidator<UpdateProfileViewModel>>();
-
-            var userStoreMock = new Mock<IUserStore<User>>();
-            _userManagerMock = new Mock<UserManager<User>>(
-                userStoreMock.Object, null!, null!, null!, null!, null!, null!, null!, null!);
-
-            var contextAccessorMock = new Mock<IHttpContextAccessor>();
-            var claimsFactoryMock = new Mock<IUserClaimsPrincipalFactory<User>>();
-            _signInManagerMock = new Mock<SignInManager<User>>(
-                _userManagerMock.Object,
-                contextAccessorMock.Object,
-                claimsFactoryMock.Object,
-                null!,
-                null!,
-                null!,
-                null!);
-            _loggerMock = new Mock<ILogger<AccountController>>();
-
             _controller = new AccountController(
-            _authServiceMock.Object,
-            _userServiceMock.Object,
-            _validatorMock.Object,
-            _loginValidatorMock.Object,
-            _profileValidatorMock.Object,
-            _signInManagerMock.Object,
-            _loggerMock.Object);
-
-            var httpContext = new DefaultHttpContext();
-            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
-            _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
-            _controller.TempData = tempData;
+                _loggerMock.Object,
+                _authServiceMock.Object,
+                _userServiceMock.Object);
         }
 
         [TearDown]
         public void TearDown()
         {
             _controller?.Dispose();
-            _userManagerMock?.Object?.Dispose();
         }
 
         [Test]
@@ -85,7 +46,7 @@ namespace Enrich.UnitTests.Controllers
         }
 
         [Test]
-        public async Task Signup_Post_WhenValidationFails_ReturnsViewWithModel()
+        public async Task Signup_Post_WhenModelStateIsInvalid_ReturnsViewWithModel()
         {
             // Arrange
             var model = new SignupViewModel
@@ -95,16 +56,7 @@ namespace Enrich.UnitTests.Controllers
                 Password = "123"
             };
 
-            var validationFailures = new List<ValidationFailure>
-            {
-                new ("Email", UserConstants.InvalidEmailFormat)
-            };
-
-            var validationResult = new ValidationResult(validationFailures);
-
-            _validatorMock
-                .Setup(v => v.ValidateAsync(model, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(validationResult);
+            _controller.ModelState.AddModelError("Email", "Invalid email format");
 
             // Act
             var result = await _controller.Signup(model);
@@ -122,12 +74,8 @@ namespace Enrich.UnitTests.Controllers
         public async Task Signup_Post_WhenRegistrationSucceeds_RedirectsToProfile()
         {
             var model = new SignupViewModel { Email = "test@test.com", Username = "Bohdan", Password = "StrongPassword123!" };
-            _validatorMock.Setup(v => v.ValidateAsync(model, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
             _authServiceMock.Setup(a => a.RegisterUserAsync(It.IsAny<UserSignupDTO>())).ReturnsAsync(IdentityResult.Success);
-
-            var createdUser = new User { UserName = model.Username, Email = model.Email };
-            _userManagerMock.Setup(u => u.FindByEmailAsync(model.Email)).ReturnsAsync(createdUser);
-            _signInManagerMock.Setup(s => s.SignInAsync(createdUser, false, null)).Returns(Task.CompletedTask);
+            _authServiceMock.Setup(a => a.LoginAsync(It.IsAny<LoginDTO>())).ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
 
             var result = await _controller.Signup(model);
 
@@ -146,19 +94,30 @@ namespace Enrich.UnitTests.Controllers
         public async Task Login_Post_WhenAuthSucceeds_RedirectsToProfile()
         {
             var model = new LoginViewModel { Email = "test@test.com", Password = "Password123!" };
-
-            _loginValidatorMock.Setup(v => v.ValidateAsync(model, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new ValidationResult());
-
-            _signInManagerMock.Setup(s => s.PasswordSignInAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
-                .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
+            _authServiceMock.Setup(a => a.LoginAsync(It.IsAny<LoginDTO>())).ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
 
             var result = await _controller.Login(model);
 
             var redirectResult = result as RedirectToActionResult;
-
             Assert.That(redirectResult!.ActionName, Is.EqualTo("Profile"));
             Assert.That(redirectResult.ControllerName, Is.EqualTo("Account"));
+        }
+
+        [Test]
+        public async Task Login_Post_WhenModelStateIsInvalid_ReturnsViewWithModel()
+        {
+            // Arrange
+            var model = new LoginViewModel { Email = "", Password = "" };
+            _controller.ModelState.AddModelError("Email", "Email is required");
+
+            // Act
+            var result = await _controller.Login(model);
+
+            // Assert
+            var viewResult = result as ViewResult;
+            Assert.That(viewResult, Is.Not.Null);
+            Assert.That(viewResult!.Model, Is.EqualTo(model));
+            _authServiceMock.Verify(a => a.LoginAsync(It.IsAny<LoginDTO>()), Times.Never);
         }
 
         [Test]

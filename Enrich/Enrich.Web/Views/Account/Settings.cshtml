@@ -1,0 +1,52 @@
+@model Enrich.Web.ViewModels.UpdateProfileViewModel
+
+@{
+    ViewData["Title"] = "Settings";
+    var activeTab = (string)(ViewBag.ActiveTab ?? "profile");
+}
+
+<div class="container mt-5">
+    <div class="row">
+
+        <div class="col-md-3">
+            <div class="nav flex-column nav-pills gap-2" role="tablist" aria-orientation="vertical">
+                <a class="nav-link fw-semibold d-flex align-items-center rounded-4 py-2 px-3 @(activeTab == "profile" ? "bg-success text-white shadow-sm" : "text-dark")"
+                   asp-action="Settings" asp-controller="Account" asp-route-tab="profile">
+                    <i class="bi bi-person me-3 fs-5"></i>Profile
+                </a>
+                <a class="nav-link fw-semibold d-flex align-items-center rounded-4 py-2 px-3 mb-4 @(activeTab == "interface" ? "bg-success text-white shadow-sm" : "text-dark")"
+                   asp-action="Settings" asp-controller="Account" asp-route-tab="interface">
+                    <i class="bi bi-display me-3 fs-5"></i>Interface
+                </a>
+                <form asp-action="Logout" asp-controller="Account" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="nav-link text-danger fw-semibold border-0 bg-transparent p-0 w-100 text-start d-flex align-items-center py-2 px-3">
+                        <i class="bi bi-box-arrow-right me-3 fs-5"></i>Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            @if (activeTab == "profile")
+            {
+                <partial name="_ProfileSettings" model="Model" />
+            }
+            else if (activeTab == "interface")
+            {
+                <partial name="_InterfaceSettings" />
+            }
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
+}
