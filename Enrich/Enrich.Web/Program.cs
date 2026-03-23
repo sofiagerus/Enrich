@@ -2,6 +2,7 @@ using Enrich.BLL;
 using Enrich.DAL;
 using Enrich.DAL.Data;
 using Enrich.DAL.Entities;
+using Enrich.Web.Seeders;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
 
@@ -43,6 +44,8 @@ try
         .AddViewLocalization();
 
     WebApplication app = builder.Build();
+
+    await DataSeeder.SeedRolesAndAdminAsync(app.Services);
 
     Log.Information("Додаток Enrich запущено");
 
