@@ -2,6 +2,14 @@
 
 <h4 class="mb-4 fw-normal fs-4 text-dark">Profile Settings</h4>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="mb-4">
     <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center shadow-sm"
          style="width: 72px; height: 72px;">

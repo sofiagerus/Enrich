@@ -186,6 +186,7 @@ namespace Enrich.Web.Controllers
             if (result.Succeeded)
             {
                 logger.LogInformation("Користувач {UserId} успішно оновив профіль.", profileDto.Id);
+                TempData["SuccessMessage"] = "Your profile has been successfully updated.";
                 return RedirectToAction("Settings", new { tab });
             }
 
