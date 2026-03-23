@@ -85,6 +85,8 @@ namespace Enrich.BLL.Services
 
             if (result.Succeeded)
             {
+                await userManager.UpdateSecurityStampAsync(user);
+
                 logger.LogInformation(
                     "Користувача {UserId} успішно заблоковано до {LockoutEndDate}. Причина: {Reason}",
                     dto.UserId,
@@ -115,6 +117,8 @@ namespace Enrich.BLL.Services
 
             if (result.Succeeded)
             {
+                await userManager.UpdateSecurityStampAsync(user);
+
                 logger.LogInformation("Акаунт користувача {UserId} успішно розблоковано.", dto.UserId);
             }
             else
