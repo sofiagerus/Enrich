@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true" />
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
+
+  <data name="Page.Title" xml:space="preserve"><value>Sign up to Enrich</value></data>
+  <data name="SignUpToEnrich" xml:space="preserve"><value>Sign up to Enrich</value></data>
+  <data name="Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Username" xml:space="preserve"><value>Username</value></data>
+  <data name="Password" xml:space="preserve"><value>Password</value></data>
+  <data name="TermsOfServiceText" xml:space="preserve"><value>By creating an account, you agree to our Terms of Service and Privacy Policy.</value></data>
+  <data name="CreateAccount" xml:space="preserve"><value>Create account</value></data>
+  <data name="AlreadyHaveAnAccount" xml:space="preserve"><value>Already have an account?</value></data>
+  <data name="LogIn" xml:space="preserve"><value>Log in</value></data>
+</root>

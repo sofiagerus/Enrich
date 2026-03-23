@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true" />
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
+
+  <data name="Page.Title" xml:space="preserve"><value>Manage Users</value></data>
+  <data name="AdministrationManageUsers" xml:space="preserve"><value>Administration: Manage Users</value></data>
+  <data name="Total" xml:space="preserve"><value>Total:</value></data>
+  <data name="Username" xml:space="preserve"><value>Username</value></data>
+  <data name="Email" xml:space="preserve"><value>Email</value></data>
+  <data name="RoleStatus" xml:space="preserve"><value>Role &amp; Status</value></data>
+  <data name="Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Restore" xml:space="preserve"><value>Restore</value></data>
+  <data name="Restrict" xml:space="preserve"><value>Restrict</value></data>
+  <data name="Locked" xml:space="preserve"><value>Locked</value></data>
+  <data name="Active" xml:space="preserve"><value>Active</value></data>
+</root>

@@ -1,0 +1,111 @@
+@{
+    ViewData["Title"] = "My Words";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="fw-semibold fs-4 mb-1">My Words</h1>
+        <p class="text-muted mb-0" style="font-size: 0.9rem;">Your personal vocabulary collection</p>
+    </div>
+    <a asp-action="Create" asp-controller="Word"
+       class="btn btn-success rounded-4 py-2 px-4 d-flex align-items-center gap-2 shadow-sm"
+       id="btn-add-word">
+        <i class="bi bi-plus-lg"></i>
+        Add new word
+    </a>
+</div>
+
+<div id="words-container">
+    <!-- Words will be loaded here -->
+</div>
+
+@section Scripts {
+    <script>
+        async function loadWords() {
+            try {
+                console.log('Starting to load words...');
+                const response = await fetch('/Word/GetMyWords');
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    console.error('Failed to load words:', response.statusText);
+                    const text = await response.text();
+                    console.error('Response body:', text);
+                    return;
+                }
+
+                const words = await response.json();
+                console.log('Words received:', words);
+                console.log('Word count:', words ? words.length : 0);
+                
+                const container = document.getElementById('words-container');
+
+                if (!words || words.length === 0) {
+                    console.log('No words found, showing empty state');
+                    // Show empty state
+                    container.innerHTML = `
+                        <div class="card border-0 shadow-sm rounded-4 p-5 text-center" style="background: rgba(255,255,255,0.8);">
+                            <i class="bi bi-book text-success mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="fw-semibold mb-2">No words yet</h5>
+                            <p class="text-muted mb-4" style="font-size: 0.9rem;">
+                                Start building your personal dictionary by adding your first word.
+                            </p>
+                            <a asp-action="Create" asp-controller="Word"
+                               class="btn btn-success rounded-4 py-2 px-4 mx-auto"
+                               style="width: fit-content;">
+                                <i class="bi bi-plus-lg me-1"></i>Add new word
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    console.log('Displaying ' + words.length + ' words');
+                    // Display words
+                    container.innerHTML = words.map(word => `
+                        <div class="card border-0 shadow-sm rounded-4 mb-3" style="background: rgba(255,255,255,0.8);">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="fw-semibold mb-2">${escapeHtml(word.term)}</h5>
+                                        ${word.transcription ? `<p class="text-muted mb-2"><small>/${escapeHtml(word.transcription)}/</small></p>` : ''}
+                                        ${word.translation ? `<p class="mb-2"><strong>Translation:</strong> ${escapeHtml(word.translation)}</p>` : ''}
+                                        ${word.partOfSpeech ? `<p class="mb-2"><strong>Part of Speech:</strong> ${escapeHtml(word.partOfSpeech)}</p>` : ''}
+                                        ${word.meaning ? `<p class="mb-2"><strong>Meaning:</strong> ${escapeHtml(word.meaning)}</p>` : ''}
+                                        ${word.example ? `<p class="mb-2"><strong>Example:</strong> <em>${escapeHtml(word.example)}</em></p>` : ''}
+                                        ${word.difficultyLevel ? `<p class="mb-0"><span class="badge bg-info">${escapeHtml(word.difficultyLevel)}</span></p>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading words:', error);
+                document.getElementById('words-container').innerHTML = '<div class="alert alert-danger">Error loading words: ' + error.message + '</div>';
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Load words when page loads
+        document.addEventListener('DOMContentLoaded', loadWords);
+    </script>
+}

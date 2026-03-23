@@ -8,11 +8,10 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
 
-  <data name="Nav.Words" xml:space="preserve"><value>Words</value></data>
-  <data name="Nav.Community" xml:space="preserve"><value>Community</value></data>
-  <data name="Nav.Login" xml:space="preserve"><value>Login</value></data>
-  <data name="Nav.Register" xml:space="preserve"><value>Try Enrich</value></data>
-  <data name="Footer.Rights" xml:space="preserve"><value>All rights reserved.</value></data>
-  <data name="Nav.Bundles" xml:space="preserve"><value>Bundles</value></data>
-  <data name="Nav.Progress" xml:space="preserve"><value>Progress</value></data>
+  <data name="ProfileSettings" xml:space="preserve"><value>Profile Settings</value></data>
+  <data name="Username" xml:space="preserve"><value>Username</value></data>
+  <data name="Email" xml:space="preserve"><value>Email</value></data>
+  <data name="EmailCannotBeChanged" xml:space="preserve"><value>Email cannot be changed</value></data>
+  <data name="Bio" xml:space="preserve"><value>Bio</value></data>
+  <data name="SaveChanges" xml:space="preserve"><value>Save changes</value></data>
 </root>

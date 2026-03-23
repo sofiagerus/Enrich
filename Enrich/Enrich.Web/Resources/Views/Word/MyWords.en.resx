@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true" />
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
+
+  <data name="Page.Title" xml:space="preserve"><value>My Words</value></data>
+  <data name="MyWords" xml:space="preserve"><value>My Words</value></data>
+  <data name="YourPersonalVocabularyCollection" xml:space="preserve"><value>Your personal vocabulary collection</value></data>
+  <data name="AddNewWord" xml:space="preserve"><value>Add new word</value></data>
+  <data name="NoWordsYet" xml:space="preserve"><value>No words yet</value></data>
+  <data name="StartBuildingYourPersonalDictionary" xml:space="preserve"><value>Start building your personal dictionary by adding your first word.</value></data>
+  <data name="Translation" xml:space="preserve"><value>Translation</value></data>
+  <data name="PartOfSpeech" xml:space="preserve"><value>Part of Speech</value></data>
+  <data name="Meaning" xml:space="preserve"><value>Meaning</value></data>
+  <data name="Example" xml:space="preserve"><value>Example</value></data>
+  <data name="ErrorLoadingWords" xml:space="preserve"><value>Error loading words</value></data>
+</root>

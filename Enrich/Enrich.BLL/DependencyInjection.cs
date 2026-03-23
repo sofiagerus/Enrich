@@ -8,9 +8,9 @@ namespace Enrich.BLL
     {
         public static IServiceCollection AddBllServices(this IServiceCollection services)
         {
-            // services.AddScoped<IService, Service>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IWordService, WordService>();
 
             return services;
         }
