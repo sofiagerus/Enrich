@@ -135,5 +135,37 @@ namespace Enrich.UnitTests.Services
             Assert.That(result.Errors.First().Description, Is.EqualTo("Користувача не знайдено."));
             userManagerMock.Verify(m => m.SetLockoutEndDateAsync(It.IsAny<User>(), It.IsAny<DateTimeOffset>()), Times.Never);
         }
+
+        [Test]
+        public async Task RestoreUserAsync_WithValidUser_RestoresSuccessfully()
+        {
+            var userId = "test-user-id";
+            var dto = new RestoreAccountDTO { UserId = userId };
+            var existingUser = new User { Id = userId, UserName = "restored_user" };
+
+            userManagerMock.Setup(m => m.FindByIdAsync(userId)).ReturnsAsync(existingUser);
+
+            userManagerMock.Setup(m => m.SetLockoutEndDateAsync(existingUser, null))
+                .ReturnsAsync(IdentityResult.Success);
+
+            var result = await userService.RestoreUserAsync(dto);
+
+            Assert.That(result.Succeeded, Is.True);
+            userManagerMock.Verify(m => m.SetLockoutEndDateAsync(existingUser, null), Times.Once);
+        }
+
+        [Test]
+        public async Task RestoreUserAsync_WhenUserNotFound_ReturnsFailedResult()
+        {
+            var userId = "non-existent-id";
+            var dto = new RestoreAccountDTO { UserId = userId };
+
+            userManagerMock.Setup(m => m.FindByIdAsync(userId)).ReturnsAsync((User?)null);
+
+            var result = await userService.RestoreUserAsync(dto);
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(result.Errors.First().Description, Is.EqualTo("Користувача не знайдено."));
+        }
     }
 }

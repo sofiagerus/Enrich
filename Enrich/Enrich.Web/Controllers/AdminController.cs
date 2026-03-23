@@ -1,11 +1,12 @@
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
 using Enrich.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enrich.Web.Controllers
 {
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class AdminController(
         IUserService userService,
         ILogger<AdminController> logger) : Controller
@@ -21,7 +22,8 @@ namespace Enrich.Web.Controllers
                 Id = u.Id,
                 Username = u.Username,
                 Email = u.Email,
-                Role = "User"
+                Role = "User",
+                IsLockedOut = u.IsLockedOut
             }).ToList();
 
             return View(model);
@@ -59,6 +61,48 @@ namespace Enrich.Web.Controllers
             {
                 logger.LogInformation("Адміністратор заблокував акаунт {UserId}", model.UserId);
                 TempData["SuccessMessage"] = $"Акаунт користувача {model.Username} успішно заблоковано.";
+                return RedirectToAction("Browse");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult Restore(string id, string username)
+        {
+            var model = new RestoreAccountViewModel
+            {
+                UserId = id,
+                Username = username
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Restore(RestoreAccountViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var dto = new RestoreAccountDTO
+            {
+                UserId = model.UserId
+            };
+
+            var result = await userService.RestoreUserAsync(dto);
+
+            if (result.Succeeded)
+            {
+                logger.LogInformation("Адміністратор розблокував акаунт {UserId}", model.UserId);
+                TempData["SuccessMessage"] = $"Акаунт користувача {model.Username} успішно розблоковано.";
                 return RedirectToAction("Browse");
             }
 

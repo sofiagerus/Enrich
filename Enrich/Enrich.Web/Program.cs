@@ -2,6 +2,7 @@ using Enrich.BLL;
 using Enrich.DAL;
 using Enrich.DAL.Data;
 using Enrich.DAL.Entities;
+using Enrich.Web.Seeders;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
 
@@ -33,6 +34,11 @@ try
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
 
+    builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+    {
+        options.ValidationInterval = TimeSpan.Zero;
+    });
+
     builder.Services.ConfigureApplicationCookie(options =>
     {
         options.LoginPath = "/Account/Login";
@@ -43,6 +49,8 @@ try
         .AddViewLocalization();
 
     WebApplication app = builder.Build();
+
+    await DataSeeder.SeedRolesAndAdminAsync(app.Services);
 
     Log.Information("Додаток Enrich запущено");
 

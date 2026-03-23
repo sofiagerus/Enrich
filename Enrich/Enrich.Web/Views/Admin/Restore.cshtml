@@ -1,0 +1,32 @@
+@model Enrich.Web.ViewModels.RestoreAccountViewModel
+
+@{
+    ViewData["Title"] = "Відновлення доступу";
+}
+
+<div class="container mt-4">
+    <h2>Відновлення доступу для @Model.Username</h2>
+    <p class="text-muted">Ця дія зніме обмеження та дозволить користувачу знову входити в систему.</p>
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Restore" method="post">
+                <input type="hidden" asp-for="UserId" />
+                <input type="hidden" asp-for="Username" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="alert alert-info mb-4">
+                    Ви впевнені, що хочете розблокувати акаунт користувача <strong>@Model.Username</strong>?
+                </div>
+
+                <button type="submit" class="btn btn-success">Відновити доступ</button>
+                <a asp-action="Browse" class="btn btn-secondary">Скасувати</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
