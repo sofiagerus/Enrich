@@ -10,32 +10,32 @@
 
   <data name="Page.Title" xml:space="preserve"><value>Home</value></data>
   <data name="Hero.Title.Brand" xml:space="preserve"><value>Enrich</value></data>
-  <data name="Hero.Title.Rest" xml:space="preserve"><value>Your English Vocabulary</value></data>
-  <data name="Hero.Subtitle" xml:space="preserve"><value>Learn words through flashcards, track your progress and share bundles with others.</value></data>
-  <data name="Hero.CTA" xml:space="preserve"><value>Get started for free</value></data>
+  <data name="Hero.Title.Rest" xml:space="preserve"><value>your English vocabulary</value></data>
+  <data name="Hero.Subtitle" xml:space="preserve"><value>Learn words through flashcards, track your progress, and share collections with others.</value></data>
+  <data name="Hero.CTA" xml:space="preserve"><value>Get started free</value></data>
   <data name="Hero.LearnMore" xml:space="preserve"><value>Learn more</value></data>
-  <data name="Features.Title" xml:space="preserve"><value>What Enrich can do</value></data>
-  
+  <data name="Features.Title" xml:space="preserve"><value>What Enrich Can Do</value></data>
+
   <data name="Feature.SectionTitle" xml:space="preserve"><value>The best way to enrich your vocabulary</value></data>
-  
+
   <data name="Feature.Cards.Translation.Title" xml:space="preserve"><value>More than just translation</value></data>
-  <data name="Feature.Cards.Translation.Text" xml:space="preserve"><value>A simple "word-translation" pair is not enough for fluency. We created smart flashcards that immerse you in context and help you feel the vocabulary.</value></data>
-  
+  <data name="Feature.Cards.Translation.Text" xml:space="preserve"><value>A simple "word-translation" pair is not enough for fluency. We've created smart flashcards that immerse you in context and help you feel the language.</value></data>
+
   <data name="Feature.Bundles.Title" xml:space="preserve"><value>Structure your learning</value></data>
-  <data name="Feature.Bundles.Text" xml:space="preserve"><value>Group words into thematic bundles for a systematic approach. Create your own unique collections for specific goals or use ready-made materials from the community to save time searching.</value></data>
-  
+  <data name="Feature.Bundles.Text" xml:space="preserve"><value>Organize words into thematic collections for a systematic approach. Create your own unique collections for specific goals or use ready-made materials from the community to save time searching.</value></data>
+
   <data name="Feature.Progress.Title" xml:space="preserve"><value>Visualize your knowledge</value></data>
-  <data name="Feature.Progress.Text" xml:space="preserve"><value>Forget the feeling of being stuck in place. The system continuously analyzes your quiz performance and displays the mastery level of each word.</value></data>
-  
+  <data name="Feature.Progress.Text" xml:space="preserve"><value>Forget about feeling stuck in place. Our system continuously analyzes your performance during quizzes and shows your mastery level for each word.</value></data>
+
   <data name="Feature.Community.Title" xml:space="preserve"><value>Learn together with the community</value></data>
-  <data name="Feature.Community.Text" xml:space="preserve"><value>Don't want to collect words one by one? Check out the Community Hub. Find readymade unique collections from other users: from strict academic vocabulary to the latest internet trends.</value></data>
-  
+  <data name="Feature.Community.Text" xml:space="preserve"><value>Don't want to collect words one by one? Check out the Community Hub. Find unique ready-made collections from other users: from strict academic vocabulary to the latest internet trends.</value></data>
+
   <data name="Feature.Mock.Meaning" xml:space="preserve"><value>Meaning</value></data>
   <data name="Feature.Mock.Example" xml:space="preserve"><value>Example</value></data>
   <data name="Feature.Mock.Words" xml:space="preserve"><value>Words:</value></data>
   <data name="Feature.Mock.Description" xml:space="preserve"><value>Description</value></data>
   <data name="Feature.Mock.ByCommunity" xml:space="preserve"><value>By community</value></data>
-  
-  <data name="CTA.Title" xml:space="preserve"><value>Ready to start?</value></data>
+
+  <data name="CTA.Title" xml:space="preserve"><value>Ready to get started?</value></data>
   <data name="CTA.Subtitle" xml:space="preserve"><value>Join and learn new words every day.</value></data>
 </root>

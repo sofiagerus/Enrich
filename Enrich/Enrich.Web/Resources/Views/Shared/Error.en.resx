@@ -8,11 +8,8 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
 
-  <data name="Nav.Words" xml:space="preserve"><value>Words</value></data>
-  <data name="Nav.Community" xml:space="preserve"><value>Community</value></data>
-  <data name="Nav.Login" xml:space="preserve"><value>Login</value></data>
-  <data name="Nav.Register" xml:space="preserve"><value>Try Enrich</value></data>
-  <data name="Footer.Rights" xml:space="preserve"><value>All rights reserved.</value></data>
-  <data name="Nav.Bundles" xml:space="preserve"><value>Bundles</value></data>
-  <data name="Nav.Progress" xml:space="preserve"><value>Progress</value></data>
+  <data name="Error" xml:space="preserve"><value>Error</value></data>
+  <data name="AnErrorOccurred" xml:space="preserve"><value>An error occurred while processing your request.</value></data>
+  <data name="RequestID" xml:space="preserve"><value>Request ID:</value></data>
+  <data name="DevelopmentMode" xml:space="preserve"><value>Development Mode</value></data>
 </root>
