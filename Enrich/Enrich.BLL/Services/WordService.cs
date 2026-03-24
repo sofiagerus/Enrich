@@ -1,5 +1,6 @@
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
+using Enrich.DAL.Entities;
 using Enrich.DAL.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -25,14 +26,36 @@ namespace Enrich.BLL.Services
                 return (false, $"У вашому особистому словнику вже є слово '{dto.Term}'.");
             }
 
-            var word = await wordRepository.CreatePersonalWordAsync(userId, dto.Term, dto.Translation,
-                dto.Transcription, dto.Meaning, dto.PartOfSpeech, dto.Example, dto.DifficultyLevel);
+            var now = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
+
+            var word = new Word
+            {
+                Term = dto.Term.Trim(),
+                Translation = dto.Translation?.Trim(),
+                Transcription = dto.Transcription?.Trim(),
+                Meaning = dto.Meaning?.Trim(),
+                PartOfSpeech = dto.PartOfSpeech?.Trim(),
+                Example = dto.Example?.Trim(),
+                DifficultyLevel = dto.DifficultyLevel?.Trim(),
+                IsGlobal = false,
+                CreatorId = userId,
+                CreatedAt = now,
+                UpdatedAt = now,
+            };
+
+            var userWord = new UserWord
+            {
+                UserId = userId,
+                SavedAt = now,
+            };
+
+            var createdWord = await wordRepository.CreatePersonalWordAsync(word, userWord);
 
             logger.LogInformation(
                 "Користувач {UserId} успішно створив нове персональне слово '{Term}' (ID слова: {WordId}).",
                 userId,
-                word.Term,
-                word.Id);
+                createdWord.Term,
+                createdWord.Id);
 
             return (true, null);
         }

@@ -1,7 +1,7 @@
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Services;
 using Enrich.DAL.Data;
-using Enrich.DAL.Entities;
+using Enrich.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -25,12 +25,16 @@ namespace Enrich.UnitTests.Services
 
             _dbContext = new ApplicationDbContext(options);
             _loggerMock = new Mock<ILogger<WordService>>();
-            _wordService = new WordService(_dbContext, _loggerMock.Object);
+
+            var wordRepository = new WordRepository(_dbContext);
+
+            _wordService = new WordService(wordRepository, _loggerMock.Object);
         }
 
         [TearDown]
         public void TearDown()
         {
+            _dbContext.Database.EnsureDeleted();
             _dbContext.Dispose();
         }
 

@@ -15,34 +15,12 @@ namespace Enrich.DAL.Repositories
                     w.Term.ToLower() == termLower);
         }
 
-        public async Task<Word> CreatePersonalWordAsync(string userId, string term, string? translation, string? transcription,
-            string? meaning, string? partOfSpeech, string? example, string? difficultyLevel)
+        public async Task<Word> CreatePersonalWordAsync(Word word, UserWord userWord)
         {
-            var word = new Word
-            {
-                Term = term.Trim(),
-                Translation = translation?.Trim(),
-                Transcription = transcription?.Trim(),
-                Meaning = meaning?.Trim(),
-                PartOfSpeech = partOfSpeech?.Trim(),
-                Example = example?.Trim(),
-                DifficultyLevel = difficultyLevel?.Trim(),
-                IsGlobal = false,
-                CreatorId = userId,
-                CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
-                UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
-            };
-
             dbContext.Words.Add(word);
             await dbContext.SaveChangesAsync();
 
-            var userWord = new UserWord
-            {
-                UserId = userId,
-                WordId = word.Id,
-                SavedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
-            };
-
+            userWord.WordId = word.Id;
             dbContext.UserWords.Add(userWord);
             await dbContext.SaveChangesAsync();
 
