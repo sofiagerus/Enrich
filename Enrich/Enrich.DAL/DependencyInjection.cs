@@ -1,4 +1,6 @@
 ﻿using Enrich.DAL.Data;
+using Enrich.DAL.Interfaces;
+using Enrich.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +15,8 @@ namespace Enrich.DAL
                 options.UseNpgsql(
                     configuration.GetConnectionString("DefaultConnection")));
 
-            // services.AddScoped<IRepository, Repository>();
+            services.AddScoped<IWordRepository, WordRepository>();
+
             return services;
         }
     }
