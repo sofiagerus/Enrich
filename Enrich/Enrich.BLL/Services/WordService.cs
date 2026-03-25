@@ -28,6 +28,16 @@ namespace Enrich.BLL.Services
 
             var now = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
 
+            var categories = new List<Category>();
+            if (dto.CategoryIds != null && dto.CategoryIds.Any())
+            {
+                var fetchedCategories = await wordRepository.GetCategoriesByIdsAsync(dto.CategoryIds);
+                if (fetchedCategories != null)
+                {
+                    categories = [.. fetchedCategories];
+                }
+            }
+
             var word = new Word
             {
                 Term = dto.Term.Trim(),
@@ -41,6 +51,7 @@ namespace Enrich.BLL.Services
                 CreatorId = userId,
                 CreatedAt = now,
                 UpdatedAt = now,
+                Categories = categories
             };
 
             var userWord = new UserWord
@@ -52,10 +63,11 @@ namespace Enrich.BLL.Services
             var createdWord = await wordRepository.CreatePersonalWordAsync(word, userWord);
 
             logger.LogInformation(
-                "Користувач {UserId} успішно створив нове персональне слово '{Term}' (ID слова: {WordId}).",
+                "Користувач {UserId} успішно створив нове персональне слово '{Term}' (ID: {WordId}) з {CatCount} категоріями.",
                 userId,
                 createdWord.Term,
-                createdWord.Id);
+                createdWord.Id,
+                categories.Count);
 
             return (true, null);
         }
@@ -77,6 +89,7 @@ namespace Enrich.BLL.Services
                 Example = uw.Word.Example,
                 DifficultyLevel = uw.Word.DifficultyLevel,
                 AddedAt = uw.SavedAt,
+                CategoryName = uw.Word.Categories?.OrderBy(c => c.Id).Select(c => c.Name).FirstOrDefault() ?? "General"
             }).ToList();
 
             logger.LogInformation("Успішно отримано {Count} слів для користувача {UserId}", words.Count, userId);
@@ -86,25 +99,21 @@ namespace Enrich.BLL.Services
 
         public async Task<(bool Success, string? ErrorMessage)> DeleteWordAsync(string userId, int wordId)
         {
-            // Find the UserWord relation (includes Word)
             var userWord = await wordRepository.GetUserWordAsync(userId, wordId);
 
             if (userWord == null)
             {
-                logger.LogWarning("Спроба видалити слово {WordId} користувачем {UserId}, але воно не знайдено у його збережених словах.", wordId, userId);
+                logger.LogWarning("Спроба видалити слово {WordId} користувачем {UserId}, але воно не знайдено.", wordId, userId);
                 return (false, "Word not found in your saved words.");
             }
 
             var word = userWord.Word;
             if (word == null)
             {
-                // Defensive: should not happen
                 await wordRepository.DeleteUserWordAsync(userWord);
-                logger.LogInformation("Користувач {UserId} видалив зв'язок до слова {WordId}, але слово відсутнє в базі.", userId, wordId);
                 return (true, null);
             }
 
-            // If the user is the creator of the word and it's not global, delete the word entirely.
             if (!word.IsGlobal && word.CreatorId == userId)
             {
                 await wordRepository.DeleteWordAsync(word);
@@ -112,15 +121,14 @@ namespace Enrich.BLL.Services
                 return (true, null);
             }
 
-            // Otherwise, just remove the UserWord relation (user unsaves the system word)
             await wordRepository.DeleteUserWordAsync(userWord);
-            logger.LogInformation("Користувач {UserId} видалив слово {WordId} зі своїх збережених слів.", userId, wordId);
+            logger.LogInformation("Користувач {UserId} видалив слово {WordId} зі збережених.", userId, wordId);
             return (true, null);
         }
 
         public async Task<PagedResult<PersonalWordDTO>> GetPersonalWordsAsync(string userId, string? searchTerm, string? category, string? partOfSpeech, string? difficultyLevel, int page, int pageSize)
         {
-            logger.LogInformation("Отримання сторінки персональних слів для користувача {UserId}: page={Page}, pageSize={PageSize}, search={Search}, pos={Pos}, level={Level}", userId, page, pageSize, searchTerm, partOfSpeech, difficultyLevel);
+            logger.LogInformation("Отримання сторінки слів для {UserId}: page={Page}, pageSize={PageSize}", userId, page, pageSize);
 
             if (page <= 0)
             {
@@ -145,6 +153,7 @@ namespace Enrich.BLL.Services
                 Example = uw.Word.Example,
                 DifficultyLevel = uw.Word.DifficultyLevel,
                 AddedAt = uw.SavedAt,
+                CategoryName = uw.Word.Categories?.OrderBy(c => c.Id).Select(c => c.Name).FirstOrDefault() ?? "General"
             }).ToList();
 
             return new PagedResult<PersonalWordDTO>
@@ -154,6 +163,33 @@ namespace Enrich.BLL.Services
                 Page = page,
                 PageSize = pageSize,
             };
+        }
+
+        public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
+        {
+            return await wordRepository.GetAllCategoriesAsync();
+        }
+
+        public async Task<IEnumerable<Category>> GetCategoriesByIdsAsync(IEnumerable<int> ids)
+        {
+            return await wordRepository.GetCategoriesByIdsAsync(ids);
+        }
+
+        public async Task<Category> CreateCategoryAsync(string name)
+        {
+            var existing = await wordRepository.GetCategoryByNameAsync(name);
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            var cat = new Category { Name = name.Trim() };
+            return await wordRepository.CreateCategoryAsync(cat);
+        }
+
+        public async Task<Category?> GetCategoryByNameAsync(string name)
+        {
+            return await wordRepository.GetCategoryByNameAsync(name);
         }
     }
 }

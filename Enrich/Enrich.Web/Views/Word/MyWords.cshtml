@@ -42,32 +42,18 @@
             color: white !important;
         }
 
-    .dot-icon {
-        width: 12px;
-        height: 12px;
-        background-color: #D1D1D1;
-        border-radius: 3px;
-        margin-right: 10px;
-        flex-shrink: 0;
-    }
-
-    .filter-item.active .dot-icon {
-        background-color: rgba(255,255,255,0.5);
-    }
-
     .sidebar-divider {
         height: 1px;
         background-color: #E9ECEF;
         margin: 16px 0;
     }
 
-
     .word-card {
         background: #FFFFFF !important;
         border-radius: 16px !important;
         border: 1px solid var(--border-color) !important;
         padding: 16px 20px;
-        transition: all 0.3s ease; 
+        transition: all 0.3s ease;
         display: flex;
         flex-direction: column;
     }
@@ -76,12 +62,6 @@
             border-color: #ced4da !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important;
         }
-
-    /* Анімація видалення */
-    .word-fade-out {
-        opacity: 0;
-        transform: scale(0.9);
-    }
 
     .word-header {
         display: flex;
@@ -145,7 +125,6 @@
         line-height: 1.4;
     }
 
-    /* ── Progress ── */
     .progress-container {
         display: flex;
         align-items: center;
@@ -171,18 +150,17 @@
         font-size: 0.78rem;
         font-weight: 700;
         color: #888;
-        white-space: nowrap;
     }
 
         .progress-label.learned {
             color: var(--active-green);
         }
 
-    /* ── Dots button ── */
     .card-footer-row {
         margin-top: auto;
         display: flex;
         justify-content: flex-end;
+        padding-top: 10px;
     }
 
     .btn-dots {
@@ -195,26 +173,7 @@
         align-items: center;
         justify-content: center;
         color: #555;
-        transition: 0.2s;
-        padding: 0;
         cursor: pointer;
-    }
-
-        .btn-dots:hover {
-            background: #F1F3F5;
-            border-color: #aaa;
-        }
-
-
-    .dropdown-item:active {
-        background-color: #F1F3F5;
-        color: var(--text-dark);
-    }
-
-    .dropdown-item.text-danger:active,
-    .dropdown-item.text-danger:focus {
-        background-color: #fff5f5 !important;
-        color: var(--danger-red) !important;
     }
 
     .btn-action {
@@ -231,23 +190,11 @@
         align-items: center;
     }
 
-        .btn-action:hover {
-            background-color: #F1F3F5;
-            border-color: #aaa;
-            color: var(--text-dark);
-        }
-
         .btn-action.primary {
             background-color: var(--active-green);
             color: white;
             border-color: var(--active-green);
         }
-
-            .btn-action.primary:hover {
-                background-color: #157347;
-                border-color: #157347;
-                color: white;
-            }
 
     .search-box {
         background-color: #E9ECEF !important;
@@ -255,24 +202,23 @@
         border: none !important;
     }
 
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        padding: 6px 4px;
+        font-size: 0.9rem;
+    }
+
     .empty-state {
         text-align: center;
         padding: 60px 20px;
         color: #aaa;
     }
-
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 12px;
-            display: block;
-        }
 </style>
 
 <div class="container-fluid py-4">
     <div class="row">
-
         <div class="col-lg-9">
-
             <div class="d-flex flex-wrap gap-3 mb-3 align-items-center">
                 <div class="input-group flex-grow-1 search-box overflow-hidden" style="max-width: 600px;">
                     <span class="input-group-text border-0 bg-transparent ps-3">
@@ -281,41 +227,29 @@
                     <input type="text" id="searchTerm" class="form-control border-0 bg-transparent p-2"
                            placeholder="Search words...">
                 </div>
-                <button class="btn btn-action">
-                    <i class="bi bi-filter-right me-1"></i> Sort by
-                </button>
             </div>
 
             <div class="d-flex gap-2 mb-4">
                 <a asp-action="Create" class="btn btn-action primary">
                     <i class="bi bi-plus-lg me-1"></i> Add New Word
                 </a>
-                <button class="btn btn-action">
-                    <i class="bi bi-bullseye me-1"></i> Start a Quiz
-                </button>
             </div>
 
             <div id="words-container" class="row g-3"></div>
-            <nav aria-label="Page navigation" class="mt-4">
-                <ul id="pager" class="pagination"></ul>
-            </nav>
         </div>
 
         <div class="col-lg-3 ps-lg-4">
             <div class="sidebar-panel sticky-top" style="top: 20px;">
-
                 <h6 class="fw-bold mb-2" style="font-size:0.9rem;">Categories</h6>
-                <div class="bg-white rounded-3 mb-3 p-1 border">
-                    <input type="text" class="form-control border-0 small" placeholder="Search..." style="font-size:0.85rem;">
+                <div class="border rounded-3 bg-white mb-2" style="height:260px; display:flex; flex-direction:column;">
+                    <div class="p-2 border-bottom">
+                        <input type="text" id="categorySearch" class="form-control border-0 bg-transparent"
+                               placeholder="Search categories..." style="font-size:0.85rem;">
+                    </div>
+                    <div class="p-2 overflow-y-scroll flex-grow-1">
+                        <ul class="list-unstyled mb-0" id="category-filters"></ul>
+                    </div>
                 </div>
-                <ul class="list-unstyled mb-0" id="category-filters">
-                    @foreach (var cat in new[] { "Fruits", "Emotions", "Travel", "Computers" })
-                    {
-                        <li class="filter-item" onclick="updateFilter('category', '@cat')">
-                            <div class="dot-icon"></div>@cat
-                        </li>
-                    }
-                </ul>
 
                 <div class="sidebar-divider"></div>
 
@@ -323,8 +257,9 @@
                 <ul class="list-unstyled mb-0" id="level-filters">
                     @foreach (var level in new[] { "C2", "C1", "B2", "B1", "A2", "A1" })
                     {
-                        <li class="filter-item" onclick="updateFilter('level', '@level')">
-                            <div class="dot-icon"></div>@level
+                        <li class="checkbox-item">
+                            <input type="checkbox" class="form-check-input me-2 level-checkbox" id="level-@level" value="@level" onchange="onCheckboxChange('level', this)">
+                            <label class="form-check-label" for="level-@level">@level</label>
                         </li>
                     }
                 </ul>
@@ -335,12 +270,12 @@
                 <ul class="list-unstyled mb-0" id="pos-filters">
                     @foreach (var pos in new[] { "Noun", "Verb", "Adjective", "Adverb", "Phrasal" })
                     {
-                        <li class="filter-item" onclick="updateFilter('pos', '@pos')">
-                            <div class="dot-icon"></div>@pos
+                        <li class="checkbox-item">
+                            <input type="checkbox" class="form-check-input me-2 pos-checkbox" id="pos-@pos" value="@pos" onchange="onCheckboxChange('pos', this)">
+                            <label class="form-check-label" for="pos-@pos">@pos</label>
                         </li>
                     }
                 </ul>
-
             </div>
         </div>
     </div>
@@ -349,20 +284,16 @@
 @section Scripts {
     <script>
         let currentFilters = { searchTerm: '', category: '', level: '', pos: '' };
-
         let currentPage = 1;
-        let currentPageSize = 8;
 
-        async function loadWords(page = 1) {
-            currentPage = page;
+        async function loadWords() {
             const { searchTerm, category, level, pos } = currentFilters;
-            const url = `/Word/GetMyWords?searchTerm=${encodeURIComponent(searchTerm)}&category=${encodeURIComponent(category)}&difficultyLevel=${encodeURIComponent(level)}&partOfSpeech=${encodeURIComponent(pos)}&page=${page}&pageSize=${currentPageSize}`;
+            const url = `/Word/GetMyWords?searchTerm=${encodeURIComponent(searchTerm)}&category=${encodeURIComponent(category)}&difficultyLevel=${encodeURIComponent(level)}&partOfSpeech=${encodeURIComponent(pos)}&page=1&pageSize=100`;
 
             try {
                 const response = await fetch(url);
                 const result = await response.json();
-                const words = result.items || result.items || result.Items || result.Items || result;
-                const total = result.totalCount || result.TotalCount || 0;
+                const words = result.items || result.Items || result;
                 const container = document.getElementById('words-container');
 
                 if (!words || words.length === 0) {
@@ -378,7 +309,7 @@
                 }
 
                 container.innerHTML = words.map(word => {
-                    const progress = word.progress ?? 65;
+                    const progress = word.progress ?? 0;
                     const isLearned = progress >= 100;
                     const progressLabel = isLearned
                         ? `<span class="progress-label learned">Learned!</span>`
@@ -399,6 +330,25 @@
                             </div>
 
                             <div class="transcription">[${escapeHtml(word.transcription || '...')}]</div>
+
+                            <div class="mt-2">
+                                <div class="section-label">Category</div>
+                                <span style="
+                                    display: inline-flex;
+                                    align-items: center;
+                                    gap: 5px;
+                                    background: #edf7f1;
+                                    color: #198754;
+                                    border: 1px solid #c3e6cb;
+                                    border-radius: 20px;
+                                    font-size: 0.75rem;
+                                    font-weight: 600;
+                                    padding: 3px 10px;
+                                ">
+   
+                                    ${escapeHtml(word.categoryName || word.category || 'General')}
+                                </span>
+                            </div>
 
                             <div class="mt-2">
                                 <div class="section-label">Meaning</div>
@@ -433,8 +383,6 @@
                     </div>`;
                 }).join('');
 
-                renderPager(total, currentPage, currentPageSize);
-
             } catch (e) {
                 console.error(e);
             }
@@ -442,62 +390,21 @@
 
         async function deleteWord(id) {
             if (!confirm('Are you sure you want to delete this word?')) return;
-
             try {
                 const response = await fetch(`/Word/Delete/${id}`, { method: 'POST' });
-                
                 if (response.ok) {
-                    // On success, reload current page to keep pagination consistent
-                    loadWords(currentPage);
+                    loadWords();
                 } else {
                     alert("Error while deleting the word.");
                 }
             } catch (err) {
                 console.error("Delete request failed", err);
             }
-
-        function renderPager(total, page, pageSize) {
-            const pager = document.getElementById('pager');
-            pager.innerHTML = '';
-            const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
-            function makeLi(text, disabled, active, onclick) {
-                const li = document.createElement('li');
-                li.className = 'page-item' + (disabled ? ' disabled' : '') + (active ? ' active' : '');
-                const a = document.createElement('a');
-                a.className = 'page-link';
-                a.href = '#';
-                a.innerText = text;
-                a.onclick = (e) => { e.preventDefault(); if (!disabled) onclick(); };
-                li.appendChild(a);
-                return li;
-            }
-
-            pager.appendChild(makeLi('Prev', page <= 1, false, () => loadWords(page - 1)));
-
-            // show a few pages
-            const start = Math.max(1, page - 2);
-            const end = Math.min(totalPages, page + 2);
-            for (let p = start; p <= end; p++) {
-                pager.appendChild(makeLi(p, false, p === page, () => loadWords(p)));
-            }
-
-            pager.appendChild(makeLi('Next', page >= totalPages, false, () => loadWords(page + 1)));
-        }
-        }
-
-        function updateFilter(type, value) {
-            currentFilters[type] = (currentFilters[type] === value) ? '' : value;
-            const listId = { category: 'category-filters', level: 'level-filters', pos: 'pos-filters' }[type];
-            document.getElementById(listId).querySelectorAll('.filter-item').forEach(el => {
-                el.classList.toggle('active', el.innerText.trim() === currentFilters[type]);
-            });
-            loadWords();
         }
 
         function escapeHtml(text) {
             const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-            return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+            return text ? String(text).replace(/[&<>"']/g, m => map[m]) : '';
         }
 
         document.getElementById('searchTerm').addEventListener('input', (e) => {
@@ -505,6 +412,49 @@
             loadWords();
         });
 
-        document.addEventListener('DOMContentLoaded', loadWords);
+        async function loadCategories() {
+            try {
+                const resp = await fetch('/Word/GetCategories');
+                const cats = await resp.json();
+                const ul = document.getElementById('category-filters');
+                ul.innerHTML = '';
+                cats.forEach(c => {
+                    const li = document.createElement('li');
+                    li.className = 'checkbox-item';
+                    li.innerHTML = `<input type="checkbox" class="form-check-input me-2 category-checkbox" id="cat-${c.id}" value="${c.name}" onchange="onCheckboxChange('category', this)">
+                                   <label class="form-check-label" for="cat-${c.id}">${c.name}</label>`;
+                    ul.appendChild(li);
+                });
+
+                const catSearch = document.getElementById('categorySearch');
+                catSearch.addEventListener('input', (e) => {
+                    const q = e.target.value.trim().toLowerCase();
+                    ul.querySelectorAll('li').forEach(li => {
+                        const text = li.innerText.trim().toLowerCase();
+                        li.style.display = q === '' || text.includes(q) ? '' : 'none';
+                    });
+                });
+            } catch (err) {
+                console.error('Failed to load categories', err);
+            }
+        }
+
+        function onCheckboxChange(type, checkbox) {
+            const selector = type === 'category' ? '.category-checkbox' : (type === 'level' ? '.level-checkbox' : '.pos-checkbox');
+            const checked = Array.from(document.querySelectorAll(selector))
+                .filter(c => c.checked)
+                .map(c => c.value);
+
+            if (type === 'category') currentFilters.category = checked.join(',');
+            if (type === 'level') currentFilters.level = checked.join(',');
+            if (type === 'pos') currentFilters.pos = checked.join(',');
+
+            loadWords();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategories();
+            loadWords();
+        });
     </script>
 }

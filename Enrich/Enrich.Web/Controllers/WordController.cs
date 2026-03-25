@@ -19,6 +19,14 @@ namespace Enrich.Web.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> GetCategories()
+        {
+            var cats = await wordService.GetAllCategoriesAsync();
+            var result = cats.Select(c => new { id = c.Id, name = c.Name });
+            return Json(result);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> GetMyWords(string? searchTerm, string? category, string? partOfSpeech, string? difficultyLevel, int page = 1, int pageSize = 20)
         {
             var userId = userService.GetCurrentUserId(User);
@@ -35,36 +43,46 @@ namespace Enrich.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View(new CreateWordViewModel());
+            var vm = new CreateWordViewModel
+            {
+                // Отримуємо категорії для datalist
+                Categories = await wordService.GetAllCategoriesAsync() ?? new List<Enrich.DAL.Entities.Category>()
+            };
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateWordViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                logger.LogWarning("Провалена валідація форми створення слова. Term: {Term}.", model.Term);
-                return View(model);
-            }
-
             var userId = userService.GetCurrentUserId(User);
             if (userId == null)
             {
                 return Unauthorized();
             }
 
+            if (!ModelState.IsValid)
+            {
+                logger.LogWarning("Провалена валідація форми створення слова для {UserId}.", userId);
+                model.Categories = await wordService.GetAllCategoriesAsync();
+                return View(model);
+            }
+
+            // Обробляємо категорію (знаходимо існуючу або створюємо нову)
+            var categoryIds = await HandleCategoryLogic(model.NewCategory);
+
             var dto = new CreatePersonalWordDTO
             {
-                Term = model.Term,
-                Translation = model.Translation,
-                Transcription = model.Transcription,
-                Meaning = model.Meaning,
-                PartOfSpeech = model.PartOfSpeech,
-                Example = model.Example,
-                DifficultyLevel = model.DifficultyLevel,
+                Term = model.Term.Trim(),
+                Translation = model.Translation?.Trim(),
+                Transcription = model.Transcription?.Trim(),
+                Meaning = model.Meaning?.Trim(),
+                PartOfSpeech = model.PartOfSpeech?.Trim(),
+                Example = model.Example?.Trim(),
+                DifficultyLevel = model.DifficultyLevel?.Trim(),
+                CategoryIds = categoryIds
             };
 
             var (success, errorMessage) = await wordService.CreatePersonalWordAsync(userId, dto);
@@ -73,30 +91,25 @@ namespace Enrich.Web.Controllers
             {
                 logger.LogWarning("Помилка створення слова '{Term}' для {UserId}: {Error}", model.Term, userId, errorMessage);
                 ModelState.AddModelError(string.Empty, errorMessage!);
+                model.Categories = await wordService.GetAllCategoriesAsync();
                 return View(model);
             }
 
-            logger.LogInformation("Користувач {UserId} створив слово '{Term}'.", userId, model.Term);
-            TempData["SuccessMessage"] = $"Word '{model.Term}' added!";
+            logger.LogInformation("Користувач {UserId} успішно створив слово '{Term}'.", userId, model.Term);
+            TempData["SuccessMessage"] = $"Word '{model.Term}' successfully added!";
+
             return RedirectToAction(nameof(MyWords));
         }
 
-        // Новий метод видалення
         [HttpPost]
-
-        // [ValidateAntiForgeryToken] // Розкоментуйте, якщо додасте токен у fetch запит на фронтенді
         public async Task<IActionResult> Delete(int id)
         {
             var userId = userService.GetCurrentUserId(User);
             if (userId == null)
             {
-                logger.LogWarning("Анонімна спроба видалення слова ID: {WordId}", id);
                 return Unauthorized();
             }
 
-            // Викликаємо сервіс. В сервісі має бути перевірка:
-            // якщо слово створене юзером - видаляємо з БД.
-            // якщо слово системне - видаляємо лише запис із таблиці зв'язків UserWords.
             var (success, errorMessage) = await wordService.DeleteWordAsync(userId, id);
 
             if (!success)
@@ -105,8 +118,34 @@ namespace Enrich.Web.Controllers
                 return BadRequest(new { message = errorMessage });
             }
 
-            logger.LogInformation("Користувач {UserId} видалив слово {WordId}.", userId, id);
             return Ok();
+        }
+
+        private async Task<List<int>> HandleCategoryLogic(string? categoryInput)
+        {
+            var categoryIds = new List<int>();
+
+            if (!string.IsNullOrWhiteSpace(categoryInput))
+            {
+                var categoryName = categoryInput.Trim();
+
+                var existingCategory = await wordService.GetCategoryByNameAsync(categoryName);
+
+                if (existingCategory != null)
+                {
+                    categoryIds.Add(existingCategory.Id);
+                }
+                else
+                {
+                    var createdCategory = await wordService.CreateCategoryAsync(categoryName);
+                    if (createdCategory != null)
+                    {
+                        categoryIds.Add(createdCategory.Id);
+                    }
+                }
+            }
+
+            return categoryIds;
         }
     }
 }

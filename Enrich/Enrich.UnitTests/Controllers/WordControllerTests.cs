@@ -112,13 +112,13 @@ namespace Enrich.UnitTests.Controllers
         }
 
         [Test]
-        public void Create_Get_ReturnsViewWithEmptyModel()
+        public async Task Create_Get_ReturnsViewWithEmptyModel()
         {
-            var result = _controller.Create();
+            var result = await _controller.Create();
 
-            var viewResult = result as ViewResult;
+            var viewResult = (ViewResult)result;
             Assert.That(viewResult, Is.Not.Null);
-            Assert.That(viewResult!.Model, Is.InstanceOf<CreateWordViewModel>());
+            Assert.That(viewResult.Model, Is.InstanceOf<CreateWordViewModel>());
         }
 
         [Test]

@@ -1,5 +1,7 @@
-﻿using Enrich.DAL.Entities;
+﻿using Enrich.DAL.Data;
+using Enrich.DAL.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Enrich.Web.Seeders
 {
@@ -39,6 +41,31 @@ namespace Enrich.Web.Seeders
                     await userManager.AddToRoleAsync(newAdmin, "Admin");
                 }
             }
+
+            await SeedCategoriesAsync(scope.ServiceProvider);
+        }
+
+        private static async Task SeedCategoriesAsync(IServiceProvider services)
+        {
+            var db = services.GetRequiredService<ApplicationDbContext>();
+
+            var defaultCategories = new[]
+            {
+                "General", "Business", "Technology", "Science", "Medicine",
+                "Law", "Politics", "Art", "Music", "Sports",
+                "Travel", "Food", "Nature", "Education", "Finance"
+            };
+
+            foreach (var name in defaultCategories)
+            {
+                var exists = await db.Categories.AnyAsync(c => c.Name == name);
+                if (!exists)
+                {
+                    db.Categories.Add(new Category { Name = name });
+                }
+            }
+
+            await db.SaveChangesAsync();
         }
     }
 }

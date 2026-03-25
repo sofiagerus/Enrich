@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Enrich.BLL.Constants;
+using Enrich.DAL.Entities;
 
 namespace Enrich.Web.ViewModels
 {
@@ -8,7 +9,17 @@ namespace Enrich.Web.ViewModels
         [Required(ErrorMessage = WordConstants.TermRequired)]
         [MaxLength(WordConstants.TermMaxLength, ErrorMessage = WordConstants.TermMaxLengthMessage)]
         [Display(Name = "Word")]
-        public string Term { get; set; } = null!;
+        public string Term { get; set; } = string.Empty;
+
+        [Display(Name = "Category")]
+        public int? CategoryId { get; set; }
+
+        [Required(ErrorMessage = "Please select or type a category")]
+        [MaxLength(50, ErrorMessage = "Category name is too long")]
+        [Display(Name = "Category")]
+        public string? NewCategory { get; set; }
+
+        public IEnumerable<Category>? Categories { get; set; }
 
         [MaxLength(WordConstants.DifficultyLevelMaxLength, ErrorMessage = WordConstants.DifficultyLevelMaxLengthMessage)]
         [Display(Name = "Difficulty Level")]
@@ -33,5 +44,7 @@ namespace Enrich.Web.ViewModels
         [MaxLength(WordConstants.ExampleMaxLength, ErrorMessage = WordConstants.ExampleMaxLengthMessage)]
         [Display(Name = "Example")]
         public string? Example { get; set; }
+
+        public IEnumerable<int> CategoryIds { get; set; } = [];
     }
 }

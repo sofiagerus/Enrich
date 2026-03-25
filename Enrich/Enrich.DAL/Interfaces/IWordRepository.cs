@@ -19,5 +19,13 @@ namespace Enrich.DAL.Interfaces
         IQueryable<UserWord> QueryPersonalWords(string userId);
 
         Task<(IEnumerable<UserWord> Items, int Total)> GetPersonalWordsPageAsync(string userId, string? searchTerm, string? category, string? partOfSpeech, string? difficultyLevel, int page, int pageSize);
+
+        Task<IEnumerable<Category>> GetAllCategoriesAsync();
+
+        Task<IEnumerable<Category>> GetCategoriesByIdsAsync(IEnumerable<int> ids);
+
+        Task<Category> CreateCategoryAsync(Category category);
+
+        Task<Category?> GetCategoryByNameAsync(string name);
     }
 }
