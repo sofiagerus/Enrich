@@ -2,6 +2,7 @@ using Enrich.BLL;
 using Enrich.DAL;
 using Enrich.DAL.Data;
 using Enrich.DAL.Entities;
+using Enrich.Web.Handlers;
 using Enrich.Web.Seeders;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
@@ -44,6 +45,9 @@ try
         options.LoginPath = "/Account/Login";
     });
 
+    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+    builder.Services.AddProblemDetails();
+
     builder.Services.AddLocalization(o => o.ResourcesPath = "Resources");
     builder.Services.AddControllersWithViews()
         .AddViewLocalization();
@@ -54,10 +58,12 @@ try
 
     Log.Information("Додаток Enrich запущено");
 
+    app.UseExceptionHandler("/Home/Error");
+    app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
+
     // Configure the HTTP request pipeline
     if (!app.Environment.IsDevelopment())
     {
-        app.UseExceptionHandler("/Home/Error");
         app.UseHsts();
     }
 

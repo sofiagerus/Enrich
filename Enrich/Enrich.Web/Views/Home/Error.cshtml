@@ -1,0 +1,65 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+    Layout = null;
+
+    int statusCode = Model.StatusCode ?? 500;
+    string errorTitle = "Something went wrong";
+    string errorDesc = "We're sorry, but an unexpected error occurred while processing your request.";
+
+    if (statusCode == 404)
+    {
+        errorTitle = "Page not found";
+        errorDesc = "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.";
+    }
+    else if (statusCode == 403)
+    {
+        errorTitle = "Access denied";
+        errorDesc = "You do not have permission to view this directory or page using the credentials that you supplied.";
+    }
+    else if (statusCode == 401)
+    {
+        errorTitle = "Unauthorized";
+        errorDesc = "Please log in to access this page.";
+    }
+    else if (statusCode == 400)
+    {
+        errorTitle = "Bad request";
+        errorDesc = "Your browser sent a request that this server could not understand.";
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@errorTitle - Enrich</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-success text-dark d-flex flex-column justify-content-center" style="--bs-bg-opacity: 0.08; min-height: 100vh; padding: 0 15vw;">
+    <div style="max-width: 600px;">
+        <h1 class="fw-normal m-0" style="font-size: 5rem; line-height: 1.1;">@statusCode</h1>
+        <h2 class="display-5 fw-normal m-0 mb-4 lh-base">@errorTitle</h2>
+        <p class="fs-5 text-dark m-0 mb-5">@errorDesc</p>
+
+        @if (Model.ShowRequestId)
+        {
+            <div class="mt-5 text-muted small">
+                Request ID: <code>@Model.RequestId</code>
+            </div>
+        }
+    </div>
+</body>
+</html>
