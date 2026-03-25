@@ -1,4 +1,5 @@
 using Enrich.BLL.DTOs;
+using Enrich.DAL.Entities;
 
 namespace Enrich.BLL.Interfaces
 {
@@ -6,6 +7,18 @@ namespace Enrich.BLL.Interfaces
     {
         Task<(bool Success, string? ErrorMessage)> CreatePersonalWordAsync(string userId, CreatePersonalWordDTO dto);
 
+        Task<(bool Success, string? ErrorMessage)> DeleteWordAsync(string userId, int wordId);
+
         Task<IEnumerable<PersonalWordDTO>> GetPersonalWordsAsync(string userId);
+
+        Task<PagedResult<PersonalWordDTO>> GetPersonalWordsAsync(string userId, string? searchTerm, string? category, string? partOfSpeech, string? difficultyLevel, int page, int pageSize);
+
+        Task<IEnumerable<Category>> GetAllCategoriesAsync();
+
+        Task<IEnumerable<Category>> GetCategoriesByIdsAsync(IEnumerable<int> ids);
+
+        Task<Category> CreateCategoryAsync(string name);
+
+        Task<Category?> GetCategoryByNameAsync(string name);
     }
 }

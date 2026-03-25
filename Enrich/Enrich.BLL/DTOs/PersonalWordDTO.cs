@@ -19,5 +19,7 @@ namespace Enrich.BLL.DTOs
         public string? DifficultyLevel { get; set; }
 
         public DateTime AddedAt { get; set; }
+
+        public string? CategoryName { get; internal set; }
     }
 }

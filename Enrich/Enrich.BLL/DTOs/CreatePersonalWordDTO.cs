@@ -15,5 +15,7 @@ namespace Enrich.BLL.DTOs
         public string? Example { get; set; }
 
         public string? DifficultyLevel { get; set; }
+
+        public IEnumerable<int>? CategoryIds { get; set; }
     }
 }

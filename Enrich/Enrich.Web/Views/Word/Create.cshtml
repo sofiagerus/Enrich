@@ -11,13 +11,30 @@
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(4px);
         }
+
+        .category-item {
+            cursor: pointer;
+            transition: background .12s;
+            border-radius: .5rem;
+            margin: 2px 4px;
+        }
+
+            .category-item:hover,
+            .category-item:focus {
+                background: #f0f4ff;
+                outline: none;
+            }
+
+        .new-item {
+            color: #198754;
+        }
     </style>
 }
 
 <div class="d-flex align-items-center mb-4 gap-3">
     <a asp-action="MyWords" asp-controller="Word"
-       class="btn btn-sm btn-outline-secondary rounded-3 d-flex align-items-center gap-1"
-       id="btn-back-mywords">
+           class="btn btn-sm btn-outline-secondary rounded-3 d-flex align-items-center gap-1"
+           id="btn-back-mywords">
         <i class="bi bi-arrow-left"></i>
         Back
     </a>
@@ -43,47 +60,76 @@
                     Word <span class="text-danger ms-1">*</span>
                 </label>
                 <input asp-for="Term"
-                       id="input-term"
                        class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
                        placeholder="e.g. Serendipity" />
                 <span asp-validation-for="Term" class="text-danger small d-block mt-1"></span>
             </div>
 
-            @* Difficulty Level *@
-            <div class="mb-3">
-                <label asp-for="DifficultyLevel" class="form-label fw-medium mb-1">Difficulty Level</label>
-                <input asp-for="DifficultyLevel"
-                       id="input-difficulty"
-                       class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
-                       placeholder="e.g. B2,C1" />
-                <span asp-validation-for="DifficultyLevel" class="text-danger small d-block mt-1"></span>
+            @* Category - Custom dropdown with new category support *@
+            <div class="mb-3 position-relative" id="category-wrapper">
+                <label asp-for="NewCategory" class="form-label fw-medium mb-1">
+                    Category <span class="text-danger ms-1">*</span>
+                </label>
+
+                <div class="category-combo position-relative">
+                    <input asp-for="NewCategory"
+                           id="category-input"
+                           class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg pe-5"
+                           placeholder="Select or type a new category..."
+                           autocomplete="off"
+                           required />
+                    <button type="button" id="category-toggle"
+                            class="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent p-0 text-muted"
+                            tabindex="-1" aria-label="Toggle list">
+                        <i class="bi bi-chevron-down" id="category-chevron" style="transition: transform .2s;"></i>
+                    </button>
+                </div>
+
+                <ul id="category-dropdown"
+                    class="list-unstyled mb-0 mt-1 border rounded-4 shadow-sm bg-white position-absolute w-100 overflow-auto"
+                    style="display:none; max-height:200px; z-index:1050;">
+                </ul>
+
+                <span asp-validation-for="NewCategory" class="text-danger small d-block mt-1"></span>
+                <small class="text-muted">Choose from existing or type a new category name.</small>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    @* Difficulty Level *@
+                    <div class="mb-3">
+                        <label asp-for="DifficultyLevel" class="form-label fw-medium mb-1">Difficulty Level</label>
+                        <input asp-for="DifficultyLevel"
+                               class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
+                               placeholder="e.g. B2" />
+                        <span asp-validation-for="DifficultyLevel" class="text-danger small d-block mt-1"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    @* Part of Speech *@
+                    <div class="mb-3">
+                        <label asp-for="PartOfSpeech" class="form-label fw-medium mb-1">Part of Speech</label>
+                        <input asp-for="PartOfSpeech"
+                               class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
+                               placeholder="e.g. noun" />
+                        <span asp-validation-for="PartOfSpeech" class="text-danger small d-block mt-1"></span>
+                    </div>
+                </div>
             </div>
 
             @* Translation *@
             <div class="mb-3">
                 <label asp-for="Translation" class="form-label fw-medium mb-1">Translation</label>
                 <input asp-for="Translation"
-                       id="input-translation"
                        class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
                        placeholder="e.g. Щасливий випадок" />
                 <span asp-validation-for="Translation" class="text-danger small d-block mt-1"></span>
-            </div>
-
-            @* Part of Speech *@
-            <div class="mb-3">
-                <label asp-for="PartOfSpeech" class="form-label fw-medium mb-1">Part of Speech</label>
-                <input asp-for="PartOfSpeech"
-                       id="input-part-of-speech"
-                       class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
-                       placeholder="e.g. noun, verb, adjective" />
-                <span asp-validation-for="PartOfSpeech" class="text-danger small d-block mt-1"></span>
             </div>
 
             @* Transcription *@
             <div class="mb-3">
                 <label asp-for="Transcription" class="form-label fw-medium mb-1">Transcription</label>
                 <input asp-for="Transcription"
-                       id="input-transcription"
                        class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
                        placeholder="e.g. /ˌserənˈdɪpɪti/" />
                 <span asp-validation-for="Transcription" class="text-danger small d-block mt-1"></span>
@@ -93,10 +139,9 @@
             <div class="mb-3">
                 <label asp-for="Meaning" class="form-label fw-medium mb-1">Meaning</label>
                 <textarea asp-for="Meaning"
-                          id="input-meaning"
                           class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
                           rows="2"
-                          placeholder="Short definition or explanation"></textarea>
+                          placeholder="Short definition"></textarea>
                 <span asp-validation-for="Meaning" class="text-danger small d-block mt-1"></span>
             </div>
 
@@ -104,23 +149,17 @@
             <div class="mb-4">
                 <label asp-for="Example" class="form-label fw-medium mb-1">Example</label>
                 <textarea asp-for="Example"
-                          id="input-example"
                           class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
                           rows="2"
-                          placeholder="e.g. It was pure serendipity that we met."></textarea>
+                          placeholder="Sentence using the word"></textarea>
                 <span asp-validation-for="Example" class="text-danger small d-block mt-1"></span>
             </div>
 
             <div class="d-flex gap-3">
-                <button type="submit"
-                        class="btn btn-success rounded-4 py-2 px-4 fw-medium shadow-sm"
-                        id="btn-submit-word">
-                    <i class="bi bi-plus-circle me-1"></i>
-                    Add Word
+                <button type="submit" class="btn btn-success rounded-4 py-2 px-4 fw-medium shadow-sm">
+                    <i class="bi bi-plus-circle me-1"></i> Add Word
                 </button>
-                <a asp-action="MyWords" asp-controller="Word"
-                   class="btn btn-outline-secondary rounded-4 py-2 px-4"
-                   id="btn-cancel-word">
+                <a asp-action="MyWords" asp-controller="Word" class="btn btn-outline-secondary rounded-4 py-2 px-4">
                     Cancel
                 </a>
             </div>
@@ -130,4 +169,122 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const input    = document.getElementById('category-input');
+            const dropdown = document.getElementById('category-dropdown');
+            const toggle   = document.getElementById('category-toggle');
+            const chevron  = document.getElementById('category-chevron');
+            let allCategories = [];
+
+            async function fetchCategories() {
+                try {
+                    const res = await fetch('/Word/GetCategories');
+                    if (res.ok) allCategories = await res.json();
+                } catch (e) {
+                    console.error('Error loading categories:', e);
+                }
+            }
+
+            function escapeHtml(str) {
+                return str
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+            }
+
+            function renderDropdown() {
+                const val = input.value.trim().toLowerCase();
+
+                const matches = allCategories.filter(c =>
+                    c.name.toLowerCase().includes(val)
+                );
+
+                dropdown.innerHTML = '';
+
+                const exactMatch = allCategories.some(c =>
+                    c.name.toLowerCase() === val
+                );
+                if (val && !exactMatch) {
+                    const li = document.createElement('li');
+                    li.className = 'px-3 py-2 d-flex align-items-center gap-2 category-item new-item';
+                    li.setAttribute('tabindex', '0');
+                    li.innerHTML = `<i class="bi bi-plus-circle"></i>
+                                    <span>Create <strong>"${escapeHtml(input.value.trim())}"</strong></span>`;
+                    li.addEventListener('mousedown', e => {
+                        e.preventDefault();
+                        input.value = input.value.trim();
+                        closeDropdown();
+                    });
+                    li.addEventListener('keydown', handleItemKeydown);
+                    dropdown.appendChild(li);
+                }
+
+                matches.forEach(c => {
+                    const li = document.createElement('li');
+                    li.className = 'px-3 py-2 category-item';
+                    li.setAttribute('tabindex', '0');
+                    li.textContent = c.name;
+                    li.addEventListener('mousedown', e => {
+                        e.preventDefault();
+                        input.value = c.name;
+                        closeDropdown();
+                    });
+                    li.addEventListener('keydown', handleItemKeydown);
+                    dropdown.appendChild(li);
+                });
+
+                const hasItems = dropdown.children.length > 0;
+                dropdown.style.display = hasItems ? 'block' : 'none';
+                chevron.style.transform = hasItems ? 'rotate(180deg)' : '';
+            }
+
+            function handleItemKeydown(e) {
+                const items = [...dropdown.querySelectorAll('.category-item')];
+                const idx   = items.indexOf(document.activeElement);
+                if (e.key === 'ArrowDown' && idx < items.length - 1) {
+                    items[idx + 1].focus(); e.preventDefault();
+                } else if (e.key === 'ArrowUp') {
+                    idx > 0 ? items[idx - 1].focus() : input.focus();
+                    e.preventDefault();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.activeElement.dispatchEvent(new MouseEvent('mousedown'));
+                } else if (e.key === 'Escape') {
+                    input.focus(); closeDropdown();
+                }
+            }
+
+            function openDropdown()  { renderDropdown(); }
+            function closeDropdown() {
+                dropdown.style.display = 'none';
+                chevron.style.transform = '';
+            }
+
+            // --- events ---
+            input.addEventListener('focus', openDropdown);
+            input.addEventListener('input', renderDropdown);
+
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Escape') { closeDropdown(); return; }
+                if (e.key === 'ArrowDown') {
+                    const first = dropdown.querySelector('.category-item');
+                    if (first) { first.focus(); e.preventDefault(); }
+                }
+            });
+
+            toggle.addEventListener('mousedown', e => {
+                e.preventDefault();
+                dropdown.style.display === 'none' ? openDropdown() : closeDropdown();
+            });
+
+            document.addEventListener('mousedown', e => {
+                if (!document.getElementById('category-wrapper').contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+
+            document.addEventListener('DOMContentLoaded', fetchCategories);
+        })();
+    </script>
 }

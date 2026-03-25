@@ -19,8 +19,15 @@ namespace Enrich.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetMyWords()
+        public async Task<IActionResult> GetCategories()
+        {
+            var cats = await wordService.GetAllCategoriesAsync();
+            var result = cats.Select(c => new { id = c.Id, name = c.Name });
+            return Json(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMyWords(string? searchTerm, string? category, string? partOfSpeech, string? difficultyLevel, int page = 1, int pageSize = 20)
         {
             var userId = userService.GetCurrentUserId(User);
             if (userId == null)
@@ -29,69 +36,116 @@ namespace Enrich.Web.Controllers
                 return Unauthorized();
             }
 
-            var words = await wordService.GetPersonalWordsAsync(userId);
-            logger.LogInformation("Користувач {UserId} отримав {WordCount} слів.", userId, words.Count());
-            return Json(words);
+            var pageResult = await wordService.GetPersonalWordsAsync(userId, searchTerm, category, partOfSpeech, difficultyLevel, page, pageSize);
+
+            logger.LogInformation("Користувач {UserId} отримав {WordCount} слів (загалом {Total}).", userId, pageResult.Items.Count(), pageResult.TotalCount);
+            return Json(pageResult);
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View(new CreateWordViewModel());
+            var vm = new CreateWordViewModel
+            {
+                // Отримуємо категорії для datalist
+                Categories = await wordService.GetAllCategoriesAsync() ?? new List<Enrich.DAL.Entities.Category>()
+            };
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateWordViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                logger.LogWarning(
-                    "Провалена валідація форми створення слова. Term: {Term}.",
-                    model.Term);
-
-                return View(model);
-            }
-
             var userId = userService.GetCurrentUserId(User);
             if (userId == null)
             {
-                logger.LogWarning("Спроба створити слово неавторизованим користувачем.");
                 return Unauthorized();
             }
 
+            if (!ModelState.IsValid)
+            {
+                logger.LogWarning("Провалена валідація форми створення слова для {UserId}.", userId);
+                model.Categories = await wordService.GetAllCategoriesAsync();
+                return View(model);
+            }
+
+            // Обробляємо категорію (знаходимо існуючу або створюємо нову)
+            var categoryIds = await HandleCategoryLogic(model.NewCategory);
+
             var dto = new CreatePersonalWordDTO
             {
-                Term = model.Term,
-                Translation = model.Translation,
-                Transcription = model.Transcription,
-                Meaning = model.Meaning,
-                PartOfSpeech = model.PartOfSpeech,
-                Example = model.Example,
-                DifficultyLevel = model.DifficultyLevel,
+                Term = model.Term.Trim(),
+                Translation = model.Translation?.Trim(),
+                Transcription = model.Transcription?.Trim(),
+                Meaning = model.Meaning?.Trim(),
+                PartOfSpeech = model.PartOfSpeech?.Trim(),
+                Example = model.Example?.Trim(),
+                DifficultyLevel = model.DifficultyLevel?.Trim(),
+                CategoryIds = categoryIds
             };
 
             var (success, errorMessage) = await wordService.CreatePersonalWordAsync(userId, dto);
 
             if (!success)
             {
-                logger.LogWarning(
-                    "Не вдалося створити слово '{Term}' для користувача {UserId}: {Error}",
-                    model.Term,
-                    userId,
-                    errorMessage);
-
+                logger.LogWarning("Помилка створення слова '{Term}' для {UserId}: {Error}", model.Term, userId, errorMessage);
                 ModelState.AddModelError(string.Empty, errorMessage!);
+                model.Categories = await wordService.GetAllCategoriesAsync();
                 return View(model);
             }
 
-            logger.LogInformation(
-                "Користувач {UserId} успішно створив нове слово '{Term}'.",
-                userId,
-                model.Term);
+            logger.LogInformation("Користувач {UserId} успішно створив слово '{Term}'.", userId, model.Term);
+            TempData["SuccessMessage"] = $"Word '{model.Term}' successfully added!";
 
-            TempData["SuccessMessage"] = $"Word '{model.Term}' has been added to your personal dictionary!";
             return RedirectToAction(nameof(MyWords));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var userId = userService.GetCurrentUserId(User);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var (success, errorMessage) = await wordService.DeleteWordAsync(userId, id);
+
+            if (!success)
+            {
+                logger.LogWarning("Невдала спроба видалення слова {WordId} користувачем {UserId}: {Error}", id, userId, errorMessage);
+                return BadRequest(new { message = errorMessage });
+            }
+
+            return Ok();
+        }
+
+        private async Task<List<int>> HandleCategoryLogic(string? categoryInput)
+        {
+            var categoryIds = new List<int>();
+
+            if (!string.IsNullOrWhiteSpace(categoryInput))
+            {
+                var categoryName = categoryInput.Trim();
+
+                var existingCategory = await wordService.GetCategoryByNameAsync(categoryName);
+
+                if (existingCategory != null)
+                {
+                    categoryIds.Add(existingCategory.Id);
+                }
+                else
+                {
+                    var createdCategory = await wordService.CreateCategoryAsync(categoryName);
+                    if (createdCategory != null)
+                    {
+                        categoryIds.Add(createdCategory.Id);
+                    }
+                }
+            }
+
+            return categoryIds;
         }
     }
 }
