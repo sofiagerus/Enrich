@@ -19,8 +19,7 @@ namespace Enrich.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetMyWords()
+        public async Task<IActionResult> GetMyWords(string? searchTerm, string? category, string? partOfSpeech, string? difficultyLevel, int page = 1, int pageSize = 20)
         {
             var userId = userService.GetCurrentUserId(User);
             if (userId == null)
@@ -29,9 +28,10 @@ namespace Enrich.Web.Controllers
                 return Unauthorized();
             }
 
-            var words = await wordService.GetPersonalWordsAsync(userId);
-            logger.LogInformation("Користувач {UserId} отримав {WordCount} слів.", userId, words.Count());
-            return Json(words);
+            var pageResult = await wordService.GetPersonalWordsAsync(userId, searchTerm, category, partOfSpeech, difficultyLevel, page, pageSize);
+
+            logger.LogInformation("Користувач {UserId} отримав {WordCount} слів (загалом {Total}).", userId, pageResult.Items.Count(), pageResult.TotalCount);
+            return Json(pageResult);
         }
 
         [HttpGet]
@@ -46,17 +46,13 @@ namespace Enrich.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                logger.LogWarning(
-                    "Провалена валідація форми створення слова. Term: {Term}.",
-                    model.Term);
-
+                logger.LogWarning("Провалена валідація форми створення слова. Term: {Term}.", model.Term);
                 return View(model);
             }
 
             var userId = userService.GetCurrentUserId(User);
             if (userId == null)
             {
-                logger.LogWarning("Спроба створити слово неавторизованим користувачем.");
                 return Unauthorized();
             }
 
@@ -75,23 +71,42 @@ namespace Enrich.Web.Controllers
 
             if (!success)
             {
-                logger.LogWarning(
-                    "Не вдалося створити слово '{Term}' для користувача {UserId}: {Error}",
-                    model.Term,
-                    userId,
-                    errorMessage);
-
+                logger.LogWarning("Помилка створення слова '{Term}' для {UserId}: {Error}", model.Term, userId, errorMessage);
                 ModelState.AddModelError(string.Empty, errorMessage!);
                 return View(model);
             }
 
-            logger.LogInformation(
-                "Користувач {UserId} успішно створив нове слово '{Term}'.",
-                userId,
-                model.Term);
-
-            TempData["SuccessMessage"] = $"Word '{model.Term}' has been added to your personal dictionary!";
+            logger.LogInformation("Користувач {UserId} створив слово '{Term}'.", userId, model.Term);
+            TempData["SuccessMessage"] = $"Word '{model.Term}' added!";
             return RedirectToAction(nameof(MyWords));
+        }
+
+        // Новий метод видалення
+        [HttpPost]
+
+        // [ValidateAntiForgeryToken] // Розкоментуйте, якщо додасте токен у fetch запит на фронтенді
+        public async Task<IActionResult> Delete(int id)
+        {
+            var userId = userService.GetCurrentUserId(User);
+            if (userId == null)
+            {
+                logger.LogWarning("Анонімна спроба видалення слова ID: {WordId}", id);
+                return Unauthorized();
+            }
+
+            // Викликаємо сервіс. В сервісі має бути перевірка:
+            // якщо слово створене юзером - видаляємо з БД.
+            // якщо слово системне - видаляємо лише запис із таблиці зв'язків UserWords.
+            var (success, errorMessage) = await wordService.DeleteWordAsync(userId, id);
+
+            if (!success)
+            {
+                logger.LogWarning("Невдала спроба видалення слова {WordId} користувачем {UserId}: {Error}", id, userId, errorMessage);
+                return BadRequest(new { message = errorMessage });
+            }
+
+            logger.LogInformation("Користувач {UserId} видалив слово {WordId}.", userId, id);
+            return Ok();
         }
     }
 }

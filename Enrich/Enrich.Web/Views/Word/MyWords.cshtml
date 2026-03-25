@@ -3,109 +3,508 @@
     Layout = "~/Views/Shared/_AppLayout.cshtml";
 }
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
-        <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
+<style>
+    :root {
+        --active-green: #198754;
+        --bg-gray: #F1F3F5;
+        --border-color: #E9ECEF;
+        --text-dark: #212529;
+        --danger-red: #dc3545;
+    }
 
-<div class="d-flex align-items-center justify-content-between mb-4">
-    <div>
-        <h1 class="fw-semibold fs-4 mb-1">My Words</h1>
-        <p class="text-muted mb-0" style="font-size: 0.9rem;">Your personal vocabulary collection</p>
-    </div>
-    <a asp-action="Create" asp-controller="Word"
-       class="btn btn-success rounded-4 py-2 px-4 d-flex align-items-center gap-2 shadow-sm"
-       id="btn-add-word">
-        <i class="bi bi-plus-lg"></i>
-        Add new word
-    </a>
-</div>
+    .sidebar-panel {
+        background-color: #FFFFFF;
+        border-radius: 20px;
+        padding: 20px;
+        position: relative;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
 
-<div id="words-container">
-    <!-- Words will be loaded here -->
+    .filter-item {
+        cursor: pointer;
+        padding: 6px 10px;
+        border-radius: 10px;
+        color: #444;
+        display: flex;
+        align-items: center;
+        margin-bottom: 2px;
+        transition: 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+        .filter-item:hover {
+            background-color: #E9ECEF;
+        }
+
+        .filter-item.active {
+            background-color: var(--active-green) !important;
+            color: white !important;
+        }
+
+    .dot-icon {
+        width: 12px;
+        height: 12px;
+        background-color: #D1D1D1;
+        border-radius: 3px;
+        margin-right: 10px;
+        flex-shrink: 0;
+    }
+
+    .filter-item.active .dot-icon {
+        background-color: rgba(255,255,255,0.5);
+    }
+
+    .sidebar-divider {
+        height: 1px;
+        background-color: #E9ECEF;
+        margin: 16px 0;
+    }
+
+
+    .word-card {
+        background: #FFFFFF !important;
+        border-radius: 16px !important;
+        border: 1px solid var(--border-color) !important;
+        padding: 16px 20px;
+        transition: all 0.3s ease; 
+        display: flex;
+        flex-direction: column;
+    }
+
+        .word-card:hover {
+            border-color: #ced4da !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important;
+        }
+
+    /* Анімація видалення */
+    .word-fade-out {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    .word-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .term-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin: 0;
+        line-height: 1.3;
+    }
+
+    .badge-level {
+        background: #E9ECEF;
+        color: #6c757d;
+        font-weight: 600;
+        font-size: 0.68rem;
+        padding: 2px 7px;
+        border-radius: 5px;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+
+    .pos-label {
+        color: var(--active-green);
+        font-weight: 500;
+        font-size: 0.82rem;
+        margin-top: 2px;
+        display: block;
+    }
+
+    .translation-title {
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: #555;
+        white-space: nowrap;
+        margin-left: 8px;
+    }
+
+    .transcription {
+        color: #888;
+        font-size: 0.82rem;
+        margin-top: 6px;
+    }
+
+    .section-label {
+        font-weight: 700;
+        font-size: 0.78rem;
+        color: #333;
+        margin-bottom: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+
+    .section-text {
+        color: #666;
+        font-size: 0.82rem;
+        line-height: 1.4;
+    }
+
+    /* ── Progress ── */
+    .progress-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 14px;
+    }
+
+    .progress-custom {
+        height: 5px;
+        flex-grow: 1;
+        background-color: #E9ECEF;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        background-color: var(--active-green);
+        height: 100%;
+        border-radius: 10px;
+    }
+
+    .progress-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #888;
+        white-space: nowrap;
+    }
+
+        .progress-label.learned {
+            color: var(--active-green);
+        }
+
+    /* ── Dots button ── */
+    .card-footer-row {
+        margin-top: auto;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .btn-dots {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid #DEE2E6;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #555;
+        transition: 0.2s;
+        padding: 0;
+        cursor: pointer;
+    }
+
+        .btn-dots:hover {
+            background: #F1F3F5;
+            border-color: #aaa;
+        }
+
+
+    .dropdown-item:active {
+        background-color: #F1F3F5;
+        color: var(--text-dark);
+    }
+
+    .dropdown-item.text-danger:active,
+    .dropdown-item.text-danger:focus {
+        background-color: #fff5f5 !important;
+        color: var(--danger-red) !important;
+    }
+
+    .btn-action {
+        background-color: transparent;
+        color: var(--text-dark);
+        border-radius: 20px;
+        padding: 7px 18px;
+        border: 1px solid #CCC;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+        .btn-action:hover {
+            background-color: #F1F3F5;
+            border-color: #aaa;
+            color: var(--text-dark);
+        }
+
+        .btn-action.primary {
+            background-color: var(--active-green);
+            color: white;
+            border-color: var(--active-green);
+        }
+
+            .btn-action.primary:hover {
+                background-color: #157347;
+                border-color: #157347;
+                color: white;
+            }
+
+    .search-box {
+        background-color: #E9ECEF !important;
+        border-radius: 14px !important;
+        border: none !important;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #aaa;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row">
+
+        <div class="col-lg-9">
+
+            <div class="d-flex flex-wrap gap-3 mb-3 align-items-center">
+                <div class="input-group flex-grow-1 search-box overflow-hidden" style="max-width: 600px;">
+                    <span class="input-group-text border-0 bg-transparent ps-3">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" id="searchTerm" class="form-control border-0 bg-transparent p-2"
+                           placeholder="Search words...">
+                </div>
+                <button class="btn btn-action">
+                    <i class="bi bi-filter-right me-1"></i> Sort by
+                </button>
+            </div>
+
+            <div class="d-flex gap-2 mb-4">
+                <a asp-action="Create" class="btn btn-action primary">
+                    <i class="bi bi-plus-lg me-1"></i> Add New Word
+                </a>
+                <button class="btn btn-action">
+                    <i class="bi bi-bullseye me-1"></i> Start a Quiz
+                </button>
+            </div>
+
+            <div id="words-container" class="row g-3"></div>
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul id="pager" class="pagination"></ul>
+            </nav>
+        </div>
+
+        <div class="col-lg-3 ps-lg-4">
+            <div class="sidebar-panel sticky-top" style="top: 20px;">
+
+                <h6 class="fw-bold mb-2" style="font-size:0.9rem;">Categories</h6>
+                <div class="bg-white rounded-3 mb-3 p-1 border">
+                    <input type="text" class="form-control border-0 small" placeholder="Search..." style="font-size:0.85rem;">
+                </div>
+                <ul class="list-unstyled mb-0" id="category-filters">
+                    @foreach (var cat in new[] { "Fruits", "Emotions", "Travel", "Computers" })
+                    {
+                        <li class="filter-item" onclick="updateFilter('category', '@cat')">
+                            <div class="dot-icon"></div>@cat
+                        </li>
+                    }
+                </ul>
+
+                <div class="sidebar-divider"></div>
+
+                <h6 class="fw-bold mb-2" style="font-size:0.9rem;">Difficulty Level</h6>
+                <ul class="list-unstyled mb-0" id="level-filters">
+                    @foreach (var level in new[] { "C2", "C1", "B2", "B1", "A2", "A1" })
+                    {
+                        <li class="filter-item" onclick="updateFilter('level', '@level')">
+                            <div class="dot-icon"></div>@level
+                        </li>
+                    }
+                </ul>
+
+                <div class="sidebar-divider"></div>
+
+                <h6 class="fw-bold mb-2" style="font-size:0.9rem;">Part of Speech</h6>
+                <ul class="list-unstyled mb-0" id="pos-filters">
+                    @foreach (var pos in new[] { "Noun", "Verb", "Adjective", "Adverb", "Phrasal" })
+                    {
+                        <li class="filter-item" onclick="updateFilter('pos', '@pos')">
+                            <div class="dot-icon"></div>@pos
+                        </li>
+                    }
+                </ul>
+
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     <script>
-        async function loadWords() {
-            try {
-                console.log('Starting to load words...');
-                const response = await fetch('/Word/GetMyWords');
-                console.log('Response status:', response.status);
-                
-                if (!response.ok) {
-                    console.error('Failed to load words:', response.statusText);
-                    const text = await response.text();
-                    console.error('Response body:', text);
-                    return;
-                }
+        let currentFilters = { searchTerm: '', category: '', level: '', pos: '' };
 
-                const words = await response.json();
-                console.log('Words received:', words);
-                console.log('Word count:', words ? words.length : 0);
-                
+        let currentPage = 1;
+        let currentPageSize = 8;
+
+        async function loadWords(page = 1) {
+            currentPage = page;
+            const { searchTerm, category, level, pos } = currentFilters;
+            const url = `/Word/GetMyWords?searchTerm=${encodeURIComponent(searchTerm)}&category=${encodeURIComponent(category)}&difficultyLevel=${encodeURIComponent(level)}&partOfSpeech=${encodeURIComponent(pos)}&page=${page}&pageSize=${currentPageSize}`;
+
+            try {
+                const response = await fetch(url);
+                const result = await response.json();
+                const words = result.items || result.items || result.Items || result.Items || result;
+                const total = result.totalCount || result.TotalCount || 0;
                 const container = document.getElementById('words-container');
 
                 if (!words || words.length === 0) {
-                    console.log('No words found, showing empty state');
-                    // Show empty state
                     container.innerHTML = `
-                        <div class="card border-0 shadow-sm rounded-4 p-5 text-center" style="background: rgba(255,255,255,0.8);">
-                            <i class="bi bi-book text-success mb-3" style="font-size: 3rem;"></i>
-                            <h5 class="fw-semibold mb-2">No words yet</h5>
-                            <p class="text-muted mb-4" style="font-size: 0.9rem;">
-                                Start building your personal dictionary by adding your first word.
-                            </p>
-                            <a asp-action="Create" asp-controller="Word"
-                               class="btn btn-success rounded-4 py-2 px-4 mx-auto"
-                               style="width: fit-content;">
-                                <i class="bi bi-plus-lg me-1"></i>Add new word
-                            </a>
-                        </div>
-                    `;
-                } else {
-                    console.log('Displaying ' + words.length + ' words');
-                    // Display words
-                    container.innerHTML = words.map(word => `
-                        <div class="card border-0 shadow-sm rounded-4 mb-3" style="background: rgba(255,255,255,0.8);">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h5 class="fw-semibold mb-2">${escapeHtml(word.term)}</h5>
-                                        ${word.transcription ? `<p class="text-muted mb-2"><small>/${escapeHtml(word.transcription)}/</small></p>` : ''}
-                                        ${word.translation ? `<p class="mb-2"><strong>Translation:</strong> ${escapeHtml(word.translation)}</p>` : ''}
-                                        ${word.partOfSpeech ? `<p class="mb-2"><strong>Part of Speech:</strong> ${escapeHtml(word.partOfSpeech)}</p>` : ''}
-                                        ${word.meaning ? `<p class="mb-2"><strong>Meaning:</strong> ${escapeHtml(word.meaning)}</p>` : ''}
-                                        ${word.example ? `<p class="mb-2"><strong>Example:</strong> <em>${escapeHtml(word.example)}</em></p>` : ''}
-                                        ${word.difficultyLevel ? `<p class="mb-0"><span class="badge bg-info">${escapeHtml(word.difficultyLevel)}</span></p>` : ''}
-                                    </div>
+                        <div class="col-12">
+                            <div class="empty-state">
+                                <i class="bi bi-journal-x"></i>
+                                <p class="fw-semibold mb-1">No words found</p>
+                                <p class="small">Try adjusting your filters or add a new word.</p>
+                            </div>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = words.map(word => {
+                    const progress = word.progress ?? 65;
+                    const isLearned = progress >= 100;
+                    const progressLabel = isLearned
+                        ? `<span class="progress-label learned">Learned!</span>`
+                        : `<span class="progress-label">${progress}%</span>`;
+
+                    return `
+                    <div class="col-md-6" id="word-${word.id}">
+                        <div class="word-card h-100">
+                            <div class="word-header">
+                                <div>
+                                    <h5 class="term-title">
+                                        ${escapeHtml(word.term)}
+                                        <span class="badge-level">${escapeHtml(word.difficultyLevel || 'B2')}</span>
+                                    </h5>
+                                    <span class="pos-label">${escapeHtml(word.partOfSpeech || 'noun')}</span>
+                                </div>
+                                <div class="translation-title">${escapeHtml(word.translation)}</div>
+                            </div>
+
+                            <div class="transcription">[${escapeHtml(word.transcription || '...')}]</div>
+
+                            <div class="mt-2">
+                                <div class="section-label">Meaning</div>
+                                <div class="section-text">${escapeHtml(word.meaning || '...')}</div>
+                            </div>
+
+                            <div class="mt-2">
+                                <div class="section-label">Example</div>
+                                <div class="section-text fst-italic">${escapeHtml(word.example || '...')}</div>
+                            </div>
+
+                            <div class="progress-container">
+                                <div class="progress-custom">
+                                    <div class="progress-fill" style="width: ${progress}%"></div>
+                                </div>
+                                ${progressLabel}
+                            </div>
+
+                            <div class="card-footer-row">
+                                <div class="dropdown">
+                                    <button class="btn-dots" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                                        <li><a class="dropdown-item" href="/Word/Edit/${word.id}">Edit</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteWord(${word.id}); return false;">Delete</a></li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
-                    `).join('');
-                }
-            } catch (error) {
-                console.error('Error loading words:', error);
-                document.getElementById('words-container').innerHTML = '<div class="alert alert-danger">Error loading words: ' + error.message + '</div>';
+                    </div>`;
+                }).join('');
+
+                renderPager(total, currentPage, currentPageSize);
+
+            } catch (e) {
+                console.error(e);
             }
         }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, m => map[m]);
+        async function deleteWord(id) {
+            if (!confirm('Are you sure you want to delete this word?')) return;
+
+            try {
+                const response = await fetch(`/Word/Delete/${id}`, { method: 'POST' });
+                
+                if (response.ok) {
+                    // On success, reload current page to keep pagination consistent
+                    loadWords(currentPage);
+                } else {
+                    alert("Error while deleting the word.");
+                }
+            } catch (err) {
+                console.error("Delete request failed", err);
+            }
+
+        function renderPager(total, page, pageSize) {
+            const pager = document.getElementById('pager');
+            pager.innerHTML = '';
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+            function makeLi(text, disabled, active, onclick) {
+                const li = document.createElement('li');
+                li.className = 'page-item' + (disabled ? ' disabled' : '') + (active ? ' active' : '');
+                const a = document.createElement('a');
+                a.className = 'page-link';
+                a.href = '#';
+                a.innerText = text;
+                a.onclick = (e) => { e.preventDefault(); if (!disabled) onclick(); };
+                li.appendChild(a);
+                return li;
+            }
+
+            pager.appendChild(makeLi('Prev', page <= 1, false, () => loadWords(page - 1)));
+
+            // show a few pages
+            const start = Math.max(1, page - 2);
+            const end = Math.min(totalPages, page + 2);
+            for (let p = start; p <= end; p++) {
+                pager.appendChild(makeLi(p, false, p === page, () => loadWords(p)));
+            }
+
+            pager.appendChild(makeLi('Next', page >= totalPages, false, () => loadWords(page + 1)));
+        }
         }
 
-        // Load words when page loads
+        function updateFilter(type, value) {
+            currentFilters[type] = (currentFilters[type] === value) ? '' : value;
+            const listId = { category: 'category-filters', level: 'level-filters', pos: 'pos-filters' }[type];
+            document.getElementById(listId).querySelectorAll('.filter-item').forEach(el => {
+                el.classList.toggle('active', el.innerText.trim() === currentFilters[type]);
+            });
+            loadWords();
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+        }
+
+        document.getElementById('searchTerm').addEventListener('input', (e) => {
+            currentFilters.searchTerm = e.target.value;
+            loadWords();
+        });
+
         document.addEventListener('DOMContentLoaded', loadWords);
     </script>
 }

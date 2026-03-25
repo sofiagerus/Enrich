@@ -65,6 +65,53 @@ namespace Enrich.UnitTests.Controllers
         }
 
         [Test]
+        public async Task GetMyWords_Authorized_ReturnsJsonPagedResult()
+        {
+            // Arrange
+            var items = new[]
+            {
+                new PersonalWordDTO { Id = 1, Term = "Test", Translation = "Тест", AddedAt = DateTime.UtcNow }
+            };
+            var paged = new PagedResult<PersonalWordDTO>
+            {
+                Items = items,
+                TotalCount = 1,
+                Page = 1,
+                PageSize = 20,
+            };
+
+            _wordServiceMock
+                .Setup(w => w.GetPersonalWordsAsync(FakeUserId, It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(paged);
+
+            // Act
+            var result = await _controller.GetMyWords("term", "cat", "pos", "lvl", 1, 20);
+
+            // Assert
+            var json = result as JsonResult;
+            Assert.That(json, Is.Not.Null);
+            var value = json!.Value as PagedResult<PersonalWordDTO>;
+            Assert.That(value, Is.Not.Null);
+            Assert.That(value!.TotalCount, Is.EqualTo(1));
+            Assert.That(value.Items.Count(), Is.EqualTo(1));
+        }
+
+        [Test]
+        public async Task GetMyWords_Anonymous_ReturnsUnauthorized()
+        {
+            // Arrange: simulate anonymous user
+            _userServiceMock
+                .Setup(u => u.GetCurrentUserId(It.IsAny<ClaimsPrincipal>()))
+                .Returns((string?)null);
+
+            // Act
+            var result = await _controller.GetMyWords(null, null, null, null, 1, 20);
+
+            // Assert
+            Assert.That(result, Is.InstanceOf<UnauthorizedResult>());
+        }
+
+        [Test]
         public void Create_Get_ReturnsViewWithEmptyModel()
         {
             var result = _controller.Create();
