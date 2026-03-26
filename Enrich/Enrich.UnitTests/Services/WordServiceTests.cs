@@ -28,8 +28,9 @@ namespace Enrich.UnitTests.Services
             _loggerMock = new Mock<ILogger<WordService>>();
 
             var wordRepository = new WordRepository(_dbContext);
+            var categoryRepository = new CategoryRepository(_dbContext);
 
-            _wordService = new WordService(wordRepository, _loggerMock.Object);
+            _wordService = new WordService(wordRepository, categoryRepository, _loggerMock.Object);
         }
 
         [Test]

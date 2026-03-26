@@ -13,6 +13,34 @@ namespace Enrich.Web.Controllers
         IUserService userService) : Controller
     {
         [HttpGet]
+        public async Task<IActionResult> Index(SystemWordsIndexViewModel model, int page = 1, int pageSize = 12)
+        {
+            var userId = userService.GetCurrentUserId(User);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            model.Words = await wordService.GetSystemWordsAsync(
+                userId,
+                model.SearchTerm,
+                model.CategoryFilter,
+                model.PosFilter,
+                model.LevelFilter,
+                page,
+                pageSize);
+
+            model.Categories = await wordService.GetAllCategoriesAsync();
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_WordListPartial", model);
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
         public IActionResult MyWords()
         {
             return View();
@@ -48,7 +76,7 @@ namespace Enrich.Web.Controllers
             var vm = new CreateWordViewModel
             {
                 // Отримуємо категорії для datalist
-                Categories = await wordService.GetAllCategoriesAsync() ?? new List<Enrich.DAL.Entities.Category>()
+                Categories = await wordService.GetAllCategoriesAsync() ?? new List<DAL.Entities.Category>()
             };
             return View(vm);
         }

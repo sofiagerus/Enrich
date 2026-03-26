@@ -13,6 +13,10 @@ namespace Enrich.BLL.Interfaces
 
         Task<PagedResult<PersonalWordDTO>> GetPersonalWordsAsync(string userId, string? searchTerm, string? category, string? partOfSpeech, string? difficultyLevel, int page, int pageSize);
 
+        Task<PagedResult<SystemWordDTO>> GetSystemWordsAsync(string userId, string? searchTerm, string? category, string? partOfSpeech, string? difficultyLevel, int page, int pageSize);
+
+        Task<(bool Success, string? ErrorMessage)> SaveSystemWordAsync(string userId, int wordId);
+
         Task<IEnumerable<Category>> GetAllCategoriesAsync();
 
         Task<IEnumerable<Category>> GetCategoriesByIdsAsync(IEnumerable<int> ids);

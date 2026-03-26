@@ -8,6 +8,7 @@ namespace Enrich.BLL.Services
 {
     public class WordService(
         IWordRepository wordRepository,
+        ICategoryRepository categoryRepository,
         ILogger<WordService> logger) : IWordService
     {
         public async Task<(bool Success, string? ErrorMessage)> CreatePersonalWordAsync(string userId, CreatePersonalWordDTO dto)
@@ -31,7 +32,7 @@ namespace Enrich.BLL.Services
             var categories = new List<Category>();
             if (dto.CategoryIds != null && dto.CategoryIds.Any())
             {
-                var fetchedCategories = await wordRepository.GetCategoriesByIdsAsync(dto.CategoryIds);
+                var fetchedCategories = await categoryRepository.GetCategoriesByIdsAsync(dto.CategoryIds);
                 if (fetchedCategories != null)
                 {
                     categories = [.. fetchedCategories];
@@ -165,31 +166,99 @@ namespace Enrich.BLL.Services
             };
         }
 
+        public async Task<PagedResult<SystemWordDTO>> GetSystemWordsAsync(string userId, string? searchTerm, string? category, string? partOfSpeech, string? difficultyLevel, int page, int pageSize)
+        {
+            logger.LogInformation("Getting system words page for {UserId}: page={Page}, pageSize={PageSize}", userId, page, pageSize);
+
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 20;
+            }
+
+            var (itemsResult, total) = await wordRepository.GetSystemWordsPageAsync(userId, searchTerm, category, partOfSpeech, difficultyLevel, page, pageSize);
+
+            var items = itemsResult.Select(result => new SystemWordDTO
+            {
+                Id = result.word.Id,
+                Term = result.word.Term,
+                Translation = result.word.Translation,
+                Transcription = result.word.Transcription,
+                Meaning = result.word.Meaning,
+                PartOfSpeech = result.word.PartOfSpeech,
+                Example = result.word.Example,
+                DifficultyLevel = result.word.DifficultyLevel,
+                CategoryName = result.word.Categories?.OrderBy(c => c.Id).Select(c => c.Name).FirstOrDefault() ?? "General",
+                IsSaved = result.isSaved
+            }).ToList();
+
+            return new PagedResult<SystemWordDTO>
+            {
+                Items = items,
+                TotalCount = total,
+                Page = page,
+                PageSize = pageSize,
+            };
+        }
+
+        public async Task<(bool Success, string? ErrorMessage)> SaveSystemWordAsync(string userId, int wordId)
+        {
+            var word = await wordRepository.GetWordAsync(wordId);
+
+            if (word == null || !word.IsGlobal)
+            {
+                return (false, "Word not found or is not a system word.");
+            }
+
+            var alreadySaved = await wordRepository.UserHasWordAsync(userId, wordId);
+            if (alreadySaved)
+            {
+                return (false, "You have already saved this word.");
+            }
+
+            var userWord = new UserWord
+            {
+                UserId = userId,
+                WordId = wordId,
+                SavedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)
+            };
+
+            await wordRepository.SaveUserWordAsync(userWord);
+
+            logger.LogInformation("User {UserId} saved global word {WordId}.", userId, wordId);
+
+            return (true, null);
+        }
+
         public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
         {
-            return await wordRepository.GetAllCategoriesAsync();
+            return await categoryRepository.GetAllCategoriesAsync();
         }
 
         public async Task<IEnumerable<Category>> GetCategoriesByIdsAsync(IEnumerable<int> ids)
         {
-            return await wordRepository.GetCategoriesByIdsAsync(ids);
+            return await categoryRepository.GetCategoriesByIdsAsync(ids);
         }
 
         public async Task<Category> CreateCategoryAsync(string name)
         {
-            var existing = await wordRepository.GetCategoryByNameAsync(name);
+            var existing = await categoryRepository.GetCategoryByNameAsync(name);
             if (existing != null)
             {
                 return existing;
             }
 
             var cat = new Category { Name = name.Trim() };
-            return await wordRepository.CreateCategoryAsync(cat);
+            return await categoryRepository.CreateCategoryAsync(cat);
         }
 
         public async Task<Category?> GetCategoryByNameAsync(string name)
         {
-            return await wordRepository.GetCategoryByNameAsync(name);
+            return await categoryRepository.GetCategoryByNameAsync(name);
         }
     }
 }

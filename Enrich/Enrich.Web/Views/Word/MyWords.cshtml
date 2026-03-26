@@ -80,11 +80,11 @@
     .badge-level {
         background: #E9ECEF;
         color: #6c757d;
-        font-weight: 600;
-        font-size: 0.68rem;
-        padding: 2px 7px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        padding: 3px 10px;
         border-radius: 5px;
-        margin-left: 8px;
+        margin-left: 5px;
         vertical-align: middle;
     }
 
@@ -214,6 +214,18 @@
         padding: 60px 20px;
         color: #aaa;
     }
+
+    .pagination .page-link {
+        color: var(--active-green);
+        border-radius: 8px;
+        margin: 0 3px;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: var(--active-green);
+        border-color: var(--active-green);
+        color: white !important;
+    }
 </style>
 
 <div class="container-fluid py-4">
@@ -227,6 +239,9 @@
                     <input type="text" id="searchTerm" class="form-control border-0 bg-transparent p-2"
                            placeholder="Search words...">
                 </div>
+                <button class="btn btn-action ms-auto">
+                    <i class="bi bi-sort-down me-2"></i> Order by
+                </button>
             </div>
 
             <div class="d-flex gap-2 mb-4">
@@ -236,6 +251,8 @@
             </div>
 
             <div id="words-container" class="row g-3"></div>
+
+            <nav id="pagination-container" class="mt-4"></nav>
         </div>
 
         <div class="col-lg-3 ps-lg-4">
@@ -285,18 +302,21 @@
     <script>
         let currentFilters = { searchTerm: '', category: '', level: '', pos: '' };
         let currentPage = 1;
+        const pageSize = 12;
 
-        async function loadWords() {
+        async function loadWords(page = 1) {
+            currentPage = page;
             const { searchTerm, category, level, pos } = currentFilters;
-            const url = `/Word/GetMyWords?searchTerm=${encodeURIComponent(searchTerm)}&category=${encodeURIComponent(category)}&difficultyLevel=${encodeURIComponent(level)}&partOfSpeech=${encodeURIComponent(pos)}&page=1&pageSize=100`;
+            const url = `/Word/GetMyWords?searchTerm=${encodeURIComponent(searchTerm)}&category=${encodeURIComponent(category)}&difficultyLevel=${encodeURIComponent(level)}&partOfSpeech=${encodeURIComponent(pos)}&page=${currentPage}&pageSize=${pageSize}`;
 
             try {
                 const response = await fetch(url);
                 const result = await response.json();
-                const words = result.items || result.Items || result;
+                const words = result.items || result.Items || [];
+                const totalCount = result.totalCount || result.TotalCount || 0;
                 const container = document.getElementById('words-container');
 
-                if (!words || words.length === 0) {
+                if (words.length === 0) {
                     container.innerHTML = `
                         <div class="col-12">
                             <div class="empty-state">
@@ -305,6 +325,7 @@
                                 <p class="small">Try adjusting your filters or add a new word.</p>
                             </div>
                         </div>`;
+                    document.getElementById('pagination-container').innerHTML = '';
                     return;
                 }
 
@@ -383,9 +404,36 @@
                     </div>`;
                 }).join('');
 
+                renderPagination(totalCount);
+
             } catch (e) {
                 console.error(e);
             }
+        }
+
+        function renderPagination(totalCount) {
+            const totalPages = Math.ceil(totalCount / pageSize);
+            const container = document.getElementById('pagination-container');
+            
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '<ul class="pagination justify-content-center">';
+            for (let i = 1; i <= totalPages; i++) {
+                html += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <button class="page-link" onclick="changePage(${i})">${i}</button>
+                    </li>`;
+            }
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+
+        function changePage(page) {
+            loadWords(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         async function deleteWord(id) {

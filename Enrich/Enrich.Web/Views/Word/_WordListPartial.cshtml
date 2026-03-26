@@ -1,0 +1,107 @@
+@using Enrich.Web.ViewModels
+@model SystemWordsIndexViewModel
+
+<div class="row g-3">
+    @if (Model.Words.Items.Any())
+    {
+        @foreach (var word in Model.Words.Items)
+        {
+            <div class="col-lg-6" id="word-card-@word.Id">
+                <div class="word-card h-100">
+                    <div class="word-header">
+                        <div>
+                            <h5 class="term-title">
+                                @word.Term
+                                @if (!string.IsNullOrEmpty(word.DifficultyLevel))
+                                {
+                                    <span class="badge-level">@word.DifficultyLevel</span>
+                                }
+                            </h5>
+                            @if (!string.IsNullOrEmpty(word.PartOfSpeech))
+                            {
+                                <span class="pos-label">@word.PartOfSpeech.ToLower()</span>
+                            }
+                        </div>
+                        <div class="translation-title">@word.Translation</div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(word.Transcription))
+                    {
+                        <div class="transcription">[@word.Transcription]</div>
+                    }
+
+                    <div class="mt-2">
+                        <div class="section-label">Category</div>
+                        <span style="
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 5px;
+                            background: #edf7f1;
+                            color: #198754;
+                            border: 1px solid #c3e6cb;
+                            border-radius: 20px;
+                            font-size: 0.75rem;
+                            font-weight: 600;
+                            padding: 3px 10px;
+                        ">
+                            @word.CategoryName
+                        </span>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(word.Meaning))
+                    {
+                        <div class="mt-2">
+                            <div class="section-label">Meaning</div>
+                            <div class="section-text">@word.Meaning</div>
+                        </div>
+                    }
+
+                    <div class="mt-auto pt-3 d-flex align-items-end justify-content-between">
+                        <div class="example-container" style="flex: 1; padding-right: 15px;">
+                            @if (!string.IsNullOrEmpty(word.Example))
+                            {
+                                <div class="section-label">Example</div>
+                                <div class="section-text fst-italic">@word.Example</div>
+                            }
+                        </div>
+                        <div class="save-action">
+                            <button class="btn btn-link p-0 save-btn text-secondary shadow-none" 
+                                    onclick="toggleSaveWord(@word.Id)" 
+                                    title="@(word.IsSaved ? "Remove from saved" : "Save to my words")">
+                                <i class="bi @(word.IsSaved ? "bi-star-fill" : "bi-star")" style="font-size: 1.5rem;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="empty-state">
+                <i class="bi bi-journal-x" style="font-size: 3rem;"></i>
+                <p class="fw-semibold mb-1">No global words found</p>
+                <p class="small">Try adjusting your filters.</p>
+            </div>
+        </div>
+    }
+</div>
+
+@{
+    var totalPages = (int)Math.Ceiling((double)Model.Words.TotalCount / Model.Words.PageSize);
+}
+
+@if (totalPages > 1)
+{
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == Model.Words.Page ? "active" : "")">
+                    <button class="page-link" onclick="changePage(@i)">@i</button>
+                </li>
+            }
+        </ul>
+    </nav>
+}
