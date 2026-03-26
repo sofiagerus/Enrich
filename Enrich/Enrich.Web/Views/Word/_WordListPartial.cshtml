@@ -66,7 +66,7 @@
                         </div>
                         <div class="save-action">
                             <button class="btn btn-link p-0 save-btn text-secondary shadow-none" 
-                                    onclick="toggleSaveWord(@word.Id)" 
+                                    onclick="toggleSaveWord(@word.Id, this)" 
                                     title="@(word.IsSaved ? "Remove from saved" : "Save to my words")">
                                 <i class="bi @(word.IsSaved ? "bi-star-fill" : "bi-star")" style="font-size: 1.5rem;"></i>
                             </button>

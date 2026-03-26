@@ -36,7 +36,6 @@ namespace Enrich.UnitTests.Services
         [Test]
         public async Task GetPersonalWordsAsync_SearchFilterCategoryPagination_Works()
         {
-            // Arrange
             var userId = "user-1";
             var now = DateTime.UtcNow;
 
@@ -58,17 +57,14 @@ namespace Enrich.UnitTests.Services
                 new UserWord { UserId = userId, WordId = w3.Id, SavedAt = now });
             await _dbContext.SaveChangesAsync();
 
-            // Act: search term "app", category "Fruits", partOfSpeech "noun"
             var pageResult = await _wordService.GetPersonalWordsAsync(userId, "app", "Fruits", "noun", null, 1, 10);
 
-            // Assert
             Assert.That(pageResult.TotalCount, Is.EqualTo(2));
             Assert.That(pageResult.Items.Count(), Is.EqualTo(2));
             var terms = pageResult.Items.Select(i => i.Term).ToList();
             Assert.That(terms, Does.Contain("Apple"));
             Assert.That(terms, Does.Contain("Application"));
 
-            // Pagination: pageSize = 1, page 2 should return 1 item
             var page2 = await GetPersonalWords_Page(userId);
             Assert.That(page2.TotalCount, Is.EqualTo(2));
             Assert.That(page2.Items.Count(), Is.EqualTo(1));
@@ -82,7 +78,6 @@ namespace Enrich.UnitTests.Services
         [Test]
         public async Task DeleteWordAsync_UserRemovesOwnPersonalWord_DeletesWordAndUserWord()
         {
-            // Arrange
             var userId = "user-1";
             var dto = new CreatePersonalWordDTO { Term = "Transient" };
             var (created, _) = await _wordService.CreatePersonalWordAsync(userId, dto);
@@ -91,10 +86,8 @@ namespace Enrich.UnitTests.Services
             var word = await _dbContext.Words.FirstOrDefaultAsync(w => w.Term == "Transient");
             Assert.That(word, Is.Not.Null);
 
-            // Act
             var (success, error) = await _wordService.DeleteWordAsync(userId, word!.Id);
 
-            // Assert
             Assert.That(success, Is.True);
             Assert.That(error, Is.Null);
 
@@ -108,7 +101,6 @@ namespace Enrich.UnitTests.Services
         [Test]
         public async Task DeleteWordAsync_UserRemovesSavedSystemWord_DeletesOnlyUserWord()
         {
-            // Arrange: create a global/system word
             var systemWord = new Word
             {
                 Term = "SystemWord",
@@ -125,10 +117,8 @@ namespace Enrich.UnitTests.Services
             _dbContext.UserWords.Add(userWord);
             await _dbContext.SaveChangesAsync();
 
-            // Act
             var (success, error) = await _wordService.DeleteWordAsync(userId, systemWord.Id);
 
-            // Assert
             Assert.That(success, Is.True);
             Assert.That(error, Is.Null);
 
@@ -142,7 +132,6 @@ namespace Enrich.UnitTests.Services
         [Test]
         public async Task DeleteWordAsync_UserTriesToDeleteNotSavedWord_ReturnsFailure()
         {
-            // Arrange
             var userId = "user-1";
             var otherUser = "user-2";
             var dto = new CreatePersonalWordDTO { Term = "OtherUserWord" };
@@ -152,10 +141,8 @@ namespace Enrich.UnitTests.Services
             var word = await _dbContext.Words.FirstOrDefaultAsync(w => w.Term == "OtherUserWord");
             Assert.That(word, Is.Not.Null);
 
-            // Act
             var (success, error) = await _wordService.DeleteWordAsync(userId, word!.Id);
 
-            // Assert
             Assert.That(success, Is.False);
             Assert.That(error, Is.Not.Null);
         }
@@ -170,7 +157,6 @@ namespace Enrich.UnitTests.Services
         [Test]
         public async Task CreatePersonalWordAsync_WithValidData_CreatesWordAndUserWord()
         {
-            // Arrange
             var userId = "user-1";
             var dto = new CreatePersonalWordDTO
             {
@@ -183,10 +169,8 @@ namespace Enrich.UnitTests.Services
                 Example = "It was pure serendipity that we met.",
             };
 
-            // Act
             var (success, error) = await _wordService.CreatePersonalWordAsync(userId, dto);
 
-            // Assert
             Assert.That(success, Is.True);
             Assert.That(error, Is.Null);
 
@@ -204,16 +188,13 @@ namespace Enrich.UnitTests.Services
         [Test]
         public async Task CreatePersonalWordAsync_WithDuplicateTerm_ReturnsFailure()
         {
-            // Arrange
             var userId = "user-1";
             var dto = new CreatePersonalWordDTO { Term = "Benevolent" };
 
             await _wordService.CreatePersonalWordAsync(userId, dto);
 
-            // Act – same term, same user
             var (success, error) = await _wordService.CreatePersonalWordAsync(userId, dto);
 
-            // Assert
             Assert.That(success, Is.False);
             Assert.That(error, Is.Not.Null);
             Assert.That(error, Does.Contain("Benevolent"));
@@ -222,14 +203,11 @@ namespace Enrich.UnitTests.Services
         [Test]
         public async Task CreatePersonalWordAsync_DuplicateCheckIsCaseInsensitive()
         {
-            // Arrange
             var userId = "user-1";
             await _wordService.CreatePersonalWordAsync(userId, new CreatePersonalWordDTO { Term = "hello" });
 
-            // Act – uppercase variant
             var (success, error) = await _wordService.CreatePersonalWordAsync(userId, new CreatePersonalWordDTO { Term = "HELLO" });
 
-            // Assert
             Assert.That(success, Is.False);
             Assert.That(error, Is.Not.Null);
         }
@@ -237,14 +215,11 @@ namespace Enrich.UnitTests.Services
         [Test]
         public async Task CreatePersonalWordAsync_DifferentUser_SameTermAllowed()
         {
-            // Arrange
             var dto = new CreatePersonalWordDTO { Term = "Ephemeral" };
             await _wordService.CreatePersonalWordAsync("user-1", dto);
 
-            // Act – different user, same term
             var (success, error) = await _wordService.CreatePersonalWordAsync("user-2", dto);
 
-            // Assert
             Assert.That(success, Is.True);
             Assert.That(error, Is.Null);
 
@@ -255,14 +230,11 @@ namespace Enrich.UnitTests.Services
         [Test]
         public async Task CreatePersonalWordAsync_TrimsWhitespaceFromTerm()
         {
-            // Arrange
             var userId = "user-1";
             var dto = new CreatePersonalWordDTO { Term = "  Melancholy  " };
 
-            // Act
             var (success, _) = await _wordService.CreatePersonalWordAsync(userId, dto);
 
-            // Assert
             Assert.That(success, Is.True);
             var word = await _dbContext.Words.FirstOrDefaultAsync(w => w.Term == "Melancholy");
             Assert.That(word, Is.Not.Null);
@@ -271,14 +243,11 @@ namespace Enrich.UnitTests.Services
         [Test]
         public async Task CreatePersonalWordAsync_WithOnlyRequiredField_Succeeds()
         {
-            // Arrange
             var userId = "user-1";
             var dto = new CreatePersonalWordDTO { Term = "Ubiquitous" };
 
-            // Act
             var (success, error) = await _wordService.CreatePersonalWordAsync(userId, dto);
 
-            // Assert
             Assert.That(success, Is.True);
             Assert.That(error, Is.Null);
 
@@ -286,6 +255,83 @@ namespace Enrich.UnitTests.Services
             Assert.That(word, Is.Not.Null);
             Assert.That(word!.Translation, Is.Null);
             Assert.That(word.Example, Is.Null);
+        }
+
+        [Test]
+        public async Task SaveSystemWordAsync_WhenWordIsGlobalAndNotSaved_ReturnsSuccess()
+        {
+            var userId = "user-1";
+            var systemWord = new Word
+            {
+                Term = "GlobalWord",
+                IsGlobal = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            _dbContext.Words.Add(systemWord);
+            await _dbContext.SaveChangesAsync();
+
+            var (success, error) = await _wordService.SaveSystemWordAsync(userId, systemWord.Id);
+
+            Assert.That(success, Is.True);
+            Assert.That(error, Is.Null);
+
+            var userWord = await _dbContext.UserWords
+                .FirstOrDefaultAsync(uw => uw.UserId == userId && uw.WordId == systemWord.Id);
+            Assert.That(userWord, Is.Not.Null);
+        }
+
+        [Test]
+        public async Task SaveSystemWordAsync_WhenWordAlreadySaved_ReturnsError()
+        {
+            var userId = "user-1";
+            var systemWord = new Word
+            {
+                Term = "GlobalWord",
+                IsGlobal = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            _dbContext.Words.Add(systemWord);
+            await _dbContext.SaveChangesAsync();
+
+            var existingLink = new UserWord
+            {
+                UserId = userId,
+                WordId = systemWord.Id,
+                SavedAt = DateTime.UtcNow
+            };
+            _dbContext.UserWords.Add(existingLink);
+            await _dbContext.SaveChangesAsync();
+
+            var (success, error) = await _wordService.SaveSystemWordAsync(userId, systemWord.Id);
+
+            Assert.That(success, Is.False);
+            Assert.That(error, Is.EqualTo("You have already saved this word."));
+
+            var userWordCount = await _dbContext.UserWords
+                .CountAsync(uw => uw.UserId == userId && uw.WordId == systemWord.Id);
+            Assert.That(userWordCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public async Task SaveSystemWordAsync_WhenWordIsNotGlobal_ReturnsError()
+        {
+            var userId = "user-1";
+            var personalWord = new Word
+            {
+                Term = "PrivateWord",
+                IsGlobal = false,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            _dbContext.Words.Add(personalWord);
+            await _dbContext.SaveChangesAsync();
+
+            var (success, error) = await _wordService.SaveSystemWordAsync(userId, personalWord.Id);
+
+            Assert.That(success, Is.False);
+            Assert.That(error, Is.EqualTo("Word not found or is not a system word."));
         }
     }
 }

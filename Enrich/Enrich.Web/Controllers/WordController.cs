@@ -175,5 +175,25 @@ namespace Enrich.Web.Controllers
 
             return categoryIds;
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveSystemWord(int id)
+        {
+            var userId = userService.GetCurrentUserId(User);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var (success, errorMessage) = await wordService.SaveSystemWordAsync(userId, id);
+
+            if (!success)
+            {
+                logger.LogWarning("Невдала спроба зберегти системне слово {WordId} користувачем {UserId}: {Error}", id, userId, errorMessage);
+                return BadRequest(new { message = errorMessage });
+            }
+
+            return Ok();
+        }
     }
 }
