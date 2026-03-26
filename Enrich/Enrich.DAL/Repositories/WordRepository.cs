@@ -120,45 +120,82 @@ namespace Enrich.DAL.Repositories
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
+        public async Task<(IEnumerable<(Word word, bool isSaved)> Items, int Total)> GetSystemWordsPageAsync(
+            string userId,
+            string? searchTerm,
+            string? category,
+            string? partOfSpeech,
+            string? difficultyLevel,
+            int page,
+            int pageSize)
         {
-            return await dbContext.Categories
-                .OrderBy(c => c.Name)
+            var query = dbContext.Words
+                .Where(w => w.IsGlobal)
+                .Include(w => w.Categories)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var st = searchTerm.Trim().ToLower();
+                query = query.Where(w => w.Term.ToLower().Contains(st) ||
+                                         (w.Translation != null && w.Translation.ToLower().Contains(st)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(partOfSpeech))
+            {
+                var partsLower = partOfSpeech.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                                            .Select(p => p.ToLower()).ToArray();
+                query = query.Where(w => w.PartOfSpeech != null && partsLower.Contains(w.PartOfSpeech.ToLower()));
+            }
+
+            if (!string.IsNullOrWhiteSpace(difficultyLevel))
+            {
+                var levelsLower = difficultyLevel.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                                               .Select(p => p.ToLower()).ToArray();
+                query = query.Where(w => w.DifficultyLevel != null && levelsLower.Contains(w.DifficultyLevel.ToLower()));
+            }
+
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                var catsLower = category.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                                       .Select(p => p.ToLower()).ToArray();
+                query = query.Where(w => w.Categories.Any(c => catsLower.Contains(c.Name.ToLower())));
+            }
+
+            var total = await query.CountAsync();
+
+            var words = await query
+                .OrderBy(w => w.Term)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            var wordIds = words.Select(w => w.Id).ToList();
+
+            var savedWordIds = await dbContext.UserWords
+                .Where(uw => uw.UserId == userId && wordIds.Contains(uw.WordId))
+                .Select(uw => uw.WordId)
+                .ToListAsync();
+
+            var items = words.Select(w => (word: w, isSaved: savedWordIds.Contains(w.Id))).ToList();
+
+            return (items, total);
         }
 
-        public async Task<Category> CreateCategoryAsync(Category category)
+        public async Task<Word?> GetWordAsync(int wordId)
         {
-            dbContext.Categories.Add(category);
+            return await dbContext.Words.FindAsync(wordId);
+        }
+
+        public async Task<bool> UserHasWordAsync(string userId, int wordId)
+        {
+            return await dbContext.UserWords.AnyAsync(uw => uw.UserId == userId && uw.WordId == wordId);
+        }
+
+        public async Task SaveUserWordAsync(UserWord userWord)
+        {
+            dbContext.UserWords.Add(userWord);
             await dbContext.SaveChangesAsync();
-            return category;
-        }
-
-        public async Task<Category?> GetCategoryByNameAsync(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return null;
-            }
-
-            var n = name.Trim().ToLower();
-            return await dbContext.Categories
-                .FirstOrDefaultAsync(c => c.Name.ToLower() == n);
-        }
-
-        public async Task<IEnumerable<Category>> GetCategoriesByIdsAsync(IEnumerable<int> ids)
-        {
-            if (ids == null)
-            {
-                return [];
-            }
-
-            var idArray = ids.Where(i => i > 0).Distinct().ToArray();
-
-            return await dbContext.Categories
-                .Where(c => idArray.Contains(c.Id))
-                .OrderBy(c => c.Name)
-                .ToListAsync();
         }
     }
 }

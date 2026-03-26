@@ -60,7 +60,7 @@
                 <div class="text-secondary mb-2 px-3" style="font-size: 0.85rem; font-weight: 600;">Main menu</div>
                 <ul class="nav flex-column nav-pills gap-1 mb-3">
                     <li class="nav-item">
-                        <a href="#" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentAction == "Words" ? activeClass : inactiveClass)"
+                        <a asp-controller="Word" asp-action="Index" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentAction == "Index" && currentController == "Word" ? activeClass : inactiveClass)"
                            style="font-weight: 500; font-size: 0.95rem;">
                             <i class="bi bi-book me-3 fs-6"></i>Words
                         </a>

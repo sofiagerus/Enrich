@@ -1,4 +1,4 @@
-﻿using Enrich.DAL.Data;
+using Enrich.DAL.Data;
 using Enrich.DAL.Interfaces;
 using Enrich.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +16,7 @@ namespace Enrich.DAL
                     configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<IWordRepository, WordRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             return services;
         }

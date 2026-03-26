@@ -43,6 +43,100 @@ namespace Enrich.Web.Seeders
             }
 
             await SeedCategoriesAsync(scope.ServiceProvider);
+            await SeedGlobalWordsAsync(scope.ServiceProvider);
+        }
+
+        private static async Task SeedGlobalWordsAsync(IServiceProvider services)
+        {
+            var db = services.GetRequiredService<ApplicationDbContext>();
+
+            if (await db.Words.AnyAsync(w => w.IsGlobal))
+            {
+                return;
+            }
+
+            var categories = await db.Categories.ToListAsync();
+            var generalCat = categories.FirstOrDefault(c => c.Name == "General");
+            var techCat = categories.FirstOrDefault(c => c.Name == "Technology");
+            var natureCat = categories.FirstOrDefault(c => c.Name == "Nature");
+
+            var globalWords = new List<Word>
+            {
+                new Word
+                {
+                    Term = "Resilient",
+                    Translation = "Стійкий",
+                    Transcription = "rɪˈzɪliənt",
+                    Meaning = "Able to withstand or recover quickly from difficult conditions.",
+                    PartOfSpeech = "Adjective",
+                    Example = "The community was resilient in the face of the disaster.",
+                    DifficultyLevel = "B2",
+                    IsGlobal = true,
+                    Categories = new List<Category> { generalCat! },
+                    CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                    UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                },
+                new Word
+                {
+                    Term = "Algorithm",
+                    Translation = "Алгоритм",
+                    Transcription = "ˈælɡərɪðəm",
+                    Meaning = "A process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.",
+                    PartOfSpeech = "Noun",
+                    Example = "The social media algorithm determines what content you see.",
+                    DifficultyLevel = "B1",
+                    IsGlobal = true,
+                    Categories = new List<Category> { techCat! },
+                    CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                    UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                },
+                new Word
+                {
+                    Term = "Biodiversity",
+                    Translation = "Біорізноманіття",
+                    Transcription = "ˌbaɪəʊdaɪˈvɜːsəti",
+                    Meaning = "The variety of plant and animal life in the world or in a particular habitat.",
+                    PartOfSpeech = "Noun",
+                    Example = "The rainforest is a hotspot of biodiversity.",
+                    DifficultyLevel = "C1",
+                    IsGlobal = true,
+                    Categories = new List<Category> { natureCat! },
+                    CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                    UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                },
+                new Word
+                {
+                    Term = "Obsolete",
+                    Translation = "Застарілий",
+                    Transcription = "ˈɒbsəliːt",
+                    Meaning = "No longer produced or used; out of date.",
+                    PartOfSpeech = "Adjective",
+                    Example = "Floppy disks are now obsolete.",
+                    DifficultyLevel = "B2",
+                    IsGlobal = true,
+                    Categories = new List<Category> { techCat!, generalCat! },
+                    CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                    UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                },
+                new Word
+                {
+                    Term = "Mitigate",
+                    Translation = "Пом'якшувати",
+                    Transcription = "ˈmɪtɪɡeɪt",
+                    Meaning = "Make (something bad) less severe, serious, or painful.",
+                    PartOfSpeech = "Verb",
+                    Example = "Drainage schemes have helped to mitigate this problem.",
+                    DifficultyLevel = "C1",
+                    IsGlobal = true,
+                    Categories = new List<Category> { generalCat! },
+                    CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                    UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                }
+            };
+
+            db.Words.AddRange(globalWords);
+
+            await db.SaveChangesAsync();
         }
 
         private static async Task SeedCategoriesAsync(IServiceProvider services)
