@@ -25,5 +25,7 @@ namespace Enrich.DAL.Interfaces
         Task<bool> UserHasWordAsync(string userId, int wordId);
 
         Task SaveUserWordAsync(UserWord userWord);
+
+        Task UpdateWordAsync(Word word);
     }
 }

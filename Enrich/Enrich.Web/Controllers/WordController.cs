@@ -149,6 +149,74 @@ namespace Enrich.Web.Controllers
             return Ok();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var userId = userService.GetCurrentUserId(User);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var word = await wordService.GetPersonalWordForEditAsync(userId, id);
+
+            if (word == null)
+            {
+                logger.LogWarning("Користувач {UserId} намагався отримати доступ до чужого слова {WordId}", userId, id);
+                return NotFound();
+            }
+
+            var model = new EditWordViewModel
+            {
+                WordId = word.Id,
+                Term = word.Term,
+                Translation = word.Translation,
+                Meaning = word.Meaning,
+                Example = word.Example
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(EditWordViewModel model)
+        {
+            var userId = userService.GetCurrentUserId(User);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var dto = new UpdateWordDTO
+            {
+                WordId = model.WordId,
+                Term = model.Term.Trim(),
+                Translation = model.Translation?.Trim(),
+                Meaning = model.Meaning?.Trim(),
+                Example = model.Example?.Trim()
+            };
+
+            // Викликаємо сервіс для оновлення
+            var success = await wordService.UpdateUserWordAsync(userId, dto);
+
+            if (success)
+            {
+                logger.LogInformation("Користувач {UserId} успішно оновив слово {WordId}", userId, model.WordId);
+                TempData["SuccessMessage"] = "Слово успішно оновлено!";
+                return RedirectToAction(nameof(MyWords));
+            }
+
+            logger.LogWarning("Невдала спроба оновлення слова {WordId} користувачем {UserId}", model.WordId, userId);
+            ModelState.AddModelError(string.Empty, "Ви не маєте прав для редагування цього слова або воно не існує.");
+            return View(model);
+        }
+
         private async Task<List<int>> HandleCategoryLogic(string? categoryInput)
         {
             var categoryIds = new List<int>();

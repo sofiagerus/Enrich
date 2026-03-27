@@ -333,5 +333,103 @@ namespace Enrich.UnitTests.Services
             Assert.That(success, Is.False);
             Assert.That(error, Is.EqualTo("Word not found or is not a system word."));
         }
+
+        [Test]
+        public async Task GetPersonalWordForEditAsync_UserIsOwner_ReturnsWord()
+        {
+            // Arrange
+            var userId = "user-1";
+            var word = new Word { Term = "Existing", IsGlobal = false, CreatorId = userId };
+            _dbContext.Words.Add(word);
+            await _dbContext.SaveChangesAsync();
+
+            _dbContext.UserWords.Add(new UserWord { UserId = userId, WordId = word.Id, SavedAt = DateTime.UtcNow });
+            await _dbContext.SaveChangesAsync();
+
+            // Act
+            var result = await _wordService.GetPersonalWordForEditAsync(userId, word.Id);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result!.Id, Is.EqualTo(word.Id));
+            Assert.That(result.Term, Is.EqualTo("Existing"));
+        }
+
+        [Test]
+        public async Task GetPersonalWordForEditAsync_UserIsNotOwner_ReturnsNull()
+        {
+            // Arrange
+            var ownerId = "owner";
+            var strangerId = "stranger";
+            var word = new Word { Term = "Secret", IsGlobal = false, CreatorId = ownerId };
+            _dbContext.Words.Add(word);
+            await _dbContext.SaveChangesAsync();
+
+            _dbContext.UserWords.Add(new UserWord { UserId = ownerId, WordId = word.Id, SavedAt = DateTime.UtcNow });
+            await _dbContext.SaveChangesAsync();
+
+            // Act
+            var result = await _wordService.GetPersonalWordForEditAsync(strangerId, word.Id);
+
+            // Assert
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public async Task UpdateUserWordAsync_OwnerUpdatesDetails_PersistsChanges()
+        {
+            // Arrange
+            var userId = "user-1";
+            var word = new Word { Term = "OldTerm", Translation = "OldTrans", IsGlobal = false, CreatorId = userId };
+            _dbContext.Words.Add(word);
+            await _dbContext.SaveChangesAsync();
+
+            _dbContext.UserWords.Add(new UserWord { UserId = userId, WordId = word.Id, SavedAt = DateTime.UtcNow });
+            await _dbContext.SaveChangesAsync();
+
+            var dto = new UpdateWordDTO
+            {
+                WordId = word.Id,
+                Term = "NewTerm",
+                Translation = "NewTrans",
+                Meaning = "New Meaning"
+            };
+
+            // Act
+            var success = await _wordService.UpdateUserWordAsync(userId, dto);
+
+            // Assert
+            Assert.That(success, Is.True);
+
+            var updatedWord = await _dbContext.Words.FindAsync(word.Id);
+            Assert.That(updatedWord!.Term, Is.EqualTo("NewTerm"));
+            Assert.That(updatedWord.Translation, Is.EqualTo("NewTrans"));
+            Assert.That(updatedWord.Meaning, Is.EqualTo("New Meaning"));
+        }
+
+        [Test]
+        public async Task UpdateUserWordAsync_NonOwnerTriesToUpdate_ReturnsFalseAndDoesNotChangeDb()
+        {
+            // Arrange
+            var ownerId = "owner";
+            var hackerId = "hacker";
+            var word = new Word { Term = "Original", IsGlobal = false, CreatorId = ownerId };
+            _dbContext.Words.Add(word);
+            await _dbContext.SaveChangesAsync();
+
+            _dbContext.UserWords.Add(new UserWord { UserId = ownerId, WordId = word.Id, SavedAt = DateTime.UtcNow });
+            await _dbContext.SaveChangesAsync();
+
+            var dto = new UpdateWordDTO { WordId = word.Id, Term = "Hacked" };
+
+            // Act
+            var success = await _wordService.UpdateUserWordAsync(hackerId, dto);
+
+            // Assert
+            Assert.That(success, Is.False);
+
+            var dbWord = await _dbContext.Words.AsNoTracking().FirstOrDefaultAsync(w => w.Id == word.Id);
+            Assert.That(dbWord!.Term, Is.EqualTo("Original")); // Дані в базі не змінилися
+        }
     }
 }

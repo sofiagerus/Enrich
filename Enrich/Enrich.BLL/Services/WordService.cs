@@ -260,5 +260,32 @@ namespace Enrich.BLL.Services
         {
             return await categoryRepository.GetCategoryByNameAsync(name);
         }
+
+        public async Task<Word?> GetPersonalWordForEditAsync(string userId, int wordId)
+        {
+            var userWord = await wordRepository.GetUserWordAsync(userId, wordId);
+            return userWord?.Word;
+        }
+
+        public async Task<bool> UpdateUserWordAsync(string userId, UpdateWordDTO dto)
+        {
+            var userWord = await wordRepository.GetUserWordAsync(userId, dto.WordId);
+
+            if (userWord == null)
+            {
+                logger.LogWarning("Користувач {UserId} намагався відредагувати неіснуюче або чуже слово {WordId}", userId, dto.WordId);
+                return false;
+            }
+
+            var word = userWord.Word;
+            word.Term = dto.Term;
+            word.Translation = dto.Translation;
+            word.Meaning = dto.Meaning;
+            word.Example = dto.Example;
+
+            await wordRepository.UpdateWordAsync(word);
+            logger.LogInformation("Слово {WordId} успішно оновлено користувачем {UserId}", dto.WordId, userId);
+            return true;
+        }
     }
 }
