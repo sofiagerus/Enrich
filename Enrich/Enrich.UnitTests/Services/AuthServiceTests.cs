@@ -53,7 +53,7 @@ namespace Enrich.UnitTests.Services
             var result = await _authService.LoginAsync(dto);
 
             // Assert
-            Assert.That(result.Succeeded, Is.True);
+            Assert.That(result.IsSuccess, Is.True);
             _signInManagerMock.Verify(s => s.PasswordSignInAsync(user.UserName, dto.Password, dto.RememberMe, false), Times.Once);
         }
 
@@ -71,7 +71,8 @@ namespace Enrich.UnitTests.Services
             var result = await _authService.LoginAsync(dto);
 
             // Assert
-            Assert.That(result.Succeeded, Is.False);
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.Not.Null);
         }
 
         [Test]
