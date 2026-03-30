@@ -14,7 +14,7 @@ namespace Enrich.DAL.Data.Configurations
 
             _ = builder.Property(wp => wp.Points).HasDefaultValue(0);
             _ = builder.Property(wp => wp.IsLearned).HasDefaultValue(false);
-            _ = builder.Property(wp => wp.LastReviewedAt).HasColumnType("timestamp without time zone");
+            _ = builder.Property(wp => wp.LastReviewedAt).HasColumnType("timestamp with time zone");
 
             _ = builder.HasOne(wp => wp.User)
                 .WithMany(u => u.WordProgresses)

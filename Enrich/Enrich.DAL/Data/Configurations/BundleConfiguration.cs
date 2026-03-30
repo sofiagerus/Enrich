@@ -20,13 +20,13 @@ namespace Enrich.DAL.Data.Configurations
             _ = builder.Property(b => b.IsPublic).HasDefaultValue(false);
             _ = builder.Property(b => b.ShareCode).HasMaxLength(10);
             _ = builder.Property(b => b.ImageUrl).HasMaxLength(500);
-            _ = builder.Property(b => b.ReviewedAt).HasColumnType("timestamp without time zone");
+            _ = builder.Property(b => b.ReviewedAt).HasColumnType("timestamp with time zone");
             _ = builder.Property(b => b.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasColumnType("timestamp with time zone");
             _ = builder.Property(b => b.UpdatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasColumnType("timestamp with time zone");
 
             _ = builder.HasOne(b => b.Owner)
                 .WithMany(u => u.BundleOwners)

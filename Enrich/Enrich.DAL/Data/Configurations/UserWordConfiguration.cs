@@ -14,7 +14,7 @@ namespace Enrich.DAL.Data.Configurations
 
             _ = builder.Property(uw => uw.SavedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasColumnType("timestamp with time zone");
 
             _ = builder.HasOne(uw => uw.User)
                 .WithMany(u => u.UserWords)

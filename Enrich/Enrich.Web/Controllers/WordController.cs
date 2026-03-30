@@ -113,12 +113,12 @@ namespace Enrich.Web.Controllers
                 CategoryIds = categoryIds
             };
 
-            var (success, errorMessage) = await wordService.CreatePersonalWordAsync(userId, dto);
+            var result = await wordService.CreatePersonalWordAsync(userId, dto);
 
-            if (!success)
+            if (!result.IsSuccess)
             {
-                logger.LogWarning("Помилка створення слова '{Term}' для {UserId}: {Error}", model.Term, userId, errorMessage);
-                ModelState.AddModelError(string.Empty, errorMessage!);
+                logger.LogWarning("Помилка створення слова '{Term}' для {UserId}: {Error}", model.Term, userId, result.ErrorMessage);
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Failed to create word.");
                 model.Categories = await wordService.GetAllCategoriesAsync();
                 return View(model);
             }
@@ -138,12 +138,12 @@ namespace Enrich.Web.Controllers
                 return Unauthorized();
             }
 
-            var (success, errorMessage) = await wordService.DeleteWordAsync(userId, id);
+            var result = await wordService.DeleteWordAsync(userId, id);
 
-            if (!success)
+            if (!result.IsSuccess)
             {
-                logger.LogWarning("Невдала спроба видалення слова {WordId} користувачем {UserId}: {Error}", id, userId, errorMessage);
-                return BadRequest(new { message = errorMessage });
+                logger.LogWarning("Невдала спроба видалення слова {WordId} користувачем {UserId}: {Error}", id, userId, result.ErrorMessage);
+                return BadRequest(new { message = result.ErrorMessage });
             }
 
             return Ok();
@@ -158,14 +158,15 @@ namespace Enrich.Web.Controllers
                 return Unauthorized();
             }
 
-            var word = await wordService.GetPersonalWordForEditAsync(userId, id);
+            var result = await wordService.GetPersonalWordForEditAsync(userId, id);
 
-            if (word == null)
+            if (!result.IsSuccess)
             {
-                logger.LogWarning("Користувач {UserId} намагався отримати доступ до чужого слова {WordId}", userId, id);
+                logger.LogWarning("Користувач {UserId} намагався отримати доступ до слова {WordId}: {Error}", userId, id, result.ErrorMessage);
                 return NotFound();
             }
 
+            var word = result.Value!;
             var model = new EditWordViewModel
             {
                 WordId = word.Id,
@@ -202,18 +203,17 @@ namespace Enrich.Web.Controllers
                 Example = model.Example?.Trim()
             };
 
-            // Викликаємо сервіс для оновлення
-            var success = await wordService.UpdateUserWordAsync(userId, dto);
+            var result = await wordService.UpdateUserWordAsync(userId, dto);
 
-            if (success)
+            if (result.IsSuccess)
             {
                 logger.LogInformation("Користувач {UserId} успішно оновив слово {WordId}", userId, model.WordId);
                 TempData["SuccessMessage"] = "Слово успішно оновлено!";
                 return RedirectToAction(nameof(MyWords));
             }
 
-            logger.LogWarning("Невдала спроба оновлення слова {WordId} користувачем {UserId}", model.WordId, userId);
-            ModelState.AddModelError(string.Empty, "Ви не маєте прав для редагування цього слова або воно не існує.");
+            logger.LogWarning("Невдала спроба оновлення слова {WordId} користувачем {UserId}: {Error}", model.WordId, userId, result.ErrorMessage);
+            ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Failed to update word.");
             return View(model);
         }
 
@@ -253,12 +253,12 @@ namespace Enrich.Web.Controllers
                 return Unauthorized();
             }
 
-            var (success, errorMessage) = await wordService.SaveSystemWordAsync(userId, id);
+            var result = await wordService.SaveSystemWordAsync(userId, id);
 
-            if (!success)
+            if (!result.IsSuccess)
             {
-                logger.LogWarning("Невдала спроба зберегти системне слово {WordId} користувачем {UserId}: {Error}", id, userId, errorMessage);
-                return BadRequest(new { message = errorMessage });
+                logger.LogWarning("Невдала спроба зберегти системне слово {WordId} користувачем {UserId}: {Error}", id, userId, result.ErrorMessage);
+                return BadRequest(new { message = result.ErrorMessage });
             }
 
             return Ok();

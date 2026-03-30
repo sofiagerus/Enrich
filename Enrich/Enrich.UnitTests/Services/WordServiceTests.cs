@@ -80,16 +80,16 @@ namespace Enrich.UnitTests.Services
         {
             var userId = "user-1";
             var dto = new CreatePersonalWordDTO { Term = "Transient" };
-            var (created, _) = await _wordService.CreatePersonalWordAsync(userId, dto);
-            Assert.That(created, Is.True);
+            var result = await _wordService.CreatePersonalWordAsync(userId, dto);
+            Assert.That(result.IsSuccess, Is.True);
 
             var word = await _dbContext.Words.FirstOrDefaultAsync(w => w.Term == "Transient");
             Assert.That(word, Is.Not.Null);
 
-            var (success, error) = await _wordService.DeleteWordAsync(userId, word!.Id);
+            var deleteResult = await _wordService.DeleteWordAsync(userId, word!.Id);
 
-            Assert.That(success, Is.True);
-            Assert.That(error, Is.Null);
+            Assert.That(deleteResult.IsSuccess, Is.True);
+            Assert.That(deleteResult.ErrorMessage, Is.Null);
 
             var dbWord = await _dbContext.Words.FindAsync(word.Id);
             Assert.That(dbWord, Is.Null);
@@ -117,10 +117,10 @@ namespace Enrich.UnitTests.Services
             _dbContext.UserWords.Add(userWord);
             await _dbContext.SaveChangesAsync();
 
-            var (success, error) = await _wordService.DeleteWordAsync(userId, systemWord.Id);
+            var result = await _wordService.DeleteWordAsync(userId, systemWord.Id);
 
-            Assert.That(success, Is.True);
-            Assert.That(error, Is.Null);
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.ErrorMessage, Is.Null);
 
             var dbWord = await _dbContext.Words.FindAsync(systemWord.Id);
             Assert.That(dbWord, Is.Not.Null);
@@ -135,16 +135,16 @@ namespace Enrich.UnitTests.Services
             var userId = "user-1";
             var otherUser = "user-2";
             var dto = new CreatePersonalWordDTO { Term = "OtherUserWord" };
-            var (created, _) = await _wordService.CreatePersonalWordAsync(otherUser, dto);
-            Assert.That(created, Is.True);
+            var result = await _wordService.CreatePersonalWordAsync(otherUser, dto);
+            Assert.That(result.IsSuccess, Is.True);
 
             var word = await _dbContext.Words.FirstOrDefaultAsync(w => w.Term == "OtherUserWord");
             Assert.That(word, Is.Not.Null);
 
-            var (success, error) = await _wordService.DeleteWordAsync(userId, word!.Id);
+            var deleteResult = await _wordService.DeleteWordAsync(userId, word!.Id);
 
-            Assert.That(success, Is.False);
-            Assert.That(error, Is.Not.Null);
+            Assert.That(deleteResult.IsSuccess, Is.False);
+            Assert.That(deleteResult.ErrorMessage, Is.Not.Null);
         }
 
         [TearDown]
@@ -169,10 +169,10 @@ namespace Enrich.UnitTests.Services
                 Example = "It was pure serendipity that we met.",
             };
 
-            var (success, error) = await _wordService.CreatePersonalWordAsync(userId, dto);
+            var result = await _wordService.CreatePersonalWordAsync(userId, dto);
 
-            Assert.That(success, Is.True);
-            Assert.That(error, Is.Null);
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.ErrorMessage, Is.Null);
 
             var word = await _dbContext.Words.FirstOrDefaultAsync(w => w.Term == "Serendipity");
             Assert.That(word, Is.Not.Null);
@@ -193,11 +193,11 @@ namespace Enrich.UnitTests.Services
 
             await _wordService.CreatePersonalWordAsync(userId, dto);
 
-            var (success, error) = await _wordService.CreatePersonalWordAsync(userId, dto);
+            var result = await _wordService.CreatePersonalWordAsync(userId, dto);
 
-            Assert.That(success, Is.False);
-            Assert.That(error, Is.Not.Null);
-            Assert.That(error, Does.Contain("Benevolent"));
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.Not.Null);
+            Assert.That(result.ErrorMessage, Does.Contain("Benevolent"));
         }
 
         [Test]
@@ -206,10 +206,10 @@ namespace Enrich.UnitTests.Services
             var userId = "user-1";
             await _wordService.CreatePersonalWordAsync(userId, new CreatePersonalWordDTO { Term = "hello" });
 
-            var (success, error) = await _wordService.CreatePersonalWordAsync(userId, new CreatePersonalWordDTO { Term = "HELLO" });
+            var result = await _wordService.CreatePersonalWordAsync(userId, new CreatePersonalWordDTO { Term = "HELLO" });
 
-            Assert.That(success, Is.False);
-            Assert.That(error, Is.Not.Null);
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.Not.Null);
         }
 
         [Test]
@@ -218,10 +218,10 @@ namespace Enrich.UnitTests.Services
             var dto = new CreatePersonalWordDTO { Term = "Ephemeral" };
             await _wordService.CreatePersonalWordAsync("user-1", dto);
 
-            var (success, error) = await _wordService.CreatePersonalWordAsync("user-2", dto);
+            var result = await _wordService.CreatePersonalWordAsync("user-2", dto);
 
-            Assert.That(success, Is.True);
-            Assert.That(error, Is.Null);
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.ErrorMessage, Is.Null);
 
             var words = await _dbContext.Words.Where(w => w.Term == "Ephemeral").ToListAsync();
             Assert.That(words, Has.Count.EqualTo(2));
@@ -233,9 +233,9 @@ namespace Enrich.UnitTests.Services
             var userId = "user-1";
             var dto = new CreatePersonalWordDTO { Term = "  Melancholy  " };
 
-            var (success, _) = await _wordService.CreatePersonalWordAsync(userId, dto);
+            var result = await _wordService.CreatePersonalWordAsync(userId, dto);
 
-            Assert.That(success, Is.True);
+            Assert.That(result.IsSuccess, Is.True);
             var word = await _dbContext.Words.FirstOrDefaultAsync(w => w.Term == "Melancholy");
             Assert.That(word, Is.Not.Null);
         }
@@ -246,10 +246,10 @@ namespace Enrich.UnitTests.Services
             var userId = "user-1";
             var dto = new CreatePersonalWordDTO { Term = "Ubiquitous" };
 
-            var (success, error) = await _wordService.CreatePersonalWordAsync(userId, dto);
+            var result = await _wordService.CreatePersonalWordAsync(userId, dto);
 
-            Assert.That(success, Is.True);
-            Assert.That(error, Is.Null);
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.ErrorMessage, Is.Null);
 
             var word = await _dbContext.Words.FirstOrDefaultAsync(w => w.Term == "Ubiquitous");
             Assert.That(word, Is.Not.Null);
@@ -271,10 +271,10 @@ namespace Enrich.UnitTests.Services
             _dbContext.Words.Add(systemWord);
             await _dbContext.SaveChangesAsync();
 
-            var (success, error) = await _wordService.SaveSystemWordAsync(userId, systemWord.Id);
+            var result = await _wordService.SaveSystemWordAsync(userId, systemWord.Id);
 
-            Assert.That(success, Is.True);
-            Assert.That(error, Is.Null);
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.ErrorMessage, Is.Null);
 
             var userWord = await _dbContext.UserWords
                 .FirstOrDefaultAsync(uw => uw.UserId == userId && uw.WordId == systemWord.Id);
@@ -304,10 +304,10 @@ namespace Enrich.UnitTests.Services
             _dbContext.UserWords.Add(existingLink);
             await _dbContext.SaveChangesAsync();
 
-            var (success, error) = await _wordService.SaveSystemWordAsync(userId, systemWord.Id);
+            var result = await _wordService.SaveSystemWordAsync(userId, systemWord.Id);
 
-            Assert.That(success, Is.False);
-            Assert.That(error, Is.EqualTo("You have already saved this word."));
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("You have already saved this word."));
 
             var userWordCount = await _dbContext.UserWords
                 .CountAsync(uw => uw.UserId == userId && uw.WordId == systemWord.Id);
@@ -328,10 +328,10 @@ namespace Enrich.UnitTests.Services
             _dbContext.Words.Add(personalWord);
             await _dbContext.SaveChangesAsync();
 
-            var (success, error) = await _wordService.SaveSystemWordAsync(userId, personalWord.Id);
+            var result = await _wordService.SaveSystemWordAsync(userId, personalWord.Id);
 
-            Assert.That(success, Is.False);
-            Assert.That(error, Is.EqualTo("Word not found or is not a system word."));
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("Word not found or is not a system word."));
         }
 
         [Test]
@@ -350,13 +350,14 @@ namespace Enrich.UnitTests.Services
             var result = await _wordService.GetPersonalWordForEditAsync(userId, word.Id);
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result!.Id, Is.EqualTo(word.Id));
-            Assert.That(result.Term, Is.EqualTo("Existing"));
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.Value, Is.Not.Null);
+            Assert.That(result.Value!.Id, Is.EqualTo(word.Id));
+            Assert.That(result.Value.Term, Is.EqualTo("Existing"));
         }
 
         [Test]
-        public async Task GetPersonalWordForEditAsync_UserIsNotOwner_ReturnsNull()
+        public async Task GetPersonalWordForEditAsync_UserIsNotOwner_ReturnsFailure()
         {
             // Arrange
             var ownerId = "owner";
@@ -372,7 +373,8 @@ namespace Enrich.UnitTests.Services
             var result = await _wordService.GetPersonalWordForEditAsync(strangerId, word.Id);
 
             // Assert
-            Assert.That(result, Is.Null);
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.Not.Null);
         }
 
         [Test]
@@ -396,10 +398,10 @@ namespace Enrich.UnitTests.Services
             };
 
             // Act
-            var success = await _wordService.UpdateUserWordAsync(userId, dto);
+            var result = await _wordService.UpdateUserWordAsync(userId, dto);
 
             // Assert
-            Assert.That(success, Is.True);
+            Assert.That(result.IsSuccess, Is.True);
 
             var updatedWord = await _dbContext.Words.FindAsync(word.Id);
             Assert.That(updatedWord!.Term, Is.EqualTo("NewTerm"));
@@ -408,7 +410,7 @@ namespace Enrich.UnitTests.Services
         }
 
         [Test]
-        public async Task UpdateUserWordAsync_NonOwnerTriesToUpdate_ReturnsFalseAndDoesNotChangeDb()
+        public async Task UpdateUserWordAsync_NonOwnerTriesToUpdate_ReturnsFailureAndDoesNotChangeDb()
         {
             // Arrange
             var ownerId = "owner";
@@ -423,10 +425,11 @@ namespace Enrich.UnitTests.Services
             var dto = new UpdateWordDTO { WordId = word.Id, Term = "Hacked" };
 
             // Act
-            var success = await _wordService.UpdateUserWordAsync(hackerId, dto);
+            var result = await _wordService.UpdateUserWordAsync(hackerId, dto);
 
             // Assert
-            Assert.That(success, Is.False);
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.Not.Null);
 
             var dbWord = await _dbContext.Words.AsNoTracking().FirstOrDefaultAsync(w => w.Id == word.Id);
             Assert.That(dbWord!.Term, Is.EqualTo("Original")); // Дані в базі не змінилися

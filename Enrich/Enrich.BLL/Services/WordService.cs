@@ -1,3 +1,4 @@
+using Enrich.BLL.Common;
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
 using Enrich.DAL.Entities;
@@ -11,7 +12,7 @@ namespace Enrich.BLL.Services
         ICategoryRepository categoryRepository,
         ILogger<WordService> logger) : IWordService
     {
-        public async Task<(bool Success, string? ErrorMessage)> CreatePersonalWordAsync(string userId, CreatePersonalWordDTO dto)
+        public async Task<Result> CreatePersonalWordAsync(string userId, CreatePersonalWordDTO dto)
         {
             var termLower = dto.Term.Trim().ToLowerInvariant();
 
@@ -24,10 +25,10 @@ namespace Enrich.BLL.Services
                     userId,
                     dto.Term);
 
-                return (false, $"У вашому особистому словнику вже є слово '{dto.Term}'.");
+                return $"У вашому особистому словнику вже є слово '{dto.Term}'.";
             }
 
-            var now = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
+            var now = DateTime.UtcNow;
 
             var categories = new List<Category>();
             if (dto.CategoryIds != null && dto.CategoryIds.Any())
@@ -70,7 +71,7 @@ namespace Enrich.BLL.Services
                 createdWord.Id,
                 categories.Count);
 
-            return (true, null);
+            return true;
         }
 
         public async Task<IEnumerable<PersonalWordDTO>> GetPersonalWordsAsync(string userId)
@@ -98,33 +99,33 @@ namespace Enrich.BLL.Services
             return words;
         }
 
-        public async Task<(bool Success, string? ErrorMessage)> DeleteWordAsync(string userId, int wordId)
+        public async Task<Result> DeleteWordAsync(string userId, int wordId)
         {
             var userWord = await wordRepository.GetUserWordAsync(userId, wordId);
 
             if (userWord == null)
             {
                 logger.LogWarning("Спроба видалити слово {WordId} користувачем {UserId}, але воно не знайдено.", wordId, userId);
-                return (false, "Word not found in your saved words.");
+                return "Word not found in your saved words.";
             }
 
             var word = userWord.Word;
             if (word == null)
             {
                 await wordRepository.DeleteUserWordAsync(userWord);
-                return (true, null);
+                return true;
             }
 
             if (!word.IsGlobal && word.CreatorId == userId)
             {
                 await wordRepository.DeleteWordAsync(word);
                 logger.LogInformation("Користувач {UserId} як творець видалив персональне слово {WordId}.", userId, wordId);
-                return (true, null);
+                return true;
             }
 
             await wordRepository.DeleteUserWordAsync(userWord);
             logger.LogInformation("Користувач {UserId} видалив слово {WordId} зі збережених.", userId, wordId);
-            return (true, null);
+            return true;
         }
 
         public async Task<PagedResult<PersonalWordDTO>> GetPersonalWordsAsync(string userId, string? searchTerm, string? category, string? partOfSpeech, string? difficultyLevel, int page, int pageSize)
@@ -205,33 +206,33 @@ namespace Enrich.BLL.Services
             };
         }
 
-        public async Task<(bool Success, string? ErrorMessage)> SaveSystemWordAsync(string userId, int wordId)
+        public async Task<Result> SaveSystemWordAsync(string userId, int wordId)
         {
             var word = await wordRepository.GetWordAsync(wordId);
 
             if (word == null || !word.IsGlobal)
             {
-                return (false, "Word not found or is not a system word.");
+                return "Word not found or is not a system word.";
             }
 
             var alreadySaved = await wordRepository.UserHasWordAsync(userId, wordId);
             if (alreadySaved)
             {
-                return (false, "You have already saved this word.");
+                return "You have already saved this word.";
             }
 
             var userWord = new UserWord
             {
                 UserId = userId,
                 WordId = wordId,
-                SavedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)
+                SavedAt = DateTime.UtcNow
             };
 
             await wordRepository.SaveUserWordAsync(userWord);
 
             logger.LogInformation("User {UserId} saved global word {WordId}.", userId, wordId);
 
-            return (true, null);
+            return true;
         }
 
         public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
@@ -261,20 +262,27 @@ namespace Enrich.BLL.Services
             return await categoryRepository.GetCategoryByNameAsync(name);
         }
 
-        public async Task<Word?> GetPersonalWordForEditAsync(string userId, int wordId)
+        public async Task<Result<Word>> GetPersonalWordForEditAsync(string userId, int wordId)
         {
             var userWord = await wordRepository.GetUserWordAsync(userId, wordId);
-            return userWord?.Word;
+
+            if (userWord?.Word == null)
+            {
+                logger.LogWarning("Користувач {UserId} намагався отримати доступ до неіснуючого слова {WordId}", userId, wordId);
+                return "Word not found or access denied.";
+            }
+
+            return userWord.Word;
         }
 
-        public async Task<bool> UpdateUserWordAsync(string userId, UpdateWordDTO dto)
+        public async Task<Result> UpdateUserWordAsync(string userId, UpdateWordDTO dto)
         {
             var userWord = await wordRepository.GetUserWordAsync(userId, dto.WordId);
 
             if (userWord == null)
             {
                 logger.LogWarning("Користувач {UserId} намагався відредагувати неіснуюче або чуже слово {WordId}", userId, dto.WordId);
-                return false;
+                return "Word not found or you don't have permission to edit it.";
             }
 
             var word = userWord.Word;
@@ -285,6 +293,7 @@ namespace Enrich.BLL.Services
 
             await wordRepository.UpdateWordAsync(word);
             logger.LogInformation("Слово {WordId} успішно оновлено користувачем {UserId}", dto.WordId, userId);
+
             return true;
         }
     }

@@ -19,10 +19,10 @@ namespace Enrich.DAL.Data.Configurations
             _ = builder.Property(u => u.AvatarUrl).HasMaxLength(500);
             _ = builder.Property(u => u.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasColumnType("timestamp with time zone");
             _ = builder.Property(u => u.UpdatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasColumnType("timestamp with time zone");
         }
     }
 }

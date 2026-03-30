@@ -12,8 +12,8 @@ namespace Enrich.DAL.Data.Configurations
 
             _ = builder.Property(ts => ts.StartedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
-            _ = builder.Property(ts => ts.FinishedAt).HasColumnType("timestamp without time zone");
+                .HasColumnType("timestamp with time zone");
+            _ = builder.Property(ts => ts.FinishedAt).HasColumnType("timestamp with time zone");
             _ = builder.Property(ts => ts.TotalCards).HasDefaultValue(0);
             _ = builder.Property(ts => ts.KnownCount).HasDefaultValue(0);
             _ = builder.Property(ts => ts.UnknownCount).HasDefaultValue(0);
