@@ -197,5 +197,11 @@ namespace Enrich.DAL.Repositories
             dbContext.UserWords.Add(userWord);
             await dbContext.SaveChangesAsync();
         }
+
+        public async Task UpdateWordAsync(Word word)
+        {
+            dbContext.Words.Update(word);
+            await dbContext.SaveChangesAsync();
+        }
     }
 }

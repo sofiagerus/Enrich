@@ -1,0 +1,95 @@
+@model Enrich.Web.ViewModels.EditWordViewModel
+
+@{
+    ViewData["Title"] = "Edit Word";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .word-form-card {
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(4px); 
+        }
+    </style>
+}
+
+<div class="d-flex align-items-center mb-4 gap-3">
+    <a asp-action="MyWords" asp-controller="Word"
+       class="btn btn-sm btn-outline-secondary rounded-3 d-flex align-items-center gap-1"
+       id="btn-back-mywords">
+        <i class="bi bi-arrow-left"></i>
+        Back
+    </a>
+    <h1 class="fw-semibold fs-4 mb-0">Edit Word</h1>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 word-form-card" style="max-width: 640px;">
+    <div class="card-body p-4">
+
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+        {
+            <div class="alert alert-danger rounded-3 small mb-4" role="alert">
+                <div asp-validation-summary="ModelOnly"></div>
+            </div>
+        }
+
+        <form asp-action="Edit" asp-controller="Word" method="post" id="edit-word-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="WordId" />
+
+            @* Term *@
+            <div class="mb-3">
+                <label asp-for="Term" class="form-label fw-medium mb-1">
+                    Word <span class="text-danger ms-1">*</span>
+                </label>
+                <input asp-for="Term"
+                       class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
+                       placeholder="e.g. Serendipity" />
+                <span asp-validation-for="Term" class="text-danger small d-block mt-1"></span>
+            </div>
+
+            @* Translation *@
+            <div class="mb-3">
+                <label asp-for="Translation" class="form-label fw-medium mb-1">Translation</label>
+                <input asp-for="Translation"
+                       class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
+                       placeholder="e.g. Щасливий випадок" />
+                <span asp-validation-for="Translation" class="text-danger small d-block mt-1"></span>
+            </div>
+
+            @* Meaning *@
+            <div class="mb-3">
+                <label asp-for="Meaning" class="form-label fw-medium mb-1">Meaning</label>
+                <textarea asp-for="Meaning"
+                          class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
+                          rows="2"
+                          placeholder="Short definition"></textarea>
+                <span asp-validation-for="Meaning" class="text-danger small d-block mt-1"></span>
+            </div>
+
+            @* Example *@
+            <div class="mb-4">
+                <label asp-for="Example" class="form-label fw-medium mb-1">Example</label>
+                <textarea asp-for="Example"
+                          class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
+                          rows="2"
+                          placeholder="Sentence using the word"></textarea>
+                <span asp-validation-for="Example" class="text-danger small d-block mt-1"></span>
+            </div>
+
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-success rounded-4 py-2 px-4 fw-medium shadow-sm">
+                    <i class="bi bi-save me-1"></i> Save Changes
+                </button>
+                <a asp-action="MyWords" asp-controller="Word" class="btn btn-outline-secondary rounded-4 py-2 px-4">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
