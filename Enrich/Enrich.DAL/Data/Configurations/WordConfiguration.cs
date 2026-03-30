@@ -21,10 +21,10 @@ namespace Enrich.DAL.Data.Configurations
             _ = builder.Property(w => w.IsGlobal).HasDefaultValue(false);
             _ = builder.Property(w => w.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasColumnType("timestamp with time zone");
             _ = builder.Property(w => w.UpdatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasColumnType("timestamp with time zone");
 
             _ = builder.HasOne(w => w.Creator)
                 .WithMany(u => u.Words)

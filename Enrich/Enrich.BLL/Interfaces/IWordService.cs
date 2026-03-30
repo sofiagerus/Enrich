@@ -26,8 +26,8 @@ namespace Enrich.BLL.Interfaces
 
         Task<Category?> GetCategoryByNameAsync(string name);
 
-        Task<Word?> GetPersonalWordForEditAsync(string userId, int wordId);
+        Task<Result<Word>> GetPersonalWordForEditAsync(string userId, int wordId);
 
-        Task<bool> UpdateUserWordAsync(string userId, UpdateWordDTO dto);
+        Task<Result> UpdateUserWordAsync(string userId, UpdateWordDTO dto);
     }
 }

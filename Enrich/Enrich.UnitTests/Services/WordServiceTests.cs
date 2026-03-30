@@ -350,13 +350,14 @@ namespace Enrich.UnitTests.Services
             var result = await _wordService.GetPersonalWordForEditAsync(userId, word.Id);
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result!.Id, Is.EqualTo(word.Id));
-            Assert.That(result.Term, Is.EqualTo("Existing"));
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.Value, Is.Not.Null);
+            Assert.That(result.Value!.Id, Is.EqualTo(word.Id));
+            Assert.That(result.Value.Term, Is.EqualTo("Existing"));
         }
 
         [Test]
-        public async Task GetPersonalWordForEditAsync_UserIsNotOwner_ReturnsNull()
+        public async Task GetPersonalWordForEditAsync_UserIsNotOwner_ReturnsFailure()
         {
             // Arrange
             var ownerId = "owner";
@@ -372,7 +373,8 @@ namespace Enrich.UnitTests.Services
             var result = await _wordService.GetPersonalWordForEditAsync(strangerId, word.Id);
 
             // Assert
-            Assert.That(result, Is.Null);
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.Not.Null);
         }
 
         [Test]
@@ -396,10 +398,10 @@ namespace Enrich.UnitTests.Services
             };
 
             // Act
-            var success = await _wordService.UpdateUserWordAsync(userId, dto);
+            var result = await _wordService.UpdateUserWordAsync(userId, dto);
 
             // Assert
-            Assert.That(success, Is.True);
+            Assert.That(result.IsSuccess, Is.True);
 
             var updatedWord = await _dbContext.Words.FindAsync(word.Id);
             Assert.That(updatedWord!.Term, Is.EqualTo("NewTerm"));
@@ -408,7 +410,7 @@ namespace Enrich.UnitTests.Services
         }
 
         [Test]
-        public async Task UpdateUserWordAsync_NonOwnerTriesToUpdate_ReturnsFalseAndDoesNotChangeDb()
+        public async Task UpdateUserWordAsync_NonOwnerTriesToUpdate_ReturnsFailureAndDoesNotChangeDb()
         {
             // Arrange
             var ownerId = "owner";
@@ -423,10 +425,11 @@ namespace Enrich.UnitTests.Services
             var dto = new UpdateWordDTO { WordId = word.Id, Term = "Hacked" };
 
             // Act
-            var success = await _wordService.UpdateUserWordAsync(hackerId, dto);
+            var result = await _wordService.UpdateUserWordAsync(hackerId, dto);
 
             // Assert
-            Assert.That(success, Is.False);
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.Not.Null);
 
             var dbWord = await _dbContext.Words.AsNoTracking().FirstOrDefaultAsync(w => w.Id == word.Id);
             Assert.That(dbWord!.Term, Is.EqualTo("Original")); // Дані в базі не змінилися

@@ -23,7 +23,7 @@ namespace Enrich.BLL.Services
             }
 
             user.Bio = profileDto.Bio;
-            user.UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
+            user.UpdatedAt = DateTime.UtcNow;
 
             if (user.UserName != profileDto.Username)
             {

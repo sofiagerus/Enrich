@@ -28,7 +28,7 @@ namespace Enrich.BLL.Services
                 return $"У вашому особистому словнику вже є слово '{dto.Term}'.";
             }
 
-            var now = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
+            var now = DateTime.UtcNow;
 
             var categories = new List<Category>();
             if (dto.CategoryIds != null && dto.CategoryIds.Any())
@@ -225,7 +225,7 @@ namespace Enrich.BLL.Services
             {
                 UserId = userId,
                 WordId = wordId,
-                SavedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified)
+                SavedAt = DateTime.UtcNow
             };
 
             await wordRepository.SaveUserWordAsync(userWord);
@@ -262,20 +262,27 @@ namespace Enrich.BLL.Services
             return await categoryRepository.GetCategoryByNameAsync(name);
         }
 
-        public async Task<Word?> GetPersonalWordForEditAsync(string userId, int wordId)
+        public async Task<Result<Word>> GetPersonalWordForEditAsync(string userId, int wordId)
         {
             var userWord = await wordRepository.GetUserWordAsync(userId, wordId);
-            return userWord?.Word;
+
+            if (userWord?.Word == null)
+            {
+                logger.LogWarning("Користувач {UserId} намагався отримати доступ до неіснуючого слова {WordId}", userId, wordId);
+                return "Word not found or access denied.";
+            }
+
+            return userWord.Word;
         }
 
-        public async Task<bool> UpdateUserWordAsync(string userId, UpdateWordDTO dto)
+        public async Task<Result> UpdateUserWordAsync(string userId, UpdateWordDTO dto)
         {
             var userWord = await wordRepository.GetUserWordAsync(userId, dto.WordId);
 
             if (userWord == null)
             {
                 logger.LogWarning("Користувач {UserId} намагався відредагувати неіснуюче або чуже слово {WordId}", userId, dto.WordId);
-                return false;
+                return "Word not found or you don't have permission to edit it.";
             }
 
             var word = userWord.Word;
@@ -286,6 +293,7 @@ namespace Enrich.BLL.Services
 
             await wordRepository.UpdateWordAsync(word);
             logger.LogInformation("Слово {WordId} успішно оновлено користувачем {UserId}", dto.WordId, userId);
+
             return true;
         }
     }
