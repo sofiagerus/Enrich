@@ -32,8 +32,7 @@ namespace Enrich.UnitTests.Controllers
 
             _controller = new WordController(
                 _loggerMock.Object,
-                _wordServiceMock.Object,
-                _userServiceMock.Object);
+                _wordServiceMock.Object);
 
             var user = new ClaimsPrincipal(new ClaimsIdentity(
                 new[] { new Claim(ClaimTypes.NameIdentifier, FakeUserId) },
@@ -95,21 +94,6 @@ namespace Enrich.UnitTests.Controllers
             Assert.That(value, Is.Not.Null);
             Assert.That(value!.TotalCount, Is.EqualTo(1));
             Assert.That(value.Items.Count(), Is.EqualTo(1));
-        }
-
-        [Test]
-        public async Task GetMyWords_Anonymous_ReturnsUnauthorized()
-        {
-            // Arrange: simulate anonymous user
-            _userServiceMock
-                .Setup(u => u.GetCurrentUserId(It.IsAny<ClaimsPrincipal>()))
-                .Returns((string?)null);
-
-            // Act
-            var result = await _controller.GetMyWords(null, null, null, null, 1, 20);
-
-            // Assert
-            Assert.That(result, Is.InstanceOf<UnauthorizedResult>());
         }
 
         [Test]

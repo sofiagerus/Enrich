@@ -9,7 +9,7 @@ namespace Enrich.Web.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController(
         IUserService userService,
-        ILogger<AdminController> logger) : Controller
+        ILogger<AdminController> logger) : BaseController
     {
         [HttpGet]
         public async Task<IActionResult> Browse()

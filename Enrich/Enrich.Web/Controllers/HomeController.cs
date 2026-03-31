@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Enrich.Web.Controllers
 {
-    public class HomeController(ILogger<HomeController> logger) : Controller
+    public class HomeController(ILogger<HomeController> logger) : BaseController
     {
         public IActionResult Index()
         {

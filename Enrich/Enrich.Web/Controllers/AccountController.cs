@@ -9,7 +9,7 @@ namespace Enrich.Web.Controllers
     public class AccountController(
         ILogger<AccountController> logger,
         IAuthService authService,
-        IUserService userService) : Controller
+        IUserService userService) : BaseController
     {
         [HttpGet]
         public IActionResult Signup()
@@ -121,7 +121,7 @@ namespace Enrich.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            var userId = userService.GetCurrentUserId(User);
+            var userId = CurrentUserId;
             await authService.LogoutAsync();
             logger.LogInformation("Користувач {UserId} вийшов з системи.", userId);
             return RedirectToAction("Login", "Account");

@@ -9,20 +9,13 @@ namespace Enrich.Web.Controllers
     [Authorize]
     public class WordController(
         ILogger<WordController> logger,
-        IWordService wordService,
-        IUserService userService) : Controller
+        IWordService wordService) : BaseController
     {
         [HttpGet]
         public async Task<IActionResult> Index(SystemWordsIndexViewModel model, int page = 1, int pageSize = 12)
         {
-            var userId = userService.GetCurrentUserId(User);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
-
             model.Words = await wordService.GetSystemWordsAsync(
-                userId,
+                CurrentUserId,
                 model.SearchTerm,
                 model.CategoryFilter,
                 model.PosFilter,
@@ -57,16 +50,9 @@ namespace Enrich.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMyWords(string? searchTerm, string? category, string? partOfSpeech, string? difficultyLevel, int page = 1, int pageSize = 20)
         {
-            var userId = userService.GetCurrentUserId(User);
-            if (userId == null)
-            {
-                logger.LogWarning("Спроба отримати слова неавторизованим користувачем.");
-                return Unauthorized();
-            }
+            var pageResult = await wordService.GetPersonalWordsAsync(CurrentUserId, searchTerm, category, partOfSpeech, difficultyLevel, page, pageSize);
 
-            var pageResult = await wordService.GetPersonalWordsAsync(userId, searchTerm, category, partOfSpeech, difficultyLevel, page, pageSize);
-
-            logger.LogInformation("Користувач {UserId} отримав {WordCount} слів (загалом {Total}).", userId, pageResult.Items.Count(), pageResult.TotalCount);
+            logger.LogInformation("Користувач {UserId} отримав {WordCount} слів (загалом {Total}).", CurrentUserId, pageResult.Items.Count(), pageResult.TotalCount);
             return Json(pageResult);
         }
 
@@ -85,20 +71,13 @@ namespace Enrich.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateWordViewModel model)
         {
-            var userId = userService.GetCurrentUserId(User);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
-
             if (!ModelState.IsValid)
             {
-                logger.LogWarning("Провалена валідація форми створення слова для {UserId}.", userId);
+                logger.LogWarning("Провалена валідація форми створення слова для {UserId}.", CurrentUserId);
                 model.Categories = await wordService.GetAllCategoriesAsync();
                 return View(model);
             }
 
-            // Обробляємо категорію (знаходимо існуючу або створюємо нову)
             var categoryIds = await HandleCategoryLogic(model.NewCategory);
 
             var dto = new CreatePersonalWordDTO
@@ -113,17 +92,17 @@ namespace Enrich.Web.Controllers
                 CategoryIds = categoryIds
             };
 
-            var result = await wordService.CreatePersonalWordAsync(userId, dto);
+            var result = await wordService.CreatePersonalWordAsync(CurrentUserId, dto);
 
             if (!result.IsSuccess)
             {
-                logger.LogWarning("Помилка створення слова '{Term}' для {UserId}: {Error}", model.Term, userId, result.ErrorMessage);
+                logger.LogWarning("Помилка створення слова '{Term}' для {UserId}: {Error}", model.Term, CurrentUserId, result.ErrorMessage);
                 ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Failed to create word.");
                 model.Categories = await wordService.GetAllCategoriesAsync();
                 return View(model);
             }
 
-            logger.LogInformation("Користувач {UserId} успішно створив слово '{Term}'.", userId, model.Term);
+            logger.LogInformation("Користувач {UserId} успішно створив слово '{Term}'.", CurrentUserId, model.Term);
             TempData["SuccessMessage"] = $"Word '{model.Term}' successfully added!";
 
             return RedirectToAction(nameof(MyWords));
@@ -132,17 +111,11 @@ namespace Enrich.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var userId = userService.GetCurrentUserId(User);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
-
-            var result = await wordService.DeleteWordAsync(userId, id);
+            var result = await wordService.DeleteWordAsync(CurrentUserId, id);
 
             if (!result.IsSuccess)
             {
-                logger.LogWarning("Невдала спроба видалення слова {WordId} користувачем {UserId}: {Error}", id, userId, result.ErrorMessage);
+                logger.LogWarning("Невдала спроба видалення слова {WordId} користувачем {UserId}: {Error}", id, CurrentUserId, result.ErrorMessage);
                 return BadRequest(new { message = result.ErrorMessage });
             }
 
@@ -152,17 +125,11 @@ namespace Enrich.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var userId = userService.GetCurrentUserId(User);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
-
-            var result = await wordService.GetPersonalWordForEditAsync(userId, id);
+            var result = await wordService.GetPersonalWordForEditAsync(CurrentUserId, id);
 
             if (!result.IsSuccess)
             {
-                logger.LogWarning("Користувач {UserId} намагався отримати доступ до слова {WordId}: {Error}", userId, id, result.ErrorMessage);
+                logger.LogWarning("Користувач {UserId} намагався отримати доступ до слова {WordId}: {Error}", CurrentUserId, id, result.ErrorMessage);
                 return NotFound();
             }
 
@@ -183,12 +150,6 @@ namespace Enrich.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EditWordViewModel model)
         {
-            var userId = userService.GetCurrentUserId(User);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
-
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -203,16 +164,16 @@ namespace Enrich.Web.Controllers
                 Example = model.Example?.Trim()
             };
 
-            var result = await wordService.UpdateUserWordAsync(userId, dto);
+            var result = await wordService.UpdateUserWordAsync(CurrentUserId, dto);
 
             if (result.IsSuccess)
             {
-                logger.LogInformation("Користувач {UserId} успішно оновив слово {WordId}", userId, model.WordId);
+                logger.LogInformation("Користувач {UserId} успішно оновив слово {WordId}", CurrentUserId, model.WordId);
                 TempData["SuccessMessage"] = "Слово успішно оновлено!";
                 return RedirectToAction(nameof(MyWords));
             }
 
-            logger.LogWarning("Невдала спроба оновлення слова {WordId} користувачем {UserId}: {Error}", model.WordId, userId, result.ErrorMessage);
+            logger.LogWarning("Невдала спроба оновлення слова {WordId} користувачем {UserId}: {Error}", model.WordId, CurrentUserId, result.ErrorMessage);
             ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Failed to update word.");
             return View(model);
         }
@@ -247,17 +208,11 @@ namespace Enrich.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveSystemWord(int id)
         {
-            var userId = userService.GetCurrentUserId(User);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
-
-            var result = await wordService.SaveSystemWordAsync(userId, id);
+            var result = await wordService.SaveSystemWordAsync(CurrentUserId, id);
 
             if (!result.IsSuccess)
             {
-                logger.LogWarning("Невдала спроба зберегти системне слово {WordId} користувачем {UserId}: {Error}", id, userId, result.ErrorMessage);
+                logger.LogWarning("Невдала спроба зберегти системне слово {WordId} користувачем {UserId}: {Error}", id, CurrentUserId, result.ErrorMessage);
                 return BadRequest(new { message = result.ErrorMessage });
             }
 
