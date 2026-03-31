@@ -73,7 +73,7 @@ try
 
     app.UseRequestLocalization(options =>
     {
-        options.SetDefaultCulture("uk")
+        options.SetDefaultCulture("en")
                .AddSupportedCultures(supportedCultures)
                .AddSupportedUICultures(supportedCultures);
     });

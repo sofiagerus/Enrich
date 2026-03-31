@@ -27,5 +27,7 @@ namespace Enrich.DAL.Interfaces
         Task SaveUserWordAsync(UserWord userWord);
 
         Task UpdateWordAsync(Word word);
+
+        Task<IEnumerable<Word>> GetAllWordsAsync();
     }
 }

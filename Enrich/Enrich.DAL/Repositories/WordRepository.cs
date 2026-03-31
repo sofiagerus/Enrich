@@ -203,5 +203,13 @@ namespace Enrich.DAL.Repositories
             dbContext.Words.Update(word);
             await dbContext.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<Word>> GetAllWordsAsync()
+        {
+            return await dbContext.Words
+                .AsNoTracking()
+                .OrderBy(w => w.Term)
+                .ToListAsync();
+        }
     }
 }

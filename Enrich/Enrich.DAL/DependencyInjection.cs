@@ -17,6 +17,7 @@ namespace Enrich.DAL
 
             services.AddScoped<IWordRepository, WordRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IBundleRepository, BundleRepository>();
 
             return services;
         }

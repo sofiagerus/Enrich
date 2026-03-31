@@ -12,14 +12,14 @@ namespace Enrich.DAL.Data.Configurations
 
             _ = builder.HasIndex(b => b.ShareCode).IsUnique();
 
-            _ = builder.Property(b => b.Title).IsRequired().HasMaxLength(150);
+            _ = builder.Property(b => b.Title).IsRequired().HasMaxLength(200);
             _ = builder.Property(b => b.Description).HasMaxLength(1000);
             _ = builder.Property(b => b.DifficultyLevels).HasColumnType("text[]");
             _ = builder.Property(b => b.Status).HasConversion<string>().HasMaxLength(20);
             _ = builder.Property(b => b.IsSystem).HasDefaultValue(false);
             _ = builder.Property(b => b.IsPublic).HasDefaultValue(false);
             _ = builder.Property(b => b.ShareCode).HasMaxLength(10);
-            _ = builder.Property(b => b.ImageUrl).HasMaxLength(500);
+            _ = builder.Property(b => b.ImageUrl).HasMaxLength(2097152);
             _ = builder.Property(b => b.ReviewedAt).HasColumnType("timestamp with time zone");
             _ = builder.Property(b => b.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")

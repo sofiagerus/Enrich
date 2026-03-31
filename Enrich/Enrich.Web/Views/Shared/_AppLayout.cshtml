@@ -79,7 +79,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentAction == "MyCollections" ? activeClass : inactiveClass)"
+                        <a asp-controller="Bundle" asp-action="Index"
+                           class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentAction == "Index" && currentController == "Bundle" ? activeClass : inactiveClass)"
                            style="font-weight: 500; font-size: 0.95rem;">
                             <i class="bi bi-folder me-3 fs-6"></i>My collections
                         </a>
