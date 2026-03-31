@@ -1,5 +1,6 @@
 ﻿using Enrich.DAL.Data;
 using Enrich.DAL.Entities;
+using Enrich.DAL.Entities.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,6 +45,7 @@ namespace Enrich.Web.Seeders
 
             await SeedCategoriesAsync(scope.ServiceProvider);
             await SeedGlobalWordsAsync(scope.ServiceProvider);
+            await SeedSystemBundlesAsync(scope.ServiceProvider);
         }
 
         private static async Task SeedGlobalWordsAsync(IServiceProvider services)
@@ -73,8 +75,8 @@ namespace Enrich.Web.Seeders
                     DifficultyLevel = "B2",
                     IsGlobal = true,
                     Categories = new List<Category> { generalCat! },
-                    CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
-                    UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
                 },
                 new Word
                 {
@@ -87,8 +89,8 @@ namespace Enrich.Web.Seeders
                     DifficultyLevel = "B1",
                     IsGlobal = true,
                     Categories = new List<Category> { techCat! },
-                    CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
-                    UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
                 },
                 new Word
                 {
@@ -101,8 +103,8 @@ namespace Enrich.Web.Seeders
                     DifficultyLevel = "C1",
                     IsGlobal = true,
                     Categories = new List<Category> { natureCat! },
-                    CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
-                    UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
                 },
                 new Word
                 {
@@ -115,8 +117,8 @@ namespace Enrich.Web.Seeders
                     DifficultyLevel = "B2",
                     IsGlobal = true,
                     Categories = new List<Category> { techCat!, generalCat! },
-                    CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
-                    UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
                 },
                 new Word
                 {
@@ -129,8 +131,8 @@ namespace Enrich.Web.Seeders
                     DifficultyLevel = "C1",
                     IsGlobal = true,
                     Categories = new List<Category> { generalCat! },
-                    CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
-                    UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
                 }
             };
 
@@ -147,7 +149,8 @@ namespace Enrich.Web.Seeders
             {
                 "General", "Business", "Technology", "Science", "Medicine",
                 "Law", "Politics", "Art", "Music", "Sports",
-                "Travel", "Food", "Nature", "Education", "Finance"
+                "Travel", "Food", "Nature", "Education", "Finance",
+                "Fruits", "Emotions", "Housing", "Healthcare"
             };
 
             foreach (var name in defaultCategories)
@@ -159,6 +162,117 @@ namespace Enrich.Web.Seeders
                 }
             }
 
+            await db.SaveChangesAsync();
+        }
+
+        private static async Task SeedSystemBundlesAsync(IServiceProvider services)
+        {
+            var db = services.GetRequiredService<ApplicationDbContext>();
+
+            if (await db.Bundles.AnyAsync(b => b.IsSystem))
+            {
+                return;
+            }
+
+            var categories = await db.Categories.ToListAsync();
+            var words = await db.Words.Where(w => w.IsGlobal).ToListAsync();
+
+            var fruitsCat = categories.FirstOrDefault(c => c.Name == "Fruits");
+            var foodCat = categories.FirstOrDefault(c => c.Name == "Food");
+            var travelCat = categories.FirstOrDefault(c => c.Name == "Travel");
+            var financeCat = categories.FirstOrDefault(c => c.Name == "Finance");
+            var housingCat = categories.FirstOrDefault(c => c.Name == "Housing");
+            var healthcareCat = categories.FirstOrDefault(c => c.Name == "Healthcare");
+            var emotionsCat = categories.FirstOrDefault(c => c.Name == "Emotions");
+            var techCat = categories.FirstOrDefault(c => c.Name == "Technology");
+            var natureCat = categories.FirstOrDefault(c => c.Name == "Nature");
+            var generalCat = categories.FirstOrDefault(c => c.Name == "General");
+
+            var now = DateTime.UtcNow;
+
+            var bundles = new List<Bundle>
+            {
+                new Bundle
+                {
+                    Title = "Fruits",
+                    Description = "Essential fruit vocabulary for daily life. Perfect for navigating supermarkets, reading recipes, or discussing healthy eating habits.",
+                    DifficultyLevels = ["C2", "C1", "B2", "B1", "A2", "A1"],
+                    IsSystem = true,
+                    IsPublic = true,
+                    Status = BundleStatus.Published,
+                    Categories = new List<Category> { fruitsCat!, foodCat! }.Where(c => c != null).ToList(),
+                    Words = words.Take(2).ToList(),
+                    CreatedAt = now,
+                    UpdatedAt = now
+                },
+                new Bundle
+                {
+                    Title = "Living Abroad Survival Kit",
+                    Description = "Moving to an English-speaking country? This ultimate bundle covers everything you need.",
+                    DifficultyLevels = ["C2", "C1", "B2", "B1"],
+                    IsSystem = true,
+                    IsPublic = true,
+                    Status = BundleStatus.Published,
+                    Categories = new List<Category> { housingCat!, healthcareCat!, financeCat! }.Where(c => c != null).ToList(),
+                    Words = words.Take(3).ToList(),
+                    CreatedAt = now,
+                    UpdatedAt = now
+                },
+                new Bundle
+                {
+                    Title = "Tech Terminology",
+                    Description = "Master the language of technology. From software development to hardware components, this bundle has you covered.",
+                    DifficultyLevels = ["B2", "B1", "A2"],
+                    IsSystem = true,
+                    IsPublic = true,
+                    Status = BundleStatus.Published,
+                    Categories = new List<Category> { techCat! }.Where(c => c != null).ToList(),
+                    Words = words.Where(w => w.Term == "Algorithm" || w.Term == "Obsolete").ToList(),
+                    CreatedAt = now,
+                    UpdatedAt = now
+                },
+                new Bundle
+                {
+                    Title = "Nature & Environment",
+                    Description = "Vocabulary related to nature, wildlife, and environmental topics. Great for discussing sustainability and ecology.",
+                    DifficultyLevels = ["C1", "B2", "B1"],
+                    IsSystem = true,
+                    IsPublic = true,
+                    Status = BundleStatus.Published,
+                    Categories = new List<Category> { natureCat! }.Where(c => c != null).ToList(),
+                    Words = words.Where(w => w.Term == "Biodiversity" || w.Term == "Mitigate").ToList(),
+                    CreatedAt = now,
+                    UpdatedAt = now
+                },
+                new Bundle
+                {
+                    Title = "Travel Essentials",
+                    Description = "Everything you need to navigate airports, hotels, and tourist destinations. Perfect for your next adventure.",
+                    DifficultyLevels = ["B1", "A2", "A1"],
+                    IsSystem = true,
+                    IsPublic = true,
+                    Status = BundleStatus.Published,
+                    Categories = new List<Category> { travelCat! }.Where(c => c != null).ToList(),
+                    Words = words.Take(1).ToList(),
+                    CreatedAt = now,
+                    UpdatedAt = now
+                },
+                new Bundle
+                {
+                    Title = "Emotions & Feelings",
+                    Description = "Express yourself better with this comprehensive vocabulary set covering emotions, moods, and mental states.",
+                    DifficultyLevels = ["C2", "C1", "B2"],
+                    IsSystem = true,
+                    IsPublic = true,
+                    Status = BundleStatus.Published,
+                    Categories = new List<Category> { emotionsCat!, generalCat! }.Where(c => c != null).ToList(),
+                    Words = words.Where(w => w.Term == "Resilient").ToList(),
+                    CreatedAt = now,
+                    UpdatedAt = now
+                }
+            };
+
+            db.Bundles.AddRange(bundles);
             await db.SaveChangesAsync();
         }
     }
