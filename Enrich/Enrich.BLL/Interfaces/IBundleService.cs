@@ -1,5 +1,7 @@
 using Enrich.BLL.Common;
 using Enrich.BLL.DTOs;
+using Enrich.DAL.Entities;
+
 
 namespace Enrich.BLL.Interfaces
 {
@@ -20,5 +22,16 @@ namespace Enrich.BLL.Interfaces
         Task<Result> AddWordsToBundleAsync(string userId, int bundleId, IEnumerable<int> wordIds);
 
         Task<Result> RemoveWordsFromBundleAsync(string userId, int bundleId, IEnumerable<int> wordIds);
+        
+        Task<PagedResult<SystemBundleDTO>> GetSystemBundlesAsync(
+            string? searchTerm,
+            string? category,
+            string? difficultyLevel,
+            int? minWordCount,
+            int? maxWordCount,
+            int page,
+            int pageSize);
+
+        Task<IEnumerable<Category>> GetAllCategoriesAsync();
     }
 }
