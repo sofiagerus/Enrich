@@ -3,12 +3,14 @@ using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
 using Enrich.DAL.Entities;
 using Enrich.DAL.Entities.Enums;
+using Enrich.DAL.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace Enrich.BLL.Services
 {
     public class BundleService(
         IBundleRepository bundleRepository,
+        ICategoryRepository categoryRepository,
         ILogger<BundleService> logger) : IBundleService
     {
         public async Task<Result> CreateBundleAsync(string userId, CreateBundleDTO dto)
@@ -140,9 +142,20 @@ namespace Enrich.BLL.Services
             var result = new PagedResult<BundleDTO>
             {
                 Items = bundleDTOs,
-        ICategoryRepository categoryRepository,
-        ILogger<BundleService> logger) : IBundleService
-    {
+                TotalCount = total,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            logger.LogInformation(
+                "Успішно отримано {Count} бандлів (всього {Total}) для користувача {UserId}.",
+                bundleDTOs.Count,
+                total,
+                userId);
+
+            return result;
+        }
+
         public async Task<PagedResult<SystemBundleDTO>> GetSystemBundlesAsync(
             string? searchTerm,
             string? category,
@@ -191,14 +204,11 @@ namespace Enrich.BLL.Services
                 Page = page,
                 PageSize = pageSize
             };
+        }
 
-            logger.LogInformation(
-                "Успішно отримано {Count} бандлів (всього {Total}) для користувача {UserId}.",
-                bundleDTOs.Count,
-                total,
-                userId);
-
-            return result;
+        public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
+        {
+            return await categoryRepository.GetAllCategoriesAsync();
         }
 
         public async Task<Result> UpdateBundleAsync(string userId, int bundleId, CreateBundleDTO dto)
@@ -435,11 +445,6 @@ namespace Enrich.BLL.Services
                 CategoryCount = bundle.Categories?.Count ?? 0,
                 TagCount = bundle.Tags?.Count ?? 0
             };
-        }
-
-        public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
-        {
-            return await categoryRepository.GetAllCategoriesAsync();
         }
     }
 }

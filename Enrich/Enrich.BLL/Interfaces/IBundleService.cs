@@ -2,7 +2,6 @@ using Enrich.BLL.Common;
 using Enrich.BLL.DTOs;
 using Enrich.DAL.Entities;
 
-
 namespace Enrich.BLL.Interfaces
 {
     public interface IBundleService
@@ -22,7 +21,7 @@ namespace Enrich.BLL.Interfaces
         Task<Result> AddWordsToBundleAsync(string userId, int bundleId, IEnumerable<int> wordIds);
 
         Task<Result> RemoveWordsFromBundleAsync(string userId, int bundleId, IEnumerable<int> wordIds);
-        
+
         Task<PagedResult<SystemBundleDTO>> GetSystemBundlesAsync(
             string? searchTerm,
             string? category,

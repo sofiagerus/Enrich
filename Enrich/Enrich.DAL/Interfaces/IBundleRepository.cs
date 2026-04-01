@@ -25,6 +25,7 @@ namespace Enrich.DAL.Interfaces
         Task AddCategoriesToBundleAsync(int bundleId, IEnumerable<int> categoryIds);
 
         Task AddTagsToBundleAsync(int bundleId, IEnumerable<int> tagIds);
+
         Task<(IEnumerable<Bundle> Items, int Total)> GetSystemBundlesPageAsync(
             string? searchTerm,
             string? category,
@@ -33,8 +34,6 @@ namespace Enrich.DAL.Interfaces
             int? maxWordCount,
             int page,
             int pageSize);
-
-        Task<Bundle?> GetBundleAsync(int bundleId);
 
         Task<Bundle> CreateBundleAsync(Bundle bundle);
     }
