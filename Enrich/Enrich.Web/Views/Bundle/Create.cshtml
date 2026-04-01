@@ -8,8 +8,18 @@
 @section Styles {
     <style>
         .form-container {
-            max-width: 900px;
-            margin: 0 auto;
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .form-container h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 2rem;
+            text-align: center;
+            letter-spacing: -0.5px;
         }
 
         .form-row {
@@ -32,44 +42,45 @@
         .form-label {
             font-weight: 600;
             margin-bottom: 0.75rem;
-            color: #333;
+            color: #2c3e50;
             display: block;
+            font-size: 0.95rem;
         }
 
-        .category-item {
-            cursor: pointer;
-            transition: background .12s;
-            border-radius: .5rem;
-            margin: 2px 4px;
-        }
-
-        .category-item:hover,
-        .category-item:focus {
-            background: #f0f4ff;
-            outline: none;
-        }
-
-        .new-item {
-            color: #198754;
+        .mb-3 {
+            margin-bottom: 1.5rem;
         }
 
         .form-control {
-            border: 1px solid #d0d0d0;
-            border-radius: 1.5rem;
-            padding: 0.85rem 1.25rem;
+            border: 1px solid #d4d9de;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
             font-size: 0.95rem;
-            background-color: #f9f9f9;
+            background-color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            color: #2c3e50;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .form-control:focus {
             border-color: #198754;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.1);
+            box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.08);
             background-color: #fff;
         }
 
         .form-control::placeholder {
-            color: #999;
+            color: #9da3af;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .text-muted {
+            color: #6b7280 !important;
+            font-size: 0.85rem;
         }
 
         .category-combo {
@@ -80,59 +91,107 @@
             padding-right: 2.5rem;
         }
 
-        #category-dropdown {
-            list-style: none;
-            border: 1px solid #e0e0e0;
-            border-radius: 0.375rem;
-            max-height: 200px;
-            overflow-y: auto;
-            background: white;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .image-preview {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 0.375rem;
-        }
-
-        .image-upload-box {
-            border: 2px dashed #d0d0d0;
+        /* Container styling for checkboxes */
+        #categories-container,
+        #words-container,
+        #levels-container {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
             border-radius: 0.5rem;
-            padding: 2rem;
+            padding: 0.75rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #categories-container .col-md-6,
+        #words-container .col-md-6,
+        #levels-container .col-md-3 {
+            padding: 0.25rem;
+        }
+
+        .form-check-input {
+            width: 1.1rem;
+            height: 1.1rem;
+            margin-top: 0.15rem;
+            border: 1px solid #d4d9de;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            accent-color: #198754;
+        }
+
+        .form-check-input:focus {
+            border-color: #198754;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.08);
+        }
+
+        .form-check-input:checked {
+            background-color: #198754;
+            border-color: #198754;
+        }
+
+        .form-check-label {
+            color: #2c3e50;
+            font-size: 0.95rem;
+            user-select: none;
+            cursor: pointer;
+            margin-bottom: 0;
+        }
+
+        .d-flex {
+            display: flex;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .me-2 {
+            margin-right: 0.5rem;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        /* Image upload styling */
+        .image-upload-box {
+            border: 2px dashed #d4d9de;
+            border-radius: 0.75rem;
+            padding: 2.5rem 2rem;
             text-align: center;
-            background-color: #f5f5f5;
+            background-color: #f9fafb;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 200px;
+            min-height: 220px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             position: relative;
         }
 
         .image-upload-box:hover {
-            border-color: #999;
-            background-color: #f9f9f9;
+            border-color: #198754;
+            background-color: rgba(25, 135, 84, 0.03);
         }
 
         .image-upload-box i {
-            font-size: 3rem;
-            color: #999;
+            font-size: 2.5rem;
+            color: #9da3af;
             margin-bottom: 1rem;
         }
 
         .image-upload-btn {
             background-color: #198754;
             color: white;
-            padding: 0.5rem 1.5rem;
-            border-radius: 0.375rem;
+            padding: 0.6rem 1.5rem;
+            border-radius: 0.5rem;
             border: none;
             cursor: pointer;
             font-weight: 500;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s ease;
+            font-size: 0.95rem;
         }
 
         .image-upload-btn:hover {
@@ -143,7 +202,7 @@
             width: 100%;
             height: 200px;
             object-fit: cover;
-            border-radius: 0.375rem;
+            border-radius: 0.5rem;
             margin-bottom: 1rem;
         }
 
@@ -151,90 +210,125 @@
             display: flex;
             gap: 1rem;
             justify-content: center;
-            margin-top: 2rem;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
         }
 
         .btn {
-            padding: 0.75rem 2rem;
-            border-radius: 2rem;
+            padding: 0.6rem 1.75rem;
+            border-radius: 1.5rem;
             border: none;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .btn-primary {
+        .btn-success {
             background-color: #198754;
             color: white;
         }
 
-        .btn-primary:hover {
+        .btn-success:hover {
             background-color: #157347;
-        }
-
-        .btn-secondary {
-            background-color: white;
-            color: #333;
-            border: 2px solid #ccc;
-            text-decoration: none;
-        }
-
-        .btn-secondary:hover {
-            background-color: #f5f5f5;
-            color: #333;
-            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(25, 135, 84, 0.2);
         }
 
         .btn-outline-secondary {
-            background-color: transparent;
-            color: #333;
-            border: 1px solid #dee2e6;
+            background-color: white;
+            color: #2c3e50;
+            border: 1.5px solid #d4d9de;
+            transition: all 0.2s ease;
         }
 
         .btn-outline-secondary:hover {
-            background-color: #e9ecef;
-            color: #333;
+            background-color: #f9fafb;
+            color: #2c3e50;
+            text-decoration: none;
+            border-color: #9da3af;
         }
 
-        .text-danger {
-            color: #dc3545;
-            font-size: 0.85rem;
-            margin-top: 0.25rem;
-            display: block;
-        }
 
         .alert {
-            padding: 1rem;
-            border-radius: 0.375rem;
-            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            border: none;
+            font-size: 0.9rem;
         }
 
         .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background-color: transparent;
+            color: #dc3545;
+        }
+        .text-danger {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 0.35rem;
+            display: block;
+        }
+        /* Scrollbar styling */
+        #categories-container::-webkit-scrollbar,
+        #words-container::-webkit-scrollbar,
+        #levels-container::-webkit-scrollbar {
+            width: 6px;
         }
 
+        #categories-container::-webkit-scrollbar-track,
+        #words-container::-webkit-scrollbar-track,
+        #levels-container::-webkit-scrollbar-track {
+            background-color: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        #categories-container::-webkit-scrollbar-thumb,
+        #words-container::-webkit-scrollbar-thumb,
+        #levels-container::-webkit-scrollbar-thumb {
+            background-color: #d4d9de;
+            border-radius: 10px;
+        }
+
+        #categories-container::-webkit-scrollbar-thumb:hover,
+        #words-container::-webkit-scrollbar-thumb:hover,
+        #levels-container::-webkit-scrollbar-thumb:hover {
+            background-color: #198754;
+        }
+
+        /* Responsive design */
         @@media (max-width: 768px) {
             .form-row {
                 flex-direction: column;
                 gap: 1.5rem;
             }
-        }
 
-        .btn-outline-secondary {
-            background-color: transparent;
-            color: #333;
-            border: 1px solid #dee2e6;
-            transition: all 0.3s ease;
-        }
+            .form-container {
+                margin: 1rem auto;
+            }
 
-        .btn-outline-secondary:hover {
-            background-color: rgba(25, 135, 84, 0.1);
-            color: #198754;
-            border-color: #198754;
-            box-shadow: 0 0 15px rgba(25, 135, 84, 0.4);
+            .form-container h1 {
+                font-size: 2rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            #categories-container .col-md-6,
+            #words-container .col-md-6,
+            #levels-container .col-md-3 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
         }
     </style>
 }
@@ -322,7 +416,7 @@
                     </div>
                 </div>
                 <div id="change-image-btn-container" style="display: none; margin-top: 1rem;">
-                    <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('file-input').click()" style="width: 100%;">
+                    <button type="button" class="btn btn-outline-secondary rounded-4" onclick="document.getElementById('file-input').click()" style="width: 100%;">
                         <i class="bi bi-pencil"></i> Change Image
                     </button>
                 </div>
@@ -333,10 +427,10 @@
 
         <!-- Buttons -->
         <div class="button-group">
-            <a asp-action="Index" asp-controller="Bundle" class="btn btn-secondary">
+            <a asp-action="Index" asp-controller="Bundle" class="btn btn-outline-secondary rounded-4">
                 Cancel
             </a>
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-success rounded-4">
                 Create Collection
             </button>
         </div>
@@ -345,12 +439,12 @@
 
 @section Scripts {
     <script>
-        // Categories multi-select logic
+        // Categories multi-select logic with state preservation
         (() => {
             const container = document.getElementById('categories-container');
             const searchInput = document.getElementById('category-search-input');
             let allCategories = [];
-            let selectedIds = [];
+            let selectedIds = []; // Master list of all selected items
 
             async function loadCategories() {
                 try {
@@ -379,8 +473,18 @@
                     checkbox.value = cat.id;
                     checkbox.className = 'form-check-input me-2';
                     checkbox.dataset.categoryId = cat.id;
-                    checkbox.checked = selectedIds.includes(cat.id);
-                    checkbox.addEventListener('change', updateHiddenInput);
+                    checkbox.checked = selectedIds.includes(cat.id); // Check against global selection
+                    checkbox.addEventListener('change', (e) => {
+                        const id = parseInt(e.target.dataset.categoryId);
+                        if (e.target.checked) {
+                            if (!selectedIds.includes(id)) {
+                                selectedIds.push(id);
+                            }
+                        } else {
+                            selectedIds = selectedIds.filter(x => x !== id);
+                        }
+                        updateHiddenInput();
+                    });
                     
                     const span = document.createElement('span');
                     span.textContent = cat.name.split('(')[0].trim();
@@ -408,8 +512,6 @@
             function updateHiddenInput() {
                 const containerHidden = document.getElementById('category-ids-container');
                 containerHidden.innerHTML = '';
-                selectedIds = Array.from(document.querySelectorAll('#categories-container input[type="checkbox"]:checked'))
-                    .map(cb => parseInt(cb.dataset.categoryId));
                 selectedIds.forEach((id) => {
                     const input = document.createElement('input');
                     input.type = 'hidden';
@@ -423,12 +525,12 @@
             loadCategories();
         })();
 
-        // Words multi-select with search
+        // Words multi-select with search and state preservation
         (() => {
             const container = document.getElementById('words-container');
             const searchInput = document.getElementById('word-search-input');
             let allWords = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model?.Words ?? new List<Enrich.Web.ViewModels.WordItemViewModel>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
-            let selectedIds = [];
+            let selectedIds = []; // Master list of all selected items
 
             function renderWords(wordsToShow) {
                 container.innerHTML = '';
@@ -445,7 +547,18 @@
                     checkbox.value = word.id;
                     checkbox.className = 'form-check-input me-2';
                     checkbox.dataset.wordId = word.id;
-                    checkbox.addEventListener('change', updateHiddenInput);
+                    checkbox.checked = selectedIds.includes(word.id); // Check against global selection
+                    checkbox.addEventListener('change', (e) => {
+                        const id = parseInt(e.target.dataset.wordId);
+                        if (e.target.checked) {
+                            if (!selectedIds.includes(id)) {
+                                selectedIds.push(id);
+                            }
+                        } else {
+                            selectedIds = selectedIds.filter(x => x !== id);
+                        }
+                        updateHiddenInput();
+                    });
                     
                     const span = document.createElement('span');
                     span.textContent = word.term.split('(')[0].trim();
@@ -474,8 +587,6 @@
             function updateHiddenInput() {
                 const container = document.getElementById('word-ids-container');
                 container.innerHTML = '';
-                selectedIds = Array.from(document.querySelectorAll('#words-container input[type="checkbox"]:checked'))
-                    .map(cb => parseInt(cb.dataset.wordId));
                 selectedIds.forEach((id, index) => {
                     const input = document.createElement('input');
                     input.type = 'hidden';
