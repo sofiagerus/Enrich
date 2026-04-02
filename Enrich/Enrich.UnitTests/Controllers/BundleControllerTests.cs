@@ -504,27 +504,54 @@ namespace Enrich.UnitTests.Controllers
                 },
                 TotalCount = 2,
                 Page = 1,
-                PageSize = 12
+                PageSize = 6
             };
 
             _bundleServiceMock
-                .Setup(s => s.GetUserBundlesPageAsync(TestUserId, null, 1, 12))
+                .Setup(s => s.GetUserBundlesPageAsync(
+                    TestUserId,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    1,
+                    6))
                 .ReturnsAsync(pagedResult);
 
+            var mockCategories = new List<Category>
+            {
+                new() { Id = 1, Name = "Travel" },
+                new() { Id = 2, Name = "Fruits" }
+            };
+
+            _categoryRepositoryMock
+                .Setup(r => r.GetAllCategoriesAsync())
+                .ReturnsAsync(mockCategories);
+
             // Act
-            var result = await _controller.Index(1, 12);
+            var result = await _controller.Index(page: 1, pageSize: 6);
 
             // Assert
             var viewResult = result as ViewResult;
             Assert.That(viewResult, Is.Not.Null);
 
-            var model = viewResult!.Model as PagedResult<BundleDTO>;
+            var model = viewResult!.Model as BundleIndexViewModel;
             Assert.That(model, Is.Not.Null);
-            Assert.That(model!.Items.Count, Is.EqualTo(2));
-            Assert.That(model.TotalCount, Is.EqualTo(2));
+            Assert.That(model!.Bundles.Items.Count, Is.EqualTo(2));
+            Assert.That(model.Bundles.TotalCount, Is.EqualTo(2));
+            Assert.That(model.Categories.Count, Is.EqualTo(2));
 
             _bundleServiceMock.Verify(
-                s => s.GetUserBundlesPageAsync(TestUserId, null, 1, 12),
+                s => s.GetUserBundlesPageAsync(
+                    TestUserId,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    1,
+                    6),
                 Times.Once);
         }
     }

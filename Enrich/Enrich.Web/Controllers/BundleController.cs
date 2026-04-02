@@ -16,20 +16,53 @@ namespace Enrich.Web.Controllers
         IWordRepository wordRepository) : BaseController
     {
         [HttpGet]
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 12)
+        public async Task<IActionResult> Index(
+            string? search = null,
+            string? categoryFilter = null,
+            string? levelFilter = null,
+            int? minWordCount = null,
+            int? maxWordCount = null,
+            int page = 1,
+            int pageSize = 6)
         {
             var pagedBundles = await bundleService.GetUserBundlesPageAsync(
                 CurrentUserId,
-                null,
+                search,
+                categoryFilter,
+                levelFilter,
+                minWordCount,
+                maxWordCount,
                 page,
                 pageSize);
 
             logger.LogInformation(
-                "Користувач {UserId} переглянув сторінку {Page} своїх бандлів.",
+                "Користувач {UserId} переглянув сторінку {Page} своїх бандлів. Пошук: '{Search}', Категорії: '{Categories}', Рівні: '{Levels}', Слів: {MinWords}-{MaxWords}",
                 CurrentUserId,
-                page);
+                page,
+                search ?? "(немає)",
+                categoryFilter ?? "(немає)",
+                levelFilter ?? "(немає)",
+                minWordCount ?? 0,
+                maxWordCount ?? 0);
 
-            return View(pagedBundles);
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_MyBundleListPartial", pagedBundles);
+            }
+
+            var categories = await categoryRepository.GetAllCategoriesAsync();
+
+            var viewModel = new BundleIndexViewModel
+            {
+                Bundles = pagedBundles,
+                SearchTerm = search,
+                LevelFilter = levelFilter,
+                MinWordCount = minWordCount,
+                MaxWordCount = maxWordCount,
+                Categories = categories
+            };
+
+            return View(viewModel);
         }
 
         [HttpGet]
@@ -146,7 +179,10 @@ namespace Enrich.Web.Controllers
                 Title = bundle.Title,
                 Description = bundle.Description,
                 ImageUrl = bundle.ImageUrl,
-                Status = Enum.Parse<BundleStatus>(bundle.Status, ignoreCase: true)
+                Status = Enum.Parse<BundleStatus>(bundle.Status, ignoreCase: true),
+                CategoryIds = bundle.CategoryIds,
+                WordIds = bundle.WordIds,
+                DifficultyLevels = bundle.DifficultyLevels?.ToList() ?? []
             };
 
             var categories = await categoryRepository.GetAllCategoriesAsync();
@@ -266,11 +302,22 @@ namespace Enrich.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMyBundles(string? searchTerm, int page = 1, int pageSize = 20)
+        public async Task<IActionResult> GetMyBundles(
+            string? searchTerm,
+            string? categoryFilter = null,
+            string? levelFilter = null,
+            int? minWordCount = null,
+            int? maxWordCount = null,
+            int page = 1,
+            int pageSize = 20)
         {
             var pageResult = await bundleService.GetUserBundlesPageAsync(
                 CurrentUserId,
                 searchTerm,
+                categoryFilter,
+                levelFilter,
+                minWordCount,
+                maxWordCount,
                 page,
                 pageSize);
 
