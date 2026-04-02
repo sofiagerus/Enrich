@@ -258,5 +258,17 @@ namespace Enrich.DAL.Repositories
             await dbContext.SaveChangesAsync();
             return bundle;
         }
+
+        public async Task<bool> UserHasBundleAsync(string userId, int bundleId)
+        {
+            return await dbContext.UserBundles
+                .AnyAsync(ub => ub.UserId == userId && ub.BundleId == bundleId);
+        }
+
+        public async Task SaveUserBundleAsync(UserBundle userBundle)
+        {
+            await dbContext.UserBundles.AddAsync(userBundle);
+            await dbContext.SaveChangesAsync();
+        }
     }
 }
