@@ -47,7 +47,7 @@ namespace Enrich.DAL.Repositories
             int pageSize = 6)
         {
             var query = dbContext.Bundles
-                .Where(b => b.OwnerId == userId)
+                .Where(b => b.OwnerId == userId || b.UserBundles.Any(ub => ub.UserId == userId))
                 .Include(b => b.Words)
                 .Include(b => b.Categories)
                 .Include(b => b.Tags)
