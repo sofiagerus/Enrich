@@ -44,5 +44,9 @@ namespace Enrich.DAL.Interfaces
             int pageSize);
 
         Task<Bundle> CreateBundleAsync(Bundle bundle);
+
+        Task<bool> UserHasBundleAsync(string userId, int bundleId);
+
+        Task SaveUserBundleAsync(UserBundle userBundle);
     }
 }

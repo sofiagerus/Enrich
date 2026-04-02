@@ -40,5 +40,7 @@ namespace Enrich.BLL.Interfaces
             int pageSize);
 
         Task<IEnumerable<Category>> GetAllCategoriesAsync();
+
+        Task<Result> SaveSystemBundleAsync(string userId, int bundleId);
     }
 }

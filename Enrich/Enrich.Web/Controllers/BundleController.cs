@@ -401,5 +401,19 @@ namespace Enrich.Web.Controllers
 
             return Ok("Слова успішно видалено з бандлу!");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveSystemBundle(int id)
+        {
+            var result = await bundleService.SaveSystemBundleAsync(CurrentUserId, id);
+
+            if (!result.IsSuccess)
+            {
+                logger.LogWarning("Невдала спроба зберегти системний бандл {BundleId} користувачем {UserId}: {Error}", id, CurrentUserId, result.ErrorMessage);
+                return BadRequest(new { message = result.ErrorMessage });
+            }
+
+            return Ok();
+        }
     }
 }

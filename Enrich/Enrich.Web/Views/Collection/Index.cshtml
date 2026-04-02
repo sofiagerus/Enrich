@@ -150,5 +150,39 @@
                 li.style.display = q === '' || text.includes(q) ? '' : 'none';
             });
         });
+
+        async function toggleSaveBundle(bundleId, btnElement) {
+            try {
+                const response = await fetch(`/Bundle/SaveSystemBundle?id=${bundleId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    if (btnElement) {
+                        const icon = btnElement.querySelector('i');
+                        
+                        icon.classList.remove('bi-star');
+                        icon.classList.add('bi-star-fill');
+                        
+                        btnElement.classList.remove('text-secondary');
+                        btnElement.classList.add('text-warning'); 
+                        
+                        btnElement.title = "Saved";
+                        btnElement.disabled = true;
+                        btnElement.style.opacity = '1';
+                    }
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Error saving the collection.');
+                }
+            } catch (err) {
+                console.error("Failed to save collection", err);
+                alert('A network error occurred.');
+            }
+        }
     </script>
 }

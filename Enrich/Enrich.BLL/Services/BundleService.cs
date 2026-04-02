@@ -463,5 +463,41 @@ namespace Enrich.BLL.Services
                 WordIds = bundle.Words?.Select(w => w.Id).ToList() ?? []
             };
         }
+
+        public async Task<Result> SaveSystemBundleAsync(string userId, int bundleId)
+        {
+            var bundle = await bundleRepository.GetBundleByIdAsync(bundleId);
+
+            if (bundle == null || !bundle.IsSystem)
+            {
+                logger.LogWarning("Користувач {UserId} спробував зберегти неіснуючий або несистемний бандл {BundleId}.", userId, bundleId);
+                return "Collection not found or is not a system collection.";
+            }
+
+            var alreadySaved = await bundleRepository.UserHasBundleAsync(userId, bundleId);
+            if (alreadySaved)
+            {
+                return "You have already saved this collection.";
+            }
+
+            var userBundle = new UserBundle
+            {
+                UserId = userId,
+                BundleId = bundleId,
+                SavedAt = DateTime.UtcNow
+            };
+
+            try
+            {
+                await bundleRepository.SaveUserBundleAsync(userBundle);
+                logger.LogInformation("Користувач {UserId} успішно зберіг системний бандл {BundleId}.", userId, bundleId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Помилка при збереженні системного бандлу {BundleId} користувачем {UserId}.", bundleId, userId);
+                return "An error occurred while saving the collection.";
+            }
+        }
     }
 }

@@ -27,7 +27,7 @@ namespace Enrich.DAL.Repositories
         public async Task<IEnumerable<Bundle>> GetUserBundlesAsync(string userId)
         {
             return await dbContext.Bundles
-                .Where(b => b.OwnerId == userId)
+                .Where(b => b.OwnerId == userId || b.UserBundles.Any(ub => ub.UserId == userId))
                 .Include(b => b.Words)
                 .Include(b => b.Categories)
                 .Include(b => b.Tags)
@@ -47,7 +47,7 @@ namespace Enrich.DAL.Repositories
             int pageSize = 6)
         {
             var query = dbContext.Bundles
-                .Where(b => b.OwnerId == userId)
+                .Where(b => b.OwnerId == userId || b.UserBundles.Any(ub => ub.UserId == userId))
                 .Include(b => b.Words)
                 .Include(b => b.Categories)
                 .Include(b => b.Tags)
@@ -286,6 +286,18 @@ namespace Enrich.DAL.Repositories
             dbContext.Bundles.Add(bundle);
             await dbContext.SaveChangesAsync();
             return bundle;
+        }
+
+        public async Task<bool> UserHasBundleAsync(string userId, int bundleId)
+        {
+            return await dbContext.UserBundles
+                .AnyAsync(ub => ub.UserId == userId && ub.BundleId == bundleId);
+        }
+
+        public async Task SaveUserBundleAsync(UserBundle userBundle)
+        {
+            await dbContext.UserBundles.AddAsync(userBundle);
+            await dbContext.SaveChangesAsync();
         }
     }
 }

@@ -316,5 +316,84 @@ namespace Enrich.UnitTests.Services
             Assert.That(result.Select(c => c.Name), Contains.Item("Technology"));
             _categoryRepositoryMock.Verify(r => r.GetAllCategoriesAsync(), Times.Once);
         }
+
+        [Test]
+        public async Task SaveSystemBundleAsync_ValidSystemBundle_ReturnsSuccess()
+        {
+            // Arrange
+            var userId = "user123";
+            var bundleId = 1;
+            var systemBundle = new Bundle { Id = bundleId, IsSystem = true };
+
+            _bundleRepositoryMock
+                .Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(systemBundle);
+
+            _bundleRepositoryMock
+                .Setup(r => r.UserHasBundleAsync(userId, bundleId))
+                .ReturnsAsync(false);
+
+            _bundleRepositoryMock
+                .Setup(r => r.SaveUserBundleAsync(It.IsAny<UserBundle>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _bundleService.SaveSystemBundleAsync(userId, bundleId);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.True);
+
+            _bundleRepositoryMock.Verify(
+                r => r.SaveUserBundleAsync(It.Is<UserBundle>(ub => ub.UserId == userId && ub.BundleId == bundleId)),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task SaveSystemBundleAsync_BundleNotSystem_ReturnsError()
+        {
+            // Arrange
+            var userId = "user123";
+            var bundleId = 1;
+            var nonSystemBundle = new Bundle { Id = bundleId, IsSystem = false };
+
+            _bundleRepositoryMock
+                .Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(nonSystemBundle);
+
+            // Act
+            var result = await _bundleService.SaveSystemBundleAsync(userId, bundleId);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("Collection not found or is not a system collection."));
+
+            _bundleRepositoryMock.Verify(r => r.SaveUserBundleAsync(It.IsAny<UserBundle>()), Times.Never);
+        }
+
+        [Test]
+        public async Task SaveSystemBundleAsync_AlreadySaved_ReturnsError()
+        {
+            // Arrange
+            var userId = "user123";
+            var bundleId = 1;
+            var systemBundle = new Bundle { Id = bundleId, IsSystem = true };
+
+            _bundleRepositoryMock
+                .Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(systemBundle);
+
+            _bundleRepositoryMock
+                .Setup(r => r.UserHasBundleAsync(userId, bundleId))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await _bundleService.SaveSystemBundleAsync(userId, bundleId);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("You have already saved this collection."));
+
+            _bundleRepositoryMock.Verify(r => r.SaveUserBundleAsync(It.IsAny<UserBundle>()), Times.Never);
+        }
     }
 }
