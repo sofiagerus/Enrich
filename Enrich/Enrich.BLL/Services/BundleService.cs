@@ -126,16 +126,30 @@ namespace Enrich.BLL.Services
         public async Task<PagedResult<BundleDTO>> GetUserBundlesPageAsync(
             string userId,
             string? searchTerm,
-            int page,
-            int pageSize)
+            string? categoryFilter = null,
+            string? difficultyLevel = null,
+            int? minWordCount = null,
+            int? maxWordCount = null,
+            int page = 1,
+            int pageSize = 6)
         {
             logger.LogInformation(
-                "Отримання сторінки {Page} бандлів користувача {UserId} з пошуком '{SearchTerm}'.",
+                "Отримання сторінки {Page} бандлів користувача {UserId} з пошуком '{SearchTerm}', категорії: '{Category}', рівні: '{Level}'.",
                 page,
                 userId,
-                searchTerm ?? "(немає)");
+                searchTerm ?? "(немає)",
+                categoryFilter ?? "(немає)",
+                difficultyLevel ?? "(немає)");
 
-            var (bundles, total) = await bundleRepository.GetUserBundlesPageAsync(userId, searchTerm, page, pageSize);
+            var (bundles, total) = await bundleRepository.GetUserBundlesPageAsync(
+                userId,
+                searchTerm,
+                categoryFilter,
+                difficultyLevel,
+                minWordCount,
+                maxWordCount,
+                page,
+                pageSize);
 
             var bundleDTOs = bundles.Select(MapBundleToDTO).ToList();
 
@@ -443,7 +457,10 @@ namespace Enrich.BLL.Services
                 UpdatedAt = bundle.UpdatedAt,
                 WordCount = bundle.Words?.Count ?? 0,
                 CategoryCount = bundle.Categories?.Count ?? 0,
-                TagCount = bundle.Tags?.Count ?? 0
+                TagCount = bundle.Tags?.Count ?? 0,
+                Categories = bundle.Categories?.Select(c => c.Name).ToList() ?? [],
+                CategoryIds = bundle.Categories?.Select(c => c.Id).ToList() ?? [],
+                WordIds = bundle.Words?.Select(w => w.Id).ToList() ?? []
             };
         }
 

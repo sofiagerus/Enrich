@@ -27,5 +27,11 @@ namespace Enrich.BLL.DTOs
         public int CategoryCount { get; set; }
 
         public int TagCount { get; set; }
+
+        public List<string> Categories { get; set; } = [];
+
+        public List<int> CategoryIds { get; set; } = [];
+
+        public List<int> WordIds { get; set; } = [];
     }
 }

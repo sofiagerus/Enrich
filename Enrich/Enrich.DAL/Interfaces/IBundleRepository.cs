@@ -10,7 +10,15 @@ namespace Enrich.DAL.Interfaces
 
         Task<IEnumerable<Bundle>> GetUserBundlesAsync(string userId);
 
-        Task<(IEnumerable<Bundle> Items, int Total)> GetUserBundlesPageAsync(string userId, string? searchTerm, int page, int pageSize);
+        Task<(IEnumerable<Bundle> Items, int Total)> GetUserBundlesPageAsync(
+            string userId,
+            string? searchTerm,
+            string? categoryFilter = null,
+            string? difficultyLevel = null,
+            int? minWordCount = null,
+            int? maxWordCount = null,
+            int page = 1,
+            int pageSize = 6);
 
         Task UpdateBundleAsync(Bundle bundle);
 

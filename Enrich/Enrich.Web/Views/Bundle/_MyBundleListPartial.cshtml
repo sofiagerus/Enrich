@@ -1,0 +1,107 @@
+﻿@model Enrich.BLL.DTOs.PagedResult<Enrich.BLL.DTOs.BundleDTO>
+
+<div class="row g-3">
+    @if (Model?.Items?.Any() == true)
+    {
+        @foreach (var bundle in Model.Items)
+        {
+            <div class="col-xl-6">
+                <div class="bundle-card">
+                    <div class="d-flex flex-row">
+                        
+                        <div class="me-3">
+                            <div class="bundle-image-horizontal">
+                                @if (!string.IsNullOrEmpty(bundle.ImageUrl))
+                                {
+                                    <img src="@bundle.ImageUrl" alt="@bundle.Title" />
+                                }
+                                else
+                                {
+                                    <i class="bi bi-camera"></i>
+                                }
+                            </div>
+
+                            <div class="difficulty-container">
+                                @foreach (var level in bundle.DifficultyLevels)
+                                {
+                                    <span class="badge-level">@level</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="bundle-content flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="bundle-title">@bundle.Title</h5>
+                                
+                                <div class="dropdown">
+                                    <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                        <li><a class="dropdown-item py-2" asp-action="Edit" asp-route-id="@bundle.Id"><i class="bi bi-pencil me-2"></i> Edit</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form asp-action="Delete" asp-route-id="@bundle.Id" method="post" onsubmit="return confirm('Delete this collection?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="dropdown-item py-2 text-danger">
+                                                    <i class="bi bi-trash me-2"></i> Delete
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bundle-wordcount">Words: @bundle.WordCount</div>
+
+                            <p class="bundle-description">
+                                @bundle.Description
+                            </p>
+
+                            <div class="mt-auto d-flex flex-wrap gap-1">
+                                @if (bundle.Categories?.Any() == true)
+                                {
+                                    @foreach (var category in bundle.Categories)
+                                    {
+                                        <span class="badge-category">@category</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="empty-state">
+                <i class="bi bi-collection" style="font-size: 3rem; display:block; margin-bottom:12px;"></i>
+                <p class="fw-semibold mb-1">No collections found</p>
+                <p class="small">Try adjusting your filters or search term.</p>
+            </div>
+        </div>
+    }
+</div>
+
+@{
+    var totalCount = Model?.TotalCount ?? 0;
+    var pageSize = Model?.PageSize ?? 1;
+    var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+    var currentPage = Model?.Page ?? 1;
+}
+
+@if (totalPages > 1)
+{
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <button class="page-link shadow-none" onclick="changePage(@i)">@i</button>
+                </li>
+            }
+        </ul>
+    </nav>
+}

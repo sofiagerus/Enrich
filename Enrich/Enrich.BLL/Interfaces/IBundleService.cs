@@ -12,7 +12,15 @@ namespace Enrich.BLL.Interfaces
 
         Task<IEnumerable<BundleDTO>> GetUserBundlesAsync(string userId);
 
-        Task<PagedResult<BundleDTO>> GetUserBundlesPageAsync(string userId, string? searchTerm, int page, int pageSize);
+        Task<PagedResult<BundleDTO>> GetUserBundlesPageAsync(
+            string userId,
+            string? searchTerm,
+            string? categoryFilter = null,
+            string? difficultyLevel = null,
+            int? minWordCount = null,
+            int? maxWordCount = null,
+            int page = 1,
+            int pageSize = 6);
 
         Task<Result> UpdateBundleAsync(string userId, int bundleId, CreateBundleDTO dto);
 

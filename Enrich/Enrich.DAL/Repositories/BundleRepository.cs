@@ -39,8 +39,12 @@ namespace Enrich.DAL.Repositories
         public async Task<(IEnumerable<Bundle> Items, int Total)> GetUserBundlesPageAsync(
             string userId,
             string? searchTerm,
-            int page,
-            int pageSize)
+            string? categoryFilter = null,
+            string? difficultyLevel = null,
+            int? minWordCount = null,
+            int? maxWordCount = null,
+            int page = 1,
+            int pageSize = 6)
         {
             var query = dbContext.Bundles
                 .Where(b => b.OwnerId == userId)
@@ -50,11 +54,36 @@ namespace Enrich.DAL.Repositories
                 .AsSplitQuery()
                 .AsQueryable();
 
+            // Search filter
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 var st = searchTerm.Trim().ToLower();
                 query = query.Where(b => b.Title.ToLower().Contains(st) ||
                                          (b.Description != null && b.Description.ToLower().Contains(st)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(categoryFilter))
+            {
+                var categories = categoryFilter.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                                              .Select(c => c.ToLower()).ToArray();
+                query = query.Where(b => b.Categories.Any(c => categories.Contains(c.Name.ToLower())));
+            }
+
+            if (!string.IsNullOrWhiteSpace(difficultyLevel))
+            {
+                var levels = difficultyLevel.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                                           .Select(l => l.ToLower()).ToArray();
+                query = query.Where(b => b.DifficultyLevels.Any(dl => levels.Contains(dl.ToLower())));
+            }
+
+            if (minWordCount.HasValue)
+            {
+                query = query.Where(b => b.Words.Count >= minWordCount.Value);
+            }
+
+            if (maxWordCount.HasValue)
+            {
+                query = query.Where(b => b.Words.Count <= maxWordCount.Value);
             }
 
             var total = await query.CountAsync();
