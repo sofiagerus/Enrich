@@ -27,7 +27,7 @@ namespace Enrich.DAL.Repositories
         public async Task<IEnumerable<Bundle>> GetUserBundlesAsync(string userId)
         {
             return await dbContext.Bundles
-                .Where(b => b.OwnerId == userId)
+                .Where(b => b.OwnerId == userId || b.UserBundles.Any(ub => ub.UserId == userId))
                 .Include(b => b.Words)
                 .Include(b => b.Categories)
                 .Include(b => b.Tags)
