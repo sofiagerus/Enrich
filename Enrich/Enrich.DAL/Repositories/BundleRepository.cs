@@ -156,8 +156,48 @@ namespace Enrich.DAL.Repositories
 
         public async Task UpdateBundleAsync(Bundle bundle)
         {
+            bundle.CreatedAt = DateTime.SpecifyKind(bundle.CreatedAt, DateTimeKind.Utc);
+            bundle.UpdatedAt = DateTime.SpecifyKind(bundle.UpdatedAt, DateTimeKind.Utc);
+            if (bundle.ReviewedAt.HasValue)
+            {
+                bundle.ReviewedAt = DateTime.SpecifyKind(bundle.ReviewedAt.Value, DateTimeKind.Utc);
+            }
+
             dbContext.Bundles.Update(bundle);
             await dbContext.SaveChangesAsync();
+        }
+
+        public async Task SyncBundleRelationsAsync(int bundleId, IEnumerable<int>? wordIds, IEnumerable<int>? categoryIds)
+        {
+            var bundle = await dbContext.Bundles
+                .Include(b => b.Words)
+                .Include(b => b.Categories)
+                .FirstOrDefaultAsync(b => b.Id == bundleId);
+
+            if (bundle != null)
+            {
+                bundle.Words.Clear();
+                if (wordIds != null && wordIds.Any())
+                {
+                    var words = await dbContext.Words.Where(w => wordIds.Contains(w.Id)).ToListAsync();
+                    foreach (var w in words)
+                    {
+                        bundle.Words.Add(w);
+                    }
+                }
+
+                bundle.Categories.Clear();
+                if (categoryIds != null && categoryIds.Any())
+                {
+                    var cats = await dbContext.Categories.Where(c => categoryIds.Contains(c.Id)).ToListAsync();
+                    foreach (var c in cats)
+                    {
+                        bundle.Categories.Add(c);
+                    }
+                }
+
+                await dbContext.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteBundleAsync(int bundleId)

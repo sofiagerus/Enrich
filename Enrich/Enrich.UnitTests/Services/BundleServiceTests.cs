@@ -395,5 +395,113 @@ namespace Enrich.UnitTests.Services
 
             _bundleRepositoryMock.Verify(r => r.SaveUserBundleAsync(It.IsAny<UserBundle>()), Times.Never);
         }
+
+        [Test]
+        public async Task UpdateBundleAsync_ValidBundle_ReturnsSuccess()
+        {
+            // Arrange
+            var userId = "user123";
+            var bundleId = 1;
+            var existingBundle = new Bundle { Id = bundleId, OwnerId = userId, Title = "Old Title" };
+            var dto = new Enrich.BLL.DTOs.CreateBundleDTO
+            {
+                Title = "New Title",
+                Description = "New Description",
+                WordIds = new List<int> { 1, 2 },
+                CategoryIds = new List<int> { 1 }
+            };
+
+            _bundleRepositoryMock
+                .Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(existingBundle);
+
+            _bundleRepositoryMock
+                .Setup(r => r.BundleTitleExistsForUserAsync(userId, "new title"))
+                .ReturnsAsync(false);
+
+            _bundleRepositoryMock
+                .Setup(r => r.UpdateBundleAsync(It.IsAny<Bundle>()))
+                .Returns(Task.CompletedTask);
+
+            _bundleRepositoryMock
+                .Setup(r => r.SyncBundleRelationsAsync(bundleId, dto.WordIds, dto.CategoryIds))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _bundleService.UpdateBundleAsync(userId, bundleId, dto);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(existingBundle.Title, Is.EqualTo("New Title"));
+            Assert.That(existingBundle.Description, Is.EqualTo("New Description"));
+            _bundleRepositoryMock.Verify(r => r.UpdateBundleAsync(existingBundle), Times.Once);
+            _bundleRepositoryMock.Verify(r => r.SyncBundleRelationsAsync(bundleId, dto.WordIds, dto.CategoryIds), Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateBundleAsync_BundleNotFound_ReturnsError()
+        {
+            // Arrange
+            var userId = "user123";
+            var bundleId = 1;
+            var dto = new Enrich.BLL.DTOs.CreateBundleDTO { Title = "New Title" };
+
+            _bundleRepositoryMock
+                .Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync((Bundle?)null);
+
+            // Act
+            var result = await _bundleService.UpdateBundleAsync(userId, bundleId, dto);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("Бандл не знайдено."));
+        }
+
+        [Test]
+        public async Task UpdateBundleAsync_WrongOwner_ReturnsError()
+        {
+            // Arrange
+            var userId = "user123";
+            var bundleId = 1;
+            var existingBundle = new Bundle { Id = bundleId, OwnerId = "differentUser" };
+            var dto = new Enrich.BLL.DTOs.CreateBundleDTO { Title = "New Title" };
+
+            _bundleRepositoryMock
+                .Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(existingBundle);
+
+            // Act
+            var result = await _bundleService.UpdateBundleAsync(userId, bundleId, dto);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("Ви не маєте права оновлювати цей бандл."));
+        }
+
+        [Test]
+        public async Task UpdateBundleAsync_DuplicateTitle_ReturnsError()
+        {
+            // Arrange
+            var userId = "user123";
+            var bundleId = 1;
+            var existingBundle = new Bundle { Id = bundleId, OwnerId = userId, Title = "Old Title" };
+            var dto = new Enrich.BLL.DTOs.CreateBundleDTO { Title = "Existing Title" };
+
+            _bundleRepositoryMock
+                .Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(existingBundle);
+
+            _bundleRepositoryMock
+                .Setup(r => r.BundleTitleExistsForUserAsync(userId, "existing title"))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await _bundleService.UpdateBundleAsync(userId, bundleId, dto);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("Ви вже маєте бандл з назвою 'Existing Title'."));
+        }
     }
 }

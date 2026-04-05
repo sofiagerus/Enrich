@@ -22,6 +22,8 @@ namespace Enrich.DAL.Interfaces
 
         Task UpdateBundleAsync(Bundle bundle);
 
+        Task SyncBundleRelationsAsync(int bundleId, IEnumerable<int>? wordIds, IEnumerable<int>? categoryIds);
+
         Task DeleteBundleAsync(int bundleId);
 
         Task<bool> BundleTitleExistsForUserAsync(string userId, string titleLower);

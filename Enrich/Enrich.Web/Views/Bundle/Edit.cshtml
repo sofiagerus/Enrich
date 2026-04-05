@@ -8,8 +8,18 @@
 @section Styles {
     <style>
         .form-container {
-            max-width: 900px;
-            margin: 0 auto;
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .form-container h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 2rem;
+            text-align: center;
+            letter-spacing: -0.5px;
         }
 
         .form-row {
@@ -32,50 +42,45 @@
         .form-label {
             font-weight: 600;
             margin-bottom: 0.75rem;
-            color: #333;
+            color: #2c3e50;
             display: block;
+            font-size: 0.95rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1.5rem;
         }
 
         .form-control {
-            border: 1px solid #d0d0d0;
-            border-radius: 1.5rem;
-            padding: 0.85rem 1.25rem;
+            border: 1px solid #d4d9de;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
             font-size: 0.95rem;
-            background-color: #f9f9f9;
+            background-color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            color: #2c3e50;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .form-control:focus {
             border-color: #198754;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.1);
+            box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.08);
             background-color: #fff;
         }
 
         .form-control::placeholder {
-            color: #999;
+            color: #9da3af;
         }
 
-        .form-control[type="text"],
-        .form-control[type="url"],
-        .form-control select {
-            cursor: pointer;
+        textarea.form-control {
+            resize: vertical;
+            font-family: inherit;
         }
 
-        .category-item {
-            cursor: pointer;
-            transition: background .12s;
-            border-radius: .5rem;
-            margin: 2px 4px;
-        }
-
-        .category-item:hover,
-        .category-item:focus {
-            background: #f0f4ff;
-            outline: none;
-        }
-
-        .new-item {
-            color: #198754;
+        .text-muted {
+            color: #6b7280 !important;
+            font-size: 0.85rem;
         }
 
         .category-combo {
@@ -86,59 +91,133 @@
             padding-right: 2.5rem;
         }
 
-        #category-dropdown {
-            list-style: none;
-            border: 1px solid #e0e0e0;
-            border-radius: 0.375rem;
-            max-height: 200px;
-            overflow-y: auto;
-            background: white;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .image-preview {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 0.375rem;
-        }
-
-        .image-upload-box {
-            border: 2px dashed #d0d0d0;
+        /* Container styling for checkboxes */
+        #categories-container,
+        #words-container,
+        #levels-container {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
             border-radius: 0.5rem;
-            padding: 2rem;
+            padding: 0.75rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #categories-container:empty,
+        #words-container:empty,
+        #levels-container:empty {
+            display: none !important;
+            padding: 0;
+            border: none;
+        }
+
+        /* Seamless connection between input and container */
+        .mb-3 .input-group.mb-2 {
+            margin-bottom: 0 !important;
+        }
+
+        #category-search-input,
+        #word-search-input {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        #categories-container,
+        #words-container {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            border-top: none;
+        }
+
+        #categories-container .col-md-6,
+        #words-container .col-md-6,
+        #levels-container .col-md-3 {
+            padding: 0.25rem;
+        }
+
+        .form-check-input {
+            width: 1.1rem;
+            height: 1.1rem;
+            margin-top: 0.15rem;
+            border: 1px solid #d4d9de;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            accent-color: #198754;
+        }
+
+        .form-check-input:focus {
+            border-color: #198754;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.08);
+        }
+
+        .form-check-input:checked {
+            background-color: #198754;
+            border-color: #198754;
+        }
+
+        .form-check-label {
+            color: #2c3e50;
+            font-size: 0.95rem;
+            user-select: none;
+            cursor: pointer;
+            margin-bottom: 0;
+        }
+
+        .d-flex {
+            display: flex;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .me-2 {
+            margin-right: 0.5rem;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        /* Image upload styling */
+        .image-upload-box {
+            border: 2px dashed #d4d9de;
+            border-radius: 0.75rem;
+            padding: 2.5rem 2rem;
             text-align: center;
-            background-color: #f5f5f5;
+            background-color: #f9fafb;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 200px;
+            min-height: 220px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             position: relative;
         }
 
         .image-upload-box:hover {
-            border-color: #999;
-            background-color: #f9f9f9;
+            border-color: #198754;
+            background-color: rgba(25, 135, 84, 0.03);
         }
 
         .image-upload-box i {
-            font-size: 3rem;
-            color: #999;
+            font-size: 2.5rem;
+            color: #9da3af;
             margin-bottom: 1rem;
         }
 
         .image-upload-btn {
             background-color: #198754;
             color: white;
-            padding: 0.5rem 1.5rem;
-            border-radius: 0.375rem;
+            padding: 0.6rem 1.5rem;
+            border-radius: 0.5rem;
             border: none;
             cursor: pointer;
             font-weight: 500;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s ease;
+            font-size: 0.95rem;
         }
 
         .image-upload-btn:hover {
@@ -149,7 +228,7 @@
             width: 100%;
             height: 200px;
             object-fit: cover;
-            border-radius: 0.375rem;
+            border-radius: 0.5rem;
             margin-bottom: 1rem;
         }
 
@@ -157,71 +236,87 @@
             display: flex;
             gap: 1rem;
             justify-content: center;
-            margin-top: 2rem;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
         }
 
         .btn {
-            padding: 0.75rem 2rem;
-            border-radius: 2rem;
+            padding: 0.6rem 1.75rem;
+            border-radius: 1rem;
             border: none;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .btn-primary {
+        .btn-success {
             background-color: #198754;
-            color: white;
+            color: white !important;
         }
 
-        .btn-primary:hover {
+        .btn-success:hover {
             background-color: #157347;
-        }
-
-        .btn-secondary {
-            background-color: white;
-            color: #333;
-            border: 2px solid #ccc;
-            text-decoration: none;
-        }
-
-        .btn-secondary:hover {
-            background-color: #f5f5f5;
-            color: #333;
-            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(25, 135, 84, 0.2);
+            transform: translateY(-1px);
         }
 
         .btn-outline-secondary {
-            background-color: transparent;
-            color: #333;
-            border: 1px solid #dee2e6;
+            background-color: #fff;
+            color: #4b5563;
+            border: 1.5px solid #d1d5db;
         }
 
         .btn-outline-secondary:hover {
-            background-color: #e9ecef;
-            color: #333;
-        }
-
-        .text-danger {
-            color: #dc3545;
-            font-size: 0.85rem;
-            margin-top: 0.25rem;
-            display: block;
+            background-color: #f9fafb;
+            color: #111827;
+            border-color: #9ca3af;
+            transform: translateY(-1px);
         }
 
         .alert {
-            padding: 1rem;
-            border-radius: 0.375rem;
-            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            border: none;
+            font-size: 0.9rem;
         }
 
         .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background-color: transparent;
+            color: #dc3545;
+        }
+        
+        .text-danger {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 0.35rem;
+            display: block;
         }
 
+        /* Essential common classes if not in global CSS */
+        .custom-gray-bg {
+            background-color: #f8f9fa !important;
+        }
+
+        .rounded-4 {
+            border-radius: 1rem !important;
+        }
+
+        .fw-medium {
+            font-weight: 500 !important;
+        }
+
+        .form-control.shadow-sm:focus {
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.1) !important;
+        }
+
+        /* Status Badge Styling */
         .status-info {
             padding: 1rem;
             background: #f0f4ff;
@@ -256,39 +351,86 @@
             color: #991b1b;
         }
 
+        /* Scrollbar styling */
+        #categories-container::-webkit-scrollbar,
+        #words-container::-webkit-scrollbar,
+        #levels-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #categories-container::-webkit-scrollbar-track,
+        #words-container::-webkit-scrollbar-track,
+        #levels-container::-webkit-scrollbar-track {
+            background-color: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        #categories-container::-webkit-scrollbar-thumb,
+        #words-container::-webkit-scrollbar-thumb,
+        #levels-container::-webkit-scrollbar-thumb {
+            background-color: #d4d9de;
+            border-radius: 10px;
+        }
+
+        #categories-container::-webkit-scrollbar-thumb:hover,
+        #words-container::-webkit-scrollbar-thumb:hover,
+        #levels-container::-webkit-scrollbar-thumb:hover {
+            background-color: #198754;
+        }
+
+        /* Responsive design */
         @@media (max-width: 768px) {
             .form-row {
                 flex-direction: column;
                 gap: 1.5rem;
             }
-        }
 
-        .btn-outline-secondary {
-            background-color: transparent;
-            color: #333;
-            border: 1px solid #dee2e6;
-            transition: all 0.3s ease;
-        }
+            .form-container {
+                margin: 1rem auto;
+            }
 
-        .btn-outline-secondary:hover {
-            background-color: rgba(25, 135, 84, 0.1);
-            color: #198754;
-            border-color: #198754;
-            box-shadow: 0 0 15px rgba(25, 135, 84, 0.4);
+            .form-container h1 {
+                font-size: 2rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            #categories-container .col-md-6,
+            #words-container .col-md-6,
+            #levels-container .col-md-3 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
         }
     </style>
 }
 
-<div class="form-container">
-    <h1 class="text-center mb-4" style="font-size: 2rem; font-weight: 600;">Edit Collection</h1>
+<div class="d-flex align-items-center mb-4 gap-3">
+    <a asp-action="Index" asp-controller="Bundle"
+       class="btn-sm btn-outline-secondary rounded-3 d-flex align-items-center gap-1"
+       style="padding: 0.4rem 0.8rem; text-decoration: none; font-size: 0.875rem;">
+        <i class="bi bi-arrow-left"></i>
+        Back
+    </a>
+    <h1 class="fw-semibold fs-4 mb-0">Edit Collection</h1>
+</div>
 
-    <!-- Status Information -->
-    <div class="status-info">
-        <p class="mb-2 small text-muted">Current status:</p>
-        <span class="status-badge-info status-@Model.Status.ToString().ToLower()">
-            @Model.Status
-        </span>
-    </div>
+<div class="card border-0 shadow-sm rounded-4" style="max-width: 1000px; margin: 0 auto;">
+    <div class="card-body p-4">
+        <!-- Status Information -->
+        <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-4" style="background-color: #f0f4ff;">
+            <p class="mb-0 fw-medium text-dark">Status:</p>
+            <span class="status-badge-info status-@Model.Status.ToString().ToLower() px-3 py-1 rounded-pill small fw-semibold">
+                @Model.Status
+            </span>
+        </div>
 
     @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
     {
@@ -306,19 +448,19 @@
             <div class="form-column">
                 <!-- Title Field -->
                 <div class="mb-3">
-                    <label asp-for="Title" class="form-label"></label>
-                    <input asp-for="Title" class="form-control" placeholder="Your collection title">
-                    <span asp-validation-for="Title" class="text-danger"></span>
+                    <label asp-for="Title" class="form-label fw-medium mb-1"></label>
+                    <input asp-for="Title" class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg" placeholder="Your collection title">
+                    <span asp-validation-for="Title" class="text-danger small"></span>
                 </div>
 
                 <!-- Description Field -->
                 <div class="mb-3">
-                    <label asp-for="Description" class="form-label"></label>
+                    <label asp-for="Description" class="form-label fw-medium mb-1"></label>
                     <textarea asp-for="Description" 
-                              class="form-control" 
+                              class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg" 
                               rows="4" 
                               placeholder="Describe the content and purpose of your collection"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
                     <small class="text-muted d-block mt-1">
                         <span id="description-count">0</span> / @Enrich.BLL.Constants.BundleConstants.DescriptionMaxLength characters
                     </small>
@@ -326,41 +468,35 @@
 
                 <!-- Categories Field -->
                 <div class="mb-3">
-                    <label class="form-label">Categories</label>
+                    <label class="form-label fw-medium mb-1">Categories</label>
                     <div class="input-group mb-2">
-                        <input type="text" id="category-search-input" class="form-control" placeholder="Search or type a new category..." />
+                        <input type="text" id="category-search-input" class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg" placeholder="Search or type a new category..." />
                     </div>
-                    <div id="categories-container" class="row g-2" style="max-height: 300px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 10px; border-radius: 0.375rem;">
-                        <!-- Checkboxes will be rendered here -->
-                    </div>
+                    <div id="categories-container" class="row g-2"></div>
                     <div id="category-ids-container"></div>
                 </div>
 
                 <!-- Words Search & Selection -->
                 <div class="mb-3">
-                    <label class="form-label">Words</label>
+                    <label class="form-label fw-medium mb-1">Words</label>
                     <div class="input-group mb-2">
-                        <input type="text" id="word-search-input" class="form-control" placeholder="Search words by term or translation..." />
+                        <input type="text" id="word-search-input" class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg" placeholder="Search words by term or translation..." />
                     </div>
-                    <div id="words-container" class="row g-2" style="max-height: 300px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 10px; border-radius: 0.375rem;">
-                        <!-- Words checkboxes will be rendered here -->
-                    </div>
+                    <div id="words-container" class="row g-2"></div>
                     <div id="word-ids-container"></div>
                 </div>
 
                 <!-- Difficulty Levels Field -->
                 <div class="mb-3">
-                    <label class="form-label">Difficulty Levels</label>
-                    <div id="levels-container" class="row g-2">
-                        <!-- Level checkboxes will be rendered here -->
-                    </div>
+                    <label class="form-label fw-medium mb-1">Difficulty Levels</label>
+                    <div id="levels-container" class="row g-2"></div>
                     <div id="difficulty-levels-container"></div>
                 </div>
             </div>
 
             <!-- Right Column - Image Upload -->
             <div class="form-column right">
-                <label class="form-label">Cover Image</label>
+                <label class="form-label fw-medium mb-1">Cover Image</label>
                 <div class="image-upload-box" id="image-upload-box" onclick="document.getElementById('file-input').click()">
                     <div id="upload-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
                         <i class="bi bi-folder" style="font-size: 3rem; margin-bottom: 1rem; color: #999;"></i>
@@ -371,7 +507,7 @@
                     </div>
                 </div>
                 <div id="change-image-btn-container" style="display: none; margin-top: 1rem;">
-                    <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('file-input').click()" style="width: 100%;">
+                    <button type="button" class="btn btn-outline-secondary rounded-4" onclick="document.getElementById('file-input').click()" style="width: 100%;">
                         <i class="bi bi-pencil"></i> Change Image
                     </button>
                 </div>
@@ -381,15 +517,16 @@
         </div>
 
         <!-- Buttons -->
-        <div class="button-group">
-            <a asp-action="Index" asp-controller="Bundle" class="btn btn-secondary">
+        <div class="button-group border-0 pt-0">
+            <button type="submit" class="btn btn-success rounded-4 py-2 px-5 fw-medium shadow-sm">
+                <i class="bi bi-save me-2"></i> Save Changes
+            </button>
+            <a asp-action="Index" asp-controller="Bundle" class="btn btn-outline-secondary rounded-4 py-2 px-4 shadow-sm">
                 Cancel
             </a>
-            <button type="submit" class="btn btn-primary">
-                Save Changes
-            </button>
         </div>
     </form>
+</div>
 </div>
 
 @section Scripts {
@@ -399,7 +536,7 @@
             const container = document.getElementById('categories-container');
             const searchInput = document.getElementById('category-search-input');
             let allCategories = [];
-            let selectedIds = @(Model?.CategoryIds != null ? $"[{string.Join(", ", Model.CategoryIds)}]" : "[]");
+            let selectedIds = @Json.Serialize(Model?.CategoryIds ?? new List<int>());
 
             async function loadCategories() {
                 try {
@@ -415,6 +552,11 @@
 
             function renderCategories(categoriesToShow) {
                 container.innerHTML = '';
+                if (!categoriesToShow || categoriesToShow.length === 0) {
+                    container.style.display = 'none';
+                    return;
+                }
+                container.style.display = ''; // Restore default row display
                 categoriesToShow.forEach(cat => {
                     const div = document.createElement('div');
                     div.className = 'col-md-6';
@@ -423,16 +565,29 @@
                     label.className = 'd-flex align-items-center cursor-pointer';
                     label.style.cursor = 'pointer';
                     
+                    const catId = cat.id || cat.Id;
+                    const catName = cat.name || cat.Name || "";
+                    
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
-                    checkbox.value = cat.id;
+                    checkbox.value = catId;
                     checkbox.className = 'form-check-input me-2';
-                    checkbox.dataset.categoryId = cat.id;
-                    checkbox.checked = selectedIds.includes(cat.id);
-                    checkbox.addEventListener('change', updateHiddenInput);
+                    checkbox.dataset.categoryId = catId;
+                    checkbox.checked = selectedIds.includes(catId);
+                    checkbox.addEventListener('change', (e) => {
+                        const id = parseInt(e.target.dataset.categoryId);
+                        if (e.target.checked) {
+                            if (!selectedIds.includes(id)) {
+                                selectedIds.push(id);
+                            }
+                        } else {
+                            selectedIds = selectedIds.filter(x => x !== id);
+                        }
+                        updateHiddenInput();
+                    });
                     
                     const span = document.createElement('span');
-                    span.textContent = cat.name.split('(')[0].trim();
+                    span.textContent = catName.split('(')[0].trim();
                     span.className = 'form-check-label';
                     
                     label.appendChild(checkbox);
@@ -447,9 +602,10 @@
                 if (!query) {
                     renderCategories(allCategories);
                 } else {
-                    const filtered = allCategories.filter(c =>
-                        c.name.toLowerCase().includes(query)
-                    );
+                    const filtered = allCategories.filter(c => {
+                        const cName = c.name || c.Name || "";
+                        return cName.toLowerCase().includes(query);
+                    });
                     renderCategories(filtered);
                 }
             }
@@ -457,8 +613,7 @@
             function updateHiddenInput() {
                 const containerHidden = document.getElementById('category-ids-container');
                 containerHidden.innerHTML = '';
-                selectedIds = Array.from(document.querySelectorAll('#categories-container input[type="checkbox"]:checked'))
-                    .map(cb => parseInt(cb.dataset.categoryId));
+                // Use the master selectedIds array to generate hidden inputs
                 selectedIds.forEach((id) => {
                     const input = document.createElement('input');
                     input.type = 'hidden';
@@ -469,18 +624,23 @@
             }
 
             searchInput.addEventListener('input', searchCategories);
-            loadCategories();
+            loadCategories().then(() => updateHiddenInput());
         })();
 
         // Words multi-select with search
         (() => {
             const container = document.getElementById('words-container');
             const searchInput = document.getElementById('word-search-input');
-            let allWords = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model?.Words ?? new List<WordItemViewModel>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
-            let selectedIds = @(Model?.WordIds != null ? $"[{string.Join(", ", Model.WordIds)}]" : "[]");
+            let allWords = @Json.Serialize(Model?.Words ?? new List<Enrich.Web.ViewModels.WordItemViewModel>());
+            let selectedIds = @Json.Serialize(Model?.WordIds ?? new List<int>());
 
             function renderWords(wordsToShow) {
                 container.innerHTML = '';
+                if (!wordsToShow || wordsToShow.length === 0) {
+                    container.style.display = 'none';
+                    return;
+                }
+                container.style.display = ''; // Restore default
                 wordsToShow.forEach(word => {
                     const col = document.createElement('div');
                     col.className = 'col-md-6';
@@ -489,16 +649,29 @@
                     label.className = 'd-flex align-items-center cursor-pointer';
                     label.style.cursor = 'pointer';
                     
+                    const wordId = word.id || word.Id;
+                    const wordTerm = word.term || word.Term;
+                    
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
-                    checkbox.value = word.id;
+                    checkbox.value = wordId;
                     checkbox.className = 'form-check-input me-2';
-                    checkbox.dataset.wordId = word.id;
-                    checkbox.checked = selectedIds.includes(word.id);
-                    checkbox.addEventListener('change', updateHiddenInput);
+                    checkbox.dataset.wordId = wordId;
+                    checkbox.checked = selectedIds.includes(wordId);
+                    checkbox.addEventListener('change', (e) => {
+                        const id = parseInt(e.target.dataset.wordId);
+                        if (e.target.checked) {
+                            if (!selectedIds.includes(id)) {
+                                selectedIds.push(id);
+                            }
+                        } else {
+                            selectedIds = selectedIds.filter(x => x !== id);
+                        }
+                        updateHiddenInput();
+                    });
                     
                     const span = document.createElement('span');
-                    span.textContent = word.term.split('(')[0].trim();
+                    span.textContent = wordTerm.split('(')[0].trim();
                     span.className = 'form-check-label';
                     
                     label.appendChild(checkbox);
@@ -513,10 +686,12 @@
                 if (!query) {
                     renderWords(allWords);
                 } else {
-                    const filtered = allWords.filter(w =>
-                        w.term.toLowerCase().includes(query) ||
-                        (w.translation && w.translation.toLowerCase().includes(query))
-                    );
+                    const filtered = allWords.filter(w => {
+                        const wTerm = w.term || w.Term || "";
+                        const wTrans = w.translation || w.Translation || "";
+                        return wTerm.toLowerCase().includes(query) ||
+                               (wTrans && wTrans.toLowerCase().includes(query));
+                    });
                     renderWords(filtered);
                 }
             }
@@ -524,8 +699,9 @@
             function updateHiddenInput() {
                 const containerHidden = document.getElementById('word-ids-container');
                 containerHidden.innerHTML = '';
-                selectedIds = Array.from(document.querySelectorAll('#words-container input[type="checkbox"]:checked'))
-                    .map(cb => parseInt(cb.dataset.wordId));
+                
+                // Use the master selectedIds array to generate hidden inputs
+                // instead of scraping the DOM (which would fail when filtered)
                 selectedIds.forEach((id) => {
                     const input = document.createElement('input');
                     input.type = 'hidden';
@@ -537,6 +713,7 @@
 
             searchInput.addEventListener('input', searchWords);
             renderWords(allWords);
+            updateHiddenInput();
         })();
 
         // Character counter for description
@@ -588,11 +765,16 @@
         // Difficulty levels multi-select logic
         (() => {
             const container = document.getElementById('levels-container');
-            const availableLevels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model?.AvailableLevels ?? new List<string>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
-            let selectedLevels = @(Model?.DifficultyLevels != null ? $"[{string.Join(", ", Model.DifficultyLevels.Select(l => $"'{l}'"))}]" : "[]");
+            const availableLevels = @Json.Serialize(Model?.AvailableLevels ?? new List<string>());
+            let selectedLevels = @Json.Serialize(Model?.DifficultyLevels ?? new List<string>());
 
             function renderLevels(levels) {
                 container.innerHTML = '';
+                if (!levels || levels.length === 0) {
+                    container.style.display = 'none';
+                    return;
+                }
+                container.style.display = ''; // Restore default
                 levels.forEach(level => {
                     const col = document.createElement('div');
                     col.className = 'col-md-3 col-sm-4';
@@ -623,8 +805,11 @@
             function updateHiddenInput() {
                 const containerHidden = document.getElementById('difficulty-levels-container');
                 containerHidden.innerHTML = '';
+                
+                // Update master list from currently checked items
                 selectedLevels = Array.from(document.querySelectorAll('#levels-container input[type="checkbox"]:checked'))
                     .map(cb => cb.dataset.levelValue);
+                    
                 selectedLevels.forEach((level) => {
                     const input = document.createElement('input');
                     input.type = 'hidden';
@@ -635,6 +820,7 @@
             }
 
             renderLevels(availableLevels);
+            updateHiddenInput();
         })();
     </script>
 }

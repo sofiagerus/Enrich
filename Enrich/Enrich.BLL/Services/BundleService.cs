@@ -277,6 +277,7 @@ namespace Enrich.BLL.Services
             try
             {
                 await bundleRepository.UpdateBundleAsync(bundle);
+                await bundleRepository.SyncBundleRelationsAsync(bundle.Id, dto.WordIds, dto.CategoryIds);
 
                 logger.LogInformation(
                     "Бандл {BundleId} користувача {UserId} успішно оновлено.",
