@@ -103,6 +103,32 @@
             overflow-y: auto;
         }
 
+        #categories-container:empty,
+        #words-container:empty,
+        #levels-container:empty {
+            display: none !important;
+            padding: 0;
+            border: none;
+        }
+
+        /* Seamless connection between input and container */
+        .mb-3 .input-group.mb-2 {
+            margin-bottom: 0 !important;
+        }
+
+        #category-search-input,
+        #word-search-input {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        #categories-container,
+        #words-container {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            border-top: none;
+        }
+
         #categories-container .col-md-6,
         #words-container .col-md-6,
         #levels-container .col-md-3 {
@@ -217,9 +243,9 @@
 
         .btn {
             padding: 0.6rem 1.75rem;
-            border-radius: 1.5rem;
+            border-radius: 1rem;
             border: none;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
             font-size: 0.95rem;
@@ -231,26 +257,26 @@
 
         .btn-success {
             background-color: #198754;
-            color: white;
+            color: white !important;
         }
 
         .btn-success:hover {
             background-color: #157347;
-            box-shadow: 0 2px 8px rgba(25, 135, 84, 0.2);
+            box-shadow: 0 4px 12px rgba(25, 135, 84, 0.2);
+            transform: translateY(-1px);
         }
 
         .btn-outline-secondary {
-            background-color: white;
-            color: #2c3e50;
-            border: 1.5px solid #d4d9de;
-            transition: all 0.2s ease;
+            background-color: #fff;
+            color: #4b5563;
+            border: 1.5px solid #d1d5db;
         }
 
         .btn-outline-secondary:hover {
             background-color: #f9fafb;
-            color: #2c3e50;
-            text-decoration: none;
-            border-color: #9da3af;
+            color: #111827;
+            border-color: #9ca3af;
+            transform: translateY(-1px);
         }
 
 
@@ -271,6 +297,23 @@
             font-size: 0.85rem;
             margin-top: 0.35rem;
             display: block;
+        }
+
+        /* Essential common classes if not in global CSS */
+        .custom-gray-bg {
+            background-color: #f8f9fa !important;
+        }
+
+        .rounded-4 {
+            border-radius: 1rem !important;
+        }
+
+        .fw-medium {
+            font-weight: 500 !important;
+        }
+
+        .form-control.shadow-sm:focus {
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.1) !important;
         }
         /* Scrollbar styling */
         #categories-container::-webkit-scrollbar,
@@ -333,8 +376,18 @@
     </style>
 }
 
-<div class="form-container">
-    <h1 class="text-center mb-4" style="font-size: 2rem; font-weight: 600;">Add new Collection</h1>
+<div class="d-flex align-items-center mb-4 gap-3">
+    <a asp-action="Index" asp-controller="Bundle"
+       class="btn-sm btn-outline-secondary rounded-3 d-flex align-items-center gap-1"
+       style="padding: 0.4rem 0.8rem; text-decoration: none; font-size: 0.875rem;">
+        <i class="bi bi-arrow-left"></i>
+        Back
+    </a>
+    <h1 class="fw-semibold fs-4 mb-0">Add new Collection</h1>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4" style="max-width: 1000px; margin: 0 auto;">
+    <div class="card-body p-4">
 
     @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
     {
@@ -351,19 +404,19 @@
             <div class="form-column">
                 <!-- Title Field -->
                 <div class="mb-3">
-                    <label asp-for="Title" class="form-label"></label>
-                    <input asp-for="Title" class="form-control" placeholder="Your collection title">
-                    <span asp-validation-for="Title" class="text-danger"></span>
+                    <label asp-for="Title" class="form-label fw-medium mb-1"></label>
+                    <input asp-for="Title" class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg" placeholder="Your collection title">
+                    <span asp-validation-for="Title" class="text-danger small"></span>
                 </div>
 
                 <!-- Description Field -->
                 <div class="mb-3">
-                    <label asp-for="Description" class="form-label"></label>
+                    <label asp-for="Description" class="form-label fw-medium mb-1"></label>
                     <textarea asp-for="Description" 
-                              class="form-control" 
+                              class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg" 
                               rows="4" 
                               placeholder="Describe the content and purpose of your collection"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
                     <small class="text-muted d-block mt-1">
                         <span id="description-count">0</span> / @Enrich.BLL.Constants.BundleConstants.DescriptionMaxLength characters
                     </small>
@@ -371,41 +424,35 @@
 
                 <!-- Categories Field -->
                 <div class="mb-3">
-                    <label class="form-label">Categories</label>
+                    <label class="form-label fw-medium mb-1">Categories</label>
                     <div class="input-group mb-2">
-                        <input type="text" id="category-search-input" class="form-control" placeholder="Search or type a new category..." />
+                        <input type="text" id="category-search-input" class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg" placeholder="Search or type a new category..." />
                     </div>
-                    <div id="categories-container" class="row g-2" style="max-height: 300px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 10px; border-radius: 0.375rem;">
-                        <!-- Checkboxes will be rendered here -->
-                    </div>
+                    <div id="categories-container" class="row g-2"></div>
                     <div id="category-ids-container"></div>
                 </div>
 
                 <!-- Words Search & Selection -->
                 <div class="mb-3">
-                    <label class="form-label">Words</label>
+                    <label class="form-label fw-medium mb-1">Words</label>
                     <div class="input-group mb-2">
-                        <input type="text" id="word-search-input" class="form-control" placeholder="Search words by term or translation..." />
+                        <input type="text" id="word-search-input" class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg" placeholder="Search words by term or translation..." />
                     </div>
-                    <div id="words-container" class="row g-2" style="max-height: 300px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 10px; border-radius: 0.375rem;">
-                        <!-- Words checkboxes will be rendered here -->
-                    </div>
+                    <div id="words-container" class="row g-2"></div>
                     <div id="word-ids-container"></div>
                 </div>
 
                 <!-- Difficulty Levels Field -->
                 <div class="mb-3">
-                    <label class="form-label">Difficulty Levels</label>
-                    <div id="levels-container" class="row g-2" style="max-height: 300px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 10px; border-radius: 0.375rem;">
-                        <!-- Level checkboxes will be rendered here -->
-                    </div>
+                    <label class="form-label fw-medium mb-1">Difficulty Levels</label>
+                    <div id="levels-container" class="row g-2"></div>
                     <div id="difficulty-levels-container"></div>
                 </div>
             </div>
 
             <!-- Right Column - Image Upload -->
             <div class="form-column right">
-                <label class="form-label">Cover Image</label>
+                <label class="form-label fw-medium mb-1">Cover Image</label>
                 <div class="image-upload-box" id="image-upload-box" onclick="document.getElementById('file-input').click()">
                     <div id="upload-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
                         <i class="bi bi-folder" style="font-size: 3rem; margin-bottom: 1rem; color: #999;"></i>
@@ -426,15 +473,16 @@
         </div>
 
         <!-- Buttons -->
-        <div class="button-group">
-            <a asp-action="Index" asp-controller="Bundle" class="btn btn-outline-secondary rounded-4">
+        <div class="button-group border-0 pt-0">
+            <button type="submit" class="btn btn-success rounded-4 py-2 px-5 fw-medium shadow-sm">
+                <i class="bi bi-plus-circle me-2"></i> Create Collection
+            </button>
+            <a asp-action="Index" asp-controller="Bundle" class="btn btn-outline-secondary rounded-4 py-2 px-4 shadow-sm">
                 Cancel
             </a>
-            <button type="submit" class="btn btn-success rounded-4">
-                Create Collection
-            </button>
         </div>
     </form>
+</div>
 </div>
 
 @section Scripts {
@@ -512,6 +560,7 @@
             function updateHiddenInput() {
                 const containerHidden = document.getElementById('category-ids-container');
                 containerHidden.innerHTML = '';
+                // Use master selectedIds array
                 selectedIds.forEach((id) => {
                     const input = document.createElement('input');
                     input.type = 'hidden';
@@ -522,7 +571,7 @@
             }
 
             searchInput.addEventListener('input', searchCategories);
-            loadCategories();
+            loadCategories().then(() => updateHiddenInput());
         })();
 
         // Words multi-select with search and state preservation
@@ -587,7 +636,8 @@
             function updateHiddenInput() {
                 const container = document.getElementById('word-ids-container');
                 container.innerHTML = '';
-                selectedIds.forEach((id, index) => {
+                // Use master selectedIds array
+                selectedIds.forEach((id) => {
                     const input = document.createElement('input');
                     input.type = 'hidden';
                     input.name = 'WordIds';
@@ -598,6 +648,7 @@
 
             searchInput.addEventListener('input', searchWords);
             renderWords(allWords);
+            updateHiddenInput();
         })();
 
         // Character counter for description
@@ -673,9 +724,10 @@
             function updateHiddenInput() {
                 const container = document.getElementById('difficulty-levels-container');
                 container.innerHTML = '';
-                selectedLevels = Array.from(document.querySelectorAll('#levels-container input[type="checkbox"]:checked'))
+                // Update from DOM checkboxes
+                const selectedLevelsFromDOM = Array.from(document.querySelectorAll('#levels-container input[type="checkbox"]:checked'))
                     .map(cb => cb.dataset.levelValue);
-                selectedLevels.forEach((level, index) => {
+                selectedLevelsFromDOM.forEach((level) => {
                     const input = document.createElement('input');
                     input.type = 'hidden';
                     input.name = 'DifficultyLevels';
@@ -685,6 +737,7 @@
             }
 
             renderLevels(availableLevels);
+            updateHiddenInput();
         })();
     </script>
 }
