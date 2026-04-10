@@ -1,18 +1,27 @@
 using Enrich.BLL.Interfaces;
+using Enrich.BLL.Settings;
 using Enrich.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Enrich.Web.Controllers
 {
     [Authorize]
     public class CollectionController(
         ILogger<CollectionController> logger,
-        IBundleService bundleService) : BaseController
+        IBundleService bundleService,
+        IOptions<PaginationSettings> paginationOptions) : BaseController
     {
         [HttpGet]
-        public async Task<IActionResult> Index(SystemBundlesIndexViewModel model, int page = 1, int pageSize = 12)
+        public async Task<IActionResult> Index(SystemBundlesIndexViewModel model, int page = 1, int pageSize = 0)
         {
+            if (pageSize <= 0)
+            {
+                pageSize = paginationOptions.Value.DefaultSystemBundlesPageSize;
+            }
+
+            model.PageSize = pageSize;
             model.Bundles = await bundleService.GetSystemBundlesAsync(
                 model.SearchTerm,
                 model.CategoryFilter,

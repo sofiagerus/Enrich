@@ -1,10 +1,12 @@
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
+using Enrich.BLL.Settings;
 using Enrich.DAL.Entities.Enums;
 using Enrich.DAL.Interfaces;
 using Enrich.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Enrich.Web.Controllers
 {
@@ -13,7 +15,8 @@ namespace Enrich.Web.Controllers
         ILogger<BundleController> logger,
         IBundleService bundleService,
         ICategoryRepository categoryRepository,
-        IWordRepository wordRepository) : BaseController
+        IWordRepository wordRepository,
+        IOptions<PaginationSettings> paginationOptions) : BaseController
     {
         [HttpGet]
         public async Task<IActionResult> Index(
@@ -23,8 +26,13 @@ namespace Enrich.Web.Controllers
             int? minWordCount = null,
             int? maxWordCount = null,
             int page = 1,
-            int pageSize = 6)
+            int pageSize = 0)
         {
+            if (pageSize <= 0)
+            {
+                pageSize = paginationOptions.Value.DefaultUserBundlesPageSize;
+            }
+
             var pagedBundles = await bundleService.GetUserBundlesPageAsync(
                 CurrentUserId,
                 search,
@@ -59,7 +67,8 @@ namespace Enrich.Web.Controllers
                 LevelFilter = levelFilter,
                 MinWordCount = minWordCount,
                 MaxWordCount = maxWordCount,
-                Categories = categories
+                Categories = categories,
+                PageSize = pageSize
             };
 
             return View(viewModel);
@@ -309,8 +318,13 @@ namespace Enrich.Web.Controllers
             int? minWordCount = null,
             int? maxWordCount = null,
             int page = 1,
-            int pageSize = 20)
+            int pageSize = 0)
         {
+            if (pageSize <= 0)
+            {
+                pageSize = paginationOptions.Value.DefaultUserBundlesPageSize;
+            }
+
             var pageResult = await bundleService.GetUserBundlesPageAsync(
                 CurrentUserId,
                 searchTerm,

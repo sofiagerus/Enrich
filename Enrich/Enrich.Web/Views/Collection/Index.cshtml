@@ -26,7 +26,7 @@
                 </button>
             </div>
 
-            <div id="bundles-list-container">
+            <div id="bundles-list-container" data-page-size="@Model.PageSize">
                 <partial name="_BundleListPartial" model="Model" />
             </div>
         </div>
@@ -97,7 +97,7 @@
             const filters = getFilters();
             const params = new URLSearchParams({
                 page: page,
-                pageSize: 12
+                pageSize: parseInt(document.getElementById('bundles-list-container').dataset.pageSize, 10) || 12
             });
 
             if (filters.searchTerm) params.append('searchTerm', filters.searchTerm);

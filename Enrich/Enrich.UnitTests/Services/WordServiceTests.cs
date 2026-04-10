@@ -1,8 +1,10 @@
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Services;
+using Enrich.BLL.Settings;
 using Enrich.DAL.Entities;
 using Enrich.DAL.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -14,6 +16,7 @@ namespace Enrich.UnitTests.Services
         private Mock<IWordRepository> _wordRepositoryMock = null!;
         private Mock<ICategoryRepository> _categoryRepositoryMock = null!;
         private Mock<ILogger<WordService>> _loggerMock = null!;
+        private Mock<IOptions<PaginationSettings>> _paginationOptionsMock = null!;
         private WordService _wordService = null!;
 
         [SetUp]
@@ -23,7 +26,14 @@ namespace Enrich.UnitTests.Services
             _categoryRepositoryMock = new Mock<ICategoryRepository>();
             _loggerMock = new Mock<ILogger<WordService>>();
 
-            _wordService = new WordService(_wordRepositoryMock.Object, _categoryRepositoryMock.Object, _loggerMock.Object);
+            _paginationOptionsMock = new Mock<IOptions<PaginationSettings>>();
+            _paginationOptionsMock.Setup(o => o.Value).Returns(new PaginationSettings());
+
+            _wordService = new WordService(
+                _wordRepositoryMock.Object,
+                _categoryRepositoryMock.Object,
+                _paginationOptionsMock.Object,
+                _loggerMock.Object);
         }
 
         [Test]

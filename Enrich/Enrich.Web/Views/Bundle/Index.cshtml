@@ -33,7 +33,7 @@
                 </a>
             </div>
 
-            <div id="bundles-list-container">
+            <div id="bundles-list-container" data-page-size="@Model.PageSize">
                 <partial name="_MyBundleListPartial" model="Model.Bundles" />
             </div>
         </div>
@@ -106,7 +106,7 @@
             const f = getFilters();
             const params = new URLSearchParams({
                 page: page,
-                pageSize: 6,
+                pageSize: parseInt(document.getElementById('bundles-list-container').dataset.pageSize, 10) || 6,
                 search: f.searchTerm,
                 categoryFilter: f.categories,
                 levelFilter: f.levels,

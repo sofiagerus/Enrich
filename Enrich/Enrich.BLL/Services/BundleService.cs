@@ -1,18 +1,23 @@
 using Enrich.BLL.Common;
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
+using Enrich.BLL.Settings;
 using Enrich.DAL.Entities;
 using Enrich.DAL.Entities.Enums;
 using Enrich.DAL.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Enrich.BLL.Services
 {
     public class BundleService(
         IBundleRepository bundleRepository,
         ICategoryRepository categoryRepository,
+        IOptions<PaginationSettings> paginationOptions,
         ILogger<BundleService> logger) : IBundleService
     {
+        private readonly PaginationSettings _pagination = paginationOptions.Value;
+
         public async Task<Result> CreateBundleAsync(string userId, CreateBundleDTO dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Title))
@@ -131,8 +136,13 @@ namespace Enrich.BLL.Services
             int? minWordCount = null,
             int? maxWordCount = null,
             int page = 1,
-            int pageSize = 6)
+            int pageSize = 0)
         {
+            if (pageSize <= 0)
+            {
+                pageSize = _pagination.DefaultUserBundlesPageSize;
+            }
+
             logger.LogInformation(
                 "Отримання сторінки {Page} бандлів користувача {UserId} з пошуком '{SearchTerm}', категорії: '{Category}', рівні: '{Level}'.",
                 page,
@@ -188,7 +198,7 @@ namespace Enrich.BLL.Services
 
             if (pageSize <= 0)
             {
-                pageSize = 12;
+                pageSize = _pagination.DefaultSystemBundlesPageSize;
             }
 
             var (bundles, total) = await bundleRepository.GetSystemBundlesPageAsync(

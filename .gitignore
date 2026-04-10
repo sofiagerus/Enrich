@@ -3,8 +3,3 @@
 ################################################################################
 
 /.vs/VSWorkspaceState.json
-
-# AppSettings with sensitive data
-**/appsettings.json
-**/appsettings.*.json
-!**/appsettings.Development.json.example

@@ -175,7 +175,7 @@
                 </button>
             </div>
 
-            <div id="words-list-container">
+            <div id="words-list-container" data-page-size="@Model.PageSize">
                 <partial name="_WordListPartial" model="Model" />
             </div>
         </div>
@@ -250,7 +250,7 @@
             const params = new URLSearchParams({
                 ...filters,
                 page: page,
-                pageSize: 12
+                pageSize: parseInt(document.getElementById('words-list-container').dataset.pageSize, 10) || 20
             });
 
             try {

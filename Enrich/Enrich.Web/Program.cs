@@ -4,6 +4,7 @@ using Enrich.DAL.Data;
 using Enrich.DAL.Entities;
 using Enrich.Web.Handlers;
 using Enrich.Web.Seeders;
+using Enrich.Web.Settings;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
 
@@ -17,20 +18,34 @@ try
 
     WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+    if (builder.Environment.IsStaging() || builder.Environment.IsProduction())
+    {
+        builder.Configuration.AddUserSecrets<Program>();
+    }
+
     builder.Host.UseSerilog((context, services, configuration) => configuration
         .ReadFrom.Configuration(context.Configuration)
         .ReadFrom.Services(services)
         .Enrich.FromLogContext());
 
+    builder.Services.Configure<IdentitySettings>(
+        builder.Configuration.GetSection(IdentitySettings.Section));
+    builder.Services.Configure<LocalizationSettings>(
+        builder.Configuration.GetSection(LocalizationSettings.Section));
+
+    var identitySettings = builder.Configuration
+        .GetSection(IdentitySettings.Section)
+        .Get<IdentitySettings>() ?? new IdentitySettings();
+
     // Register Services
     builder.Services.AddDalServices(builder.Configuration);
-    builder.Services.AddBllServices();
+    builder.Services.AddBllServices(builder.Configuration);
     builder.Services.AddIdentity<User, IdentityRole>(options =>
     {
-        options.Password.RequireDigit = true;
-        options.Password.RequiredLength = 8;
-        options.Password.RequireNonAlphanumeric = false;
-        options.Lockout.AllowedForNewUsers = true;
+        options.Password.RequireDigit = identitySettings.RequireDigit;
+        options.Password.RequiredLength = identitySettings.RequiredLength;
+        options.Password.RequireNonAlphanumeric = identitySettings.RequireNonAlphanumeric;
+        options.Lockout.AllowedForNewUsers = identitySettings.LockoutAllowedForNewUsers;
     })
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
@@ -56,6 +71,11 @@ try
 
     await DataSeeder.SeedRolesAndAdminAsync(app.Services);
 
+    var envLabel = app.Configuration["Environment:Label"] ?? "unknown";
+    Log.Information(
+        "Середовище: {EnvironmentLabel}",
+        envLabel);
+
     Log.Information("Додаток Enrich запущено");
 
     app.UseExceptionHandler("/Home/Error");
@@ -69,23 +89,35 @@ try
 
     app.UseHttpsRedirection();
 
-    string[] supportedCultures = ["uk", "en"];
+    var localizationSettings = app.Configuration
+        .GetSection(LocalizationSettings.Section)
+        .Get<LocalizationSettings>() ?? new LocalizationSettings();
 
     app.UseRequestLocalization(options =>
     {
-        options.SetDefaultCulture("en")
-               .AddSupportedCultures(supportedCultures)
-               .AddSupportedUICultures(supportedCultures);
+        options.SetDefaultCulture(localizationSettings.DefaultCulture)
+               .AddSupportedCultures(localizationSettings.SupportedCultures)
+               .AddSupportedUICultures(localizationSettings.SupportedCultures);
     });
 
     app.UseRouting();
     app.UseAuthorization();
 
-    app.MapStaticAssets();
-    app.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}")
-        .WithStaticAssets();
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapStaticAssets();
+        app.MapControllerRoute(
+            name: "default",
+            pattern: "{controller=Home}/{action=Index}/{id?}")
+            .WithStaticAssets();
+    }
+    else
+    {
+        app.UseStaticFiles();
+        app.MapControllerRoute(
+            name: "default",
+            pattern: "{controller=Home}/{action=Index}/{id?}");
+    }
 
     app.Run();
 }

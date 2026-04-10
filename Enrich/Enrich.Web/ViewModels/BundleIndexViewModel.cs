@@ -1,4 +1,4 @@
-﻿using Enrich.BLL.DTOs;
+using Enrich.BLL.DTOs;
 using Enrich.DAL.Entities;
 
 namespace Enrich.Web.ViewModels
@@ -16,5 +16,7 @@ namespace Enrich.Web.ViewModels
         public int? MaxWordCount { get; set; }
 
         public IEnumerable<Category> Categories { get; set; } = [];
+
+        public int PageSize { get; set; } = 6;
     }
 }

@@ -16,5 +16,7 @@ namespace Enrich.Web.ViewModels
         public string? LevelFilter { get; set; }
 
         public string? PosFilter { get; set; }
+
+        public int PageSize { get; set; } = 12;
     }
 }
