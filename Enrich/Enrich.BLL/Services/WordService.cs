@@ -1,17 +1,22 @@
 using Enrich.BLL.Common;
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
+using Enrich.BLL.Settings;
 using Enrich.DAL.Entities;
 using Enrich.DAL.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Enrich.BLL.Services
 {
     public class WordService(
         IWordRepository wordRepository,
         ICategoryRepository categoryRepository,
+        IOptions<PaginationSettings> paginationOptions,
         ILogger<WordService> logger) : IWordService
     {
+        private readonly PaginationSettings _pagination = paginationOptions.Value;
+
         public async Task<Result> CreatePersonalWordAsync(string userId, CreatePersonalWordDTO dto)
         {
             var termLower = dto.Term.Trim().ToLowerInvariant();
@@ -139,7 +144,7 @@ namespace Enrich.BLL.Services
 
             if (pageSize <= 0)
             {
-                pageSize = 20;
+                pageSize = _pagination.DefaultPersonalWordsPageSize;
             }
 
             var (itemsUw, total) = await wordRepository.GetPersonalWordsPageAsync(userId, searchTerm, category, partOfSpeech, difficultyLevel, page, pageSize);
@@ -178,7 +183,7 @@ namespace Enrich.BLL.Services
 
             if (pageSize <= 0)
             {
-                pageSize = 20;
+                pageSize = _pagination.DefaultSystemWordsPageSize;
             }
 
             var (itemsResult, total) = await wordRepository.GetSystemWordsPageAsync(userId, searchTerm, category, partOfSpeech, difficultyLevel, page, pageSize);

@@ -2,12 +2,14 @@ using System.Security.Claims;
 using Enrich.BLL.Common;
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
+using Enrich.BLL.Settings;
 using Enrich.Web.Controllers;
 using Enrich.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -21,6 +23,7 @@ namespace Enrich.UnitTests.Controllers
         private Mock<ILogger<WordController>> _loggerMock = null!;
         private Mock<IWordService> _wordServiceMock = null!;
         private Mock<IUserService> _userServiceMock = null!;
+        private Mock<IOptions<PaginationSettings>> _paginationOptionsMock = null!;
         private WordController _controller = null!;
 
         [SetUp]
@@ -30,9 +33,13 @@ namespace Enrich.UnitTests.Controllers
             _wordServiceMock = new Mock<IWordService>();
             _userServiceMock = new Mock<IUserService>();
 
+            _paginationOptionsMock = new Mock<IOptions<PaginationSettings>>();
+            _paginationOptionsMock.Setup(o => o.Value).Returns(new PaginationSettings());
+
             _controller = new WordController(
                 _loggerMock.Object,
-                _wordServiceMock.Object);
+                _wordServiceMock.Object,
+                _paginationOptionsMock.Object);
 
             var user = new ClaimsPrincipal(new ClaimsIdentity(
                 new[] { new Claim(ClaimTypes.NameIdentifier, FakeUserId) },

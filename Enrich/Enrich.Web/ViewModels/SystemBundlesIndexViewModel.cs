@@ -18,5 +18,7 @@ namespace Enrich.Web.ViewModels
         public int? MinWordCount { get; set; }
 
         public int? MaxWordCount { get; set; }
+
+        public int PageSize { get; set; } = 12;
     }
 }

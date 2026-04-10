@@ -1,19 +1,28 @@
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
+using Enrich.BLL.Settings;
 using Enrich.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Enrich.Web.Controllers
 {
     [Authorize]
     public class WordController(
         ILogger<WordController> logger,
-        IWordService wordService) : BaseController
+        IWordService wordService,
+        IOptions<PaginationSettings> paginationOptions) : BaseController
     {
         [HttpGet]
-        public async Task<IActionResult> Index(SystemWordsIndexViewModel model, int page = 1, int pageSize = 12)
+        public async Task<IActionResult> Index(SystemWordsIndexViewModel model, int page = 1, int pageSize = 0)
         {
+            if (pageSize <= 0)
+            {
+                pageSize = paginationOptions.Value.DefaultSystemWordsPageSize;
+            }
+
+            model.PageSize = pageSize;
             model.Words = await wordService.GetSystemWordsAsync(
                 CurrentUserId,
                 model.SearchTerm,
@@ -36,6 +45,7 @@ namespace Enrich.Web.Controllers
         [HttpGet]
         public IActionResult MyWords()
         {
+            ViewData["PageSize"] = paginationOptions.Value.DefaultPersonalWordsPageSize;
             return View();
         }
 
@@ -48,8 +58,13 @@ namespace Enrich.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMyWords(string? searchTerm, string? category, string? partOfSpeech, string? difficultyLevel, int page = 1, int pageSize = 20)
+        public async Task<IActionResult> GetMyWords(string? searchTerm, string? category, string? partOfSpeech, string? difficultyLevel, int page = 1, int pageSize = 0)
         {
+            if (pageSize <= 0)
+            {
+                pageSize = paginationOptions.Value.DefaultPersonalWordsPageSize;
+            }
+
             var pageResult = await wordService.GetPersonalWordsAsync(CurrentUserId, searchTerm, category, partOfSpeech, difficultyLevel, page, pageSize);
 
             logger.LogInformation("Користувач {UserId} отримав {WordCount} слів (загалом {Total}).", CurrentUserId, pageResult.Items.Count(), pageResult.TotalCount);

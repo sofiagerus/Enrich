@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Enrich.BLL.Common;
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
+using Enrich.BLL.Settings;
 using Enrich.DAL.Entities;
 using Enrich.DAL.Interfaces;
 using Enrich.Web.Controllers;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -24,6 +26,7 @@ namespace Enrich.UnitTests.Controllers
         private Mock<IBundleService> _bundleServiceMock = null!;
         private Mock<ICategoryRepository> _categoryRepositoryMock = null!;
         private Mock<IWordRepository> _wordRepositoryMock = null!;
+        private Mock<IOptions<PaginationSettings>> _paginationOptionsMock = null!;
 
         private BundleController _controller = null!;
 
@@ -35,11 +38,15 @@ namespace Enrich.UnitTests.Controllers
             _categoryRepositoryMock = new Mock<ICategoryRepository>();
             _wordRepositoryMock = new Mock<IWordRepository>();
 
+            _paginationOptionsMock = new Mock<IOptions<PaginationSettings>>();
+            _paginationOptionsMock.Setup(o => o.Value).Returns(new PaginationSettings());
+
             _controller = new BundleController(
                 _loggerMock.Object,
                 _bundleServiceMock.Object,
                 _categoryRepositoryMock.Object,
-                _wordRepositoryMock.Object);
+                _wordRepositoryMock.Object,
+                _paginationOptionsMock.Object);
 
             var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, TestUserId) };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
@@ -529,7 +536,7 @@ namespace Enrich.UnitTests.Controllers
                 .Setup(r => r.GetAllCategoriesAsync())
                 .ReturnsAsync(mockCategories);
 
-            // Act
+            // Act — pass pageSize=6 explicitly so the controller uses it directly (skips settings fallback)
             var result = await _controller.Index(page: 1, pageSize: 6);
 
             // Assert

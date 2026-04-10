@@ -1,7 +1,9 @@
 using Enrich.BLL.Services;
+using Enrich.BLL.Settings;
 using Enrich.DAL.Entities;
 using Enrich.DAL.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -13,6 +15,7 @@ namespace Enrich.UnitTests.Services
         private Mock<IBundleRepository> _bundleRepositoryMock = null!;
         private Mock<ICategoryRepository> _categoryRepositoryMock = null!;
         private Mock<ILogger<BundleService>> _loggerMock = null!;
+        private Mock<IOptions<PaginationSettings>> _paginationOptionsMock = null!;
         private BundleService _bundleService = null!;
 
         [SetUp]
@@ -22,9 +25,13 @@ namespace Enrich.UnitTests.Services
             _categoryRepositoryMock = new Mock<ICategoryRepository>();
             _loggerMock = new Mock<ILogger<BundleService>>();
 
+            _paginationOptionsMock = new Mock<IOptions<PaginationSettings>>();
+            _paginationOptionsMock.Setup(o => o.Value).Returns(new PaginationSettings());
+
             _bundleService = new BundleService(
                 _bundleRepositoryMock.Object,
                 _categoryRepositoryMock.Object,
+                _paginationOptionsMock.Object,
                 _loggerMock.Object);
         }
 
@@ -403,7 +410,7 @@ namespace Enrich.UnitTests.Services
             var userId = "user123";
             var bundleId = 1;
             var existingBundle = new Bundle { Id = bundleId, OwnerId = userId, Title = "Old Title" };
-            var dto = new Enrich.BLL.DTOs.CreateBundleDTO
+            var dto = new BLL.DTOs.CreateBundleDTO
             {
                 Title = "New Title",
                 Description = "New Description",
@@ -444,7 +451,7 @@ namespace Enrich.UnitTests.Services
             // Arrange
             var userId = "user123";
             var bundleId = 1;
-            var dto = new Enrich.BLL.DTOs.CreateBundleDTO { Title = "New Title" };
+            var dto = new BLL.DTOs.CreateBundleDTO { Title = "New Title" };
 
             _bundleRepositoryMock
                 .Setup(r => r.GetBundleByIdAsync(bundleId))
@@ -465,7 +472,7 @@ namespace Enrich.UnitTests.Services
             var userId = "user123";
             var bundleId = 1;
             var existingBundle = new Bundle { Id = bundleId, OwnerId = "differentUser" };
-            var dto = new Enrich.BLL.DTOs.CreateBundleDTO { Title = "New Title" };
+            var dto = new BLL.DTOs.CreateBundleDTO { Title = "New Title" };
 
             _bundleRepositoryMock
                 .Setup(r => r.GetBundleByIdAsync(bundleId))
@@ -486,7 +493,7 @@ namespace Enrich.UnitTests.Services
             var userId = "user123";
             var bundleId = 1;
             var existingBundle = new Bundle { Id = bundleId, OwnerId = userId, Title = "Old Title" };
-            var dto = new Enrich.BLL.DTOs.CreateBundleDTO { Title = "Existing Title" };
+            var dto = new BLL.DTOs.CreateBundleDTO { Title = "Existing Title" };
 
             _bundleRepositoryMock
                 .Setup(r => r.GetBundleByIdAsync(bundleId))

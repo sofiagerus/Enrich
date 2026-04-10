@@ -250,7 +250,7 @@
                 </a>
             </div>
 
-            <div id="words-container" class="row g-3"></div>
+            <div id="words-container" class="row g-3" data-page-size="@ViewData["PageSize"]"></div>
 
             <nav id="pagination-container" class="mt-4"></nav>
         </div>
@@ -302,7 +302,7 @@
     <script>
         let currentFilters = { searchTerm: '', category: '', level: '', pos: '' };
         let currentPage = 1;
-        const pageSize = 12;
+        const pageSize = parseInt(document.getElementById('words-container').dataset.pageSize, 10) || 20;
 
         async function loadWords(page = 1) {
             currentPage = page;
