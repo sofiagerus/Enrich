@@ -22,8 +22,8 @@ namespace Enrich.BLL.Services
         {
             if (string.IsNullOrWhiteSpace(dto.Title))
             {
-                logger.LogWarning("Спроба створити бандл з порожною назвою користувачем {UserId}.", userId);
-                return "Назва бандлу не може бути порожною.";
+                logger.LogWarning("Attempt to create a bundle with an empty title by user {UserId}.", userId);
+                return "Bundle title cannot be empty.";
             }
 
             var titleLower = dto.Title.Trim().ToLowerInvariant();
@@ -33,11 +33,11 @@ namespace Enrich.BLL.Services
             if (duplicateExists)
             {
                 logger.LogWarning(
-                    "Користувач {UserId} спробував створити дублікат бандлу: '{Title}'.",
+                    "User {UserId} attempted to create a duplicate bundle: '{Title}'.",
                     userId,
                     dto.Title);
 
-                return $"Ви вже маєте бандл з назвою '{dto.Title}'.";
+                return $"You already have a bundle named '{dto.Title}'.";
             }
 
             var now = DateTime.UtcNow;
@@ -91,11 +91,11 @@ namespace Enrich.BLL.Services
             {
                 logger.LogError(
                     ex,
-                    "Помилка при створенні бандлу '{Title}' користувачем {UserId}.",
+                    "Error creating bundle '{Title}' by user {UserId}.",
                     dto.Title,
                     userId);
 
-                return "При створенні бандлу сталася помилка. Спробуйте ще раз.";
+                return "An error occurred while creating the bundle. Please try again.";
             }
         }
 
@@ -189,7 +189,7 @@ namespace Enrich.BLL.Services
             int page,
             int pageSize)
         {
-            logger.LogInformation("Getting system bundles page: page={Page}, pageSize={PageSize}", page, pageSize);
+            logger.LogInformation("Отримання сторінки системних бандлів: сторінка={Page}, розмір={PageSize}", page, pageSize);
 
             if (page <= 0)
             {
@@ -242,22 +242,33 @@ namespace Enrich.BLL.Services
             if (bundle == null)
             {
                 logger.LogWarning(
-                    "Користувач {UserId} спробував оновити неіснуючий бандл {BundleId}.",
+                    "User {UserId} attempted to update non-existent bundle {BundleId}.",
                     userId,
                     bundleId);
 
-                return "Бандл не знайдено.";
+                return "Bundle not found.";
             }
 
             if (bundle.OwnerId != userId)
             {
                 logger.LogWarning(
-                    "Користувач {UserId} спробував оновити чужий бандл {BundleId} (власник: {OwnerId}).",
+                    "User {UserId} attempted to update someone else's bundle {BundleId} (owner: {OwnerId}).",
                     userId,
                     bundleId,
                     bundle.OwnerId);
 
-                return "Ви не маєте права оновлювати цей бандл.";
+                return "You do not have permission to update this bundle.";
+            }
+
+            if (bundle.Status != BundleStatus.Draft && bundle.Status != BundleStatus.Rejected)
+            {
+                logger.LogWarning(
+                    "User {UserId} attempted to update bundle {BundleId} which is in status {Status}.",
+                    userId,
+                    bundleId,
+                    bundle.Status);
+
+                return "You cannot edit a bundle that is under review or published.";
             }
 
             if (!bundle.Title.Equals(dto.Title, StringComparison.OrdinalIgnoreCase))
@@ -268,12 +279,12 @@ namespace Enrich.BLL.Services
                 if (duplicateExists)
                 {
                     logger.LogWarning(
-                        "Користувач {UserId} спробував оновити бандл {BundleId} дублікатною назвою '{Title}'.",
+                        "User {UserId} attempted to update bundle {BundleId} with a duplicate title '{Title}'.",
                         userId,
                         bundleId,
                         dto.Title);
 
-                    return $"Ви вже маєте бандл з назвою '{dto.Title}'.";
+                    return $"You already have a bundle named '{dto.Title}'.";
                 }
 
                 bundle.Title = dto.Title.Trim();
@@ -290,7 +301,7 @@ namespace Enrich.BLL.Services
                 await bundleRepository.SyncBundleRelationsAsync(bundle.Id, dto.WordIds, dto.CategoryIds);
 
                 logger.LogInformation(
-                    "Бандл {BundleId} користувача {UserId} успішно оновлено.",
+                    "Bundle {BundleId} of user {UserId} successfully updated.",
                     bundleId,
                     userId);
 
@@ -300,11 +311,11 @@ namespace Enrich.BLL.Services
             {
                 logger.LogError(
                     ex,
-                    "Помилка при оновленні бандлу {BundleId} користувачем {UserId}.",
+                    "Error updating bundle {BundleId} by user {UserId}.",
                     bundleId,
                     userId);
 
-                return "При оновленні бандлу сталася помилка. Спробуйте ще раз.";
+                return "An error occurred while updating the bundle. Please try again.";
             }
         }
 
@@ -315,22 +326,33 @@ namespace Enrich.BLL.Services
             if (bundle == null)
             {
                 logger.LogWarning(
-                    "Користувач {UserId} спробував видалити неіснуючий бандл {BundleId}.",
+                    "User {UserId} attempted to delete non-existent bundle {BundleId}.",
                     userId,
                     bundleId);
 
-                return "Бандл не знайдено.";
+                return "Bundle not found.";
             }
 
             if (bundle.OwnerId != userId)
             {
                 logger.LogWarning(
-                    "Користувач {UserId} спробував видалити чужий бандл {BundleId} (власник: {OwnerId}).",
+                    "User {UserId} attempted to delete someone else's bundle {BundleId} (owner: {OwnerId}).",
                     userId,
                     bundleId,
                     bundle.OwnerId);
 
-                return "Ви не маєте права видаляти цей бандл.";
+                return "You do not have permission to delete this bundle.";
+            }
+
+            if (bundle.Status != BundleStatus.Draft && bundle.Status != BundleStatus.Rejected)
+            {
+                logger.LogWarning(
+                    "User {UserId} attempted to delete bundle {BundleId} which is in status {Status}.",
+                    userId,
+                    bundleId,
+                    bundle.Status);
+
+                return "You cannot delete a bundle that is under review or published.";
             }
 
             try
@@ -338,7 +360,7 @@ namespace Enrich.BLL.Services
                 await bundleRepository.DeleteBundleAsync(bundleId);
 
                 logger.LogInformation(
-                    "Бандл {BundleId} користувача {UserId} успішно видалено.",
+                    "Bundle {BundleId} for user {UserId} successfully deleted.",
                     bundleId,
                     userId);
 
@@ -348,11 +370,11 @@ namespace Enrich.BLL.Services
             {
                 logger.LogError(
                     ex,
-                    "Помилка при видаленні бандлу {BundleId} користувачем {UserId}.",
+                    "Error deleting bundle {BundleId} by user {UserId}.",
                     bundleId,
                     userId);
 
-                return "При видаленні бандлу сталася помилка. Спробуйте ще раз.";
+                return "An error occurred while deleting the bundle. Please try again.";
             }
         }
 
@@ -363,21 +385,21 @@ namespace Enrich.BLL.Services
             if (bundle == null)
             {
                 logger.LogWarning(
-                    "Користувач {UserId} спробував додати слова до неіснуючого бандлу {BundleId}.",
+                    "User {UserId} attempted to add words to non-existent bundle {BundleId}.",
                     userId,
                     bundleId);
 
-                return "Бандл не знайдено.";
+                return "Bundle not found.";
             }
 
             if (bundle.OwnerId != userId)
             {
                 logger.LogWarning(
-                    "Користувач {UserId} спробував додати слова до чужого бандлу {BundleId}.",
+                    "User {UserId} attempted to add words to someone else's bundle {BundleId}.",
                     userId,
                     bundleId);
 
-                return "Ви не маєте права змінювати цей бандл.";
+                return "You do not have permission to modify this bundle.";
             }
 
             try
@@ -385,7 +407,7 @@ namespace Enrich.BLL.Services
                 await bundleRepository.AddWordsToBundleAsync(bundleId, wordIds);
 
                 logger.LogInformation(
-                    "Користувач {UserId} успішно додав {Count} слів до бандлу {BundleId}.",
+                    "User {UserId} successfully added {Count} words to bundle {BundleId}.",
                     userId,
                     wordIds.Count(),
                     bundleId);
@@ -396,11 +418,11 @@ namespace Enrich.BLL.Services
             {
                 logger.LogError(
                     ex,
-                    "Помилка при додаванні слів до бандлу {BundleId} користувачем {UserId}.",
+                    "Error adding words to bundle {BundleId} by user {UserId}.",
                     bundleId,
                     userId);
 
-                return "При додаванні слів сталася помилка. Спробуйте ще раз.";
+                return "An error occurred while adding words. Please try again.";
             }
         }
 
@@ -411,21 +433,21 @@ namespace Enrich.BLL.Services
             if (bundle == null)
             {
                 logger.LogWarning(
-                    "Користувач {UserId} спробував видалити слова з неіснуючого бандлу {BundleId}.",
+                    "User {UserId} attempted to remove words from non-existent bundle {BundleId}.",
                     userId,
                     bundleId);
 
-                return "Бандл не знайдено.";
+                return "Bundle not found.";
             }
 
             if (bundle.OwnerId != userId)
             {
                 logger.LogWarning(
-                    "Користувач {UserId} спробував видалити слова з чужого бандлу {BundleId}.",
+                    "User {UserId} attempted to remove words from someone else's bundle {BundleId}.",
                     userId,
                     bundleId);
 
-                return "Ви не маєте права змінювати цей бандл.";
+                return "You do not have permission to modify this bundle.";
             }
 
             try
@@ -433,7 +455,7 @@ namespace Enrich.BLL.Services
                 await bundleRepository.RemoveWordsFromBundleAsync(bundleId, wordIds);
 
                 logger.LogInformation(
-                    "Користувач {UserId} успішно видалив {Count} слів з бандлу {BundleId}.",
+                    "User {UserId} successfully removed {Count} words from bundle {BundleId}.",
                     userId,
                     wordIds.Count(),
                     bundleId);
@@ -444,11 +466,11 @@ namespace Enrich.BLL.Services
             {
                 logger.LogError(
                     ex,
-                    "Помилка при видаленні слів з бандлу {BundleId} користувачем {UserId}.",
+                    "Error removing words from bundle {BundleId} by user {UserId}.",
                     bundleId,
                     userId);
 
-                return "При видаленні слів сталася помилка. Спробуйте ще раз.";
+                return "An error occurred while removing words. Please try again.";
             }
         }
 
@@ -463,6 +485,7 @@ namespace Enrich.BLL.Services
                 ImageUrl = bundle.ImageUrl,
                 Status = bundle.Status.ToString(),
                 IsPublic = bundle.IsPublic,
+                IsSystem = bundle.IsSystem,
                 OwnerId = bundle.OwnerId,
                 CreatedAt = bundle.CreatedAt,
                 UpdatedAt = bundle.UpdatedAt,
@@ -481,7 +504,7 @@ namespace Enrich.BLL.Services
 
             if (bundle == null || !bundle.IsSystem)
             {
-                logger.LogWarning("Користувач {UserId} спробував зберегти неіснуючий або несистемний бандл {BundleId}.", userId, bundleId);
+                logger.LogWarning("User {UserId} attempted to save non-existent or non-system bundle {BundleId}.", userId, bundleId);
                 return "Collection not found or is not a system collection.";
             }
 
@@ -501,13 +524,56 @@ namespace Enrich.BLL.Services
             try
             {
                 await bundleRepository.SaveUserBundleAsync(userBundle);
-                logger.LogInformation("Користувач {UserId} успішно зберіг системний бандл {BundleId}.", userId, bundleId);
+                logger.LogInformation("User {UserId} successfully saved system bundle {BundleId}.", userId, bundleId);
                 return true;
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Помилка при збереженні системного бандлу {BundleId} користувачем {UserId}.", bundleId, userId);
+                logger.LogError(ex, "Error saving system bundle {BundleId} by user {UserId}.", bundleId, userId);
                 return "An error occurred while saving the collection.";
+            }
+        }
+
+        public async Task<Result> SubmitBundleForReviewAsync(string userId, int bundleId)
+        {
+            var bundle = await bundleRepository.GetBundleByIdAsync(bundleId);
+
+            if (bundle == null)
+            {
+                logger.LogWarning("User {UserId} attempted to submit non-existent bundle {BundleId} for review.", userId, bundleId);
+                return "Bundle not found.";
+            }
+
+            if (bundle.OwnerId != userId)
+            {
+                logger.LogWarning("User {UserId} attempted to submit someone else's bundle {BundleId} for review.", userId, bundleId);
+                return "You do not have permission to submit this bundle.";
+            }
+
+            if (bundle.Status != BundleStatus.Draft && bundle.Status != BundleStatus.Rejected)
+            {
+                logger.LogWarning(
+                    "User {UserId} attempted to submit bundle {BundleId} for review but it is already in status {Status}.",
+                    userId,
+                    bundleId,
+                    bundle.Status);
+
+                return "This bundle is already submitted or published.";
+            }
+
+            bundle.Status = BundleStatus.PendingReview;
+            bundle.UpdatedAt = DateTime.UtcNow;
+
+            try
+            {
+                await bundleRepository.UpdateBundleAsync(bundle);
+                logger.LogInformation("User {UserId} successfully submitted bundle {BundleId} for review.", userId, bundleId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error submitting bundle {BundleId} for review by user {UserId}.", bundleId, userId);
+                return "An error occurred while submitting the bundle.";
             }
         }
     }

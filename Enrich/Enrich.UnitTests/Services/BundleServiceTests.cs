@@ -446,32 +446,17 @@ namespace Enrich.UnitTests.Services
         }
 
         [Test]
-        public async Task UpdateBundleAsync_BundleNotFound_ReturnsError()
+        public async Task UpdateBundleAsync_InReview_ReturnsError()
         {
             // Arrange
             var userId = "user123";
             var bundleId = 1;
-            var dto = new BLL.DTOs.CreateBundleDTO { Title = "New Title" };
-
-            _bundleRepositoryMock
-                .Setup(r => r.GetBundleByIdAsync(bundleId))
-                .ReturnsAsync((Bundle?)null);
-
-            // Act
-            var result = await _bundleService.UpdateBundleAsync(userId, bundleId, dto);
-
-            // Assert
-            Assert.That(result.IsSuccess, Is.False);
-            Assert.That(result.ErrorMessage, Is.EqualTo("Бандл не знайдено."));
-        }
-
-        [Test]
-        public async Task UpdateBundleAsync_WrongOwner_ReturnsError()
-        {
-            // Arrange
-            var userId = "user123";
-            var bundleId = 1;
-            var existingBundle = new Bundle { Id = bundleId, OwnerId = "differentUser" };
+            var existingBundle = new Bundle
+            {
+                Id = bundleId,
+                OwnerId = userId,
+                Status = Enrich.DAL.Entities.Enums.BundleStatus.PendingReview
+            };
             var dto = new BLL.DTOs.CreateBundleDTO { Title = "New Title" };
 
             _bundleRepositoryMock
@@ -483,32 +468,87 @@ namespace Enrich.UnitTests.Services
 
             // Assert
             Assert.That(result.IsSuccess, Is.False);
-            Assert.That(result.ErrorMessage, Is.EqualTo("Ви не маєте права оновлювати цей бандл."));
+            Assert.That(result.ErrorMessage, Is.EqualTo("You cannot edit a bundle that is under review or published."));
         }
 
         [Test]
-        public async Task UpdateBundleAsync_DuplicateTitle_ReturnsError()
+        public async Task DeleteBundleAsync_InReview_ReturnsError()
         {
             // Arrange
             var userId = "user123";
             var bundleId = 1;
-            var existingBundle = new Bundle { Id = bundleId, OwnerId = userId, Title = "Old Title" };
-            var dto = new BLL.DTOs.CreateBundleDTO { Title = "Existing Title" };
+            var existingBundle = new Bundle
+            {
+                Id = bundleId,
+                OwnerId = userId,
+                Status = Enrich.DAL.Entities.Enums.BundleStatus.PendingReview
+            };
 
             _bundleRepositoryMock
                 .Setup(r => r.GetBundleByIdAsync(bundleId))
                 .ReturnsAsync(existingBundle);
 
-            _bundleRepositoryMock
-                .Setup(r => r.BundleTitleExistsForUserAsync(userId, "existing title"))
-                .ReturnsAsync(true);
-
             // Act
-            var result = await _bundleService.UpdateBundleAsync(userId, bundleId, dto);
+            var result = await _bundleService.DeleteBundleAsync(userId, bundleId);
 
             // Assert
             Assert.That(result.IsSuccess, Is.False);
-            Assert.That(result.ErrorMessage, Is.EqualTo("Ви вже маєте бандл з назвою 'Existing Title'."));
+            Assert.That(result.ErrorMessage, Is.EqualTo("You cannot delete a bundle that is under review or published."));
+        }
+
+        [Test]
+        public async Task SubmitBundleForReviewAsync_ValidDraft_ReturnsSuccess()
+        {
+            // Arrange
+            var userId = "user123";
+            var bundleId = 1;
+            var bundle = new Bundle
+            {
+                Id = bundleId,
+                OwnerId = userId,
+                Status = Enrich.DAL.Entities.Enums.BundleStatus.Draft
+            };
+
+            _bundleRepositoryMock
+                .Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(bundle);
+
+            _bundleRepositoryMock
+                .Setup(r => r.UpdateBundleAsync(It.IsAny<Bundle>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _bundleService.SubmitBundleForReviewAsync(userId, bundleId);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(bundle.Status, Is.EqualTo(Enrich.DAL.Entities.Enums.BundleStatus.PendingReview));
+            _bundleRepositoryMock.Verify(r => r.UpdateBundleAsync(bundle), Times.Once);
+        }
+
+        [Test]
+        public async Task SubmitBundleForReviewAsync_AlreadySubmitted_ReturnsError()
+        {
+            // Arrange
+            var userId = "user123";
+            var bundleId = 1;
+            var bundle = new Bundle
+            {
+                Id = bundleId,
+                OwnerId = userId,
+                Status = Enrich.DAL.Entities.Enums.BundleStatus.PendingReview
+            };
+
+            _bundleRepositoryMock
+                .Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(bundle);
+
+            // Act
+            var result = await _bundleService.SubmitBundleForReviewAsync(userId, bundleId);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("This bundle is already submitted or published."));
         }
     }
 }

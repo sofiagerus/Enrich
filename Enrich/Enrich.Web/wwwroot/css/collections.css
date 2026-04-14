@@ -143,6 +143,55 @@
   display: inline-block;
 }
 
+/* Status Badges */
+.status-badge {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-private {
+    background-color: #f1f3f5;
+    color: #495057;
+}
+
+.status-pending {
+    background-color: #fff4e6;
+    color: #fd7e14; /* Orange */
+    border: 1px solid #ffe8cc;
+}
+
+.status-published {
+    background-color: #ebfbee;
+    color: #40c057; /* Green */
+    border: 1px solid #d3f9d8;
+}
+
+.status-rejected {
+    background-color: #fff5f5;
+    color: #fa5252; /* Red */
+    border: 1px solid #ffe3e3;
+}
+
+/* Pending State */
+.bundle-card.is-pending {
+    opacity: 0.7;
+    background-color: #fbfcfd !important;
+}
+
+.bundle-card.is-pending:hover {
+    box-shadow: none !important;
+    border-color: var(--border-color) !important;
+}
+
+.bundle-card.is-pending .dropdown-item.disabled {
+    color: #adb5bd;
+    pointer-events: none;
+}
+
+
 /* Search Box */
 .search-box {
   background-color: #e9ecef !important;

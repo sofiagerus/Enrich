@@ -16,6 +16,8 @@ namespace Enrich.BLL.DTOs
 
         public bool IsPublic { get; set; }
 
+        public bool IsSystem { get; set; }
+
         public string? OwnerId { get; set; }
 
         public DateTime CreatedAt { get; set; }
