@@ -193,7 +193,7 @@ namespace Enrich.UnitTests.Controllers
                 Description = "This bundle already exists"
             };
 
-            var errorMessage = "Ви вже маєте бандл з такою назвою.";
+            var errorMessage = "You already have a bundle with this name.";
             _bundleServiceMock
                 .Setup(s => s.CreateBundleAsync(TestUserId, It.IsAny<CreateBundleDTO>()))
                 .ReturnsAsync(Result.Failure(errorMessage));
@@ -218,7 +218,7 @@ namespace Enrich.UnitTests.Controllers
 
             var hasError = _controller.ModelState.Values
                 .SelectMany(v => v.Errors)
-                .Any(e => e.ErrorMessage.Contains("такою назвою"));
+                .Any(e => e.ErrorMessage.Contains("with this name"));
             Assert.That(hasError, Is.True);
         }
 
@@ -426,7 +426,7 @@ namespace Enrich.UnitTests.Controllers
                 Description = "Updated description"
             };
 
-            var errorMessage = "Не вдалося оновити бандл.";
+            var errorMessage = "Failed to update bundle.";
             _bundleServiceMock
                 .Setup(s => s.UpdateBundleAsync(TestUserId, bundleId, It.IsAny<CreateBundleDTO>()))
                 .ReturnsAsync(Result.Failure(errorMessage));
@@ -451,7 +451,7 @@ namespace Enrich.UnitTests.Controllers
 
             var hasError = _controller.ModelState.Values
                 .SelectMany(v => v.Errors)
-                .Any(e => e.ErrorMessage.Contains("оновити"));
+                .Any(e => e.ErrorMessage.Contains("update"));
             Assert.That(hasError, Is.True);
         }
 
@@ -483,7 +483,7 @@ namespace Enrich.UnitTests.Controllers
         {
             // Arrange
             var bundleId = 1;
-            var errorMessage = "Не вдалося видалити бандл.";
+            var errorMessage = "Failed to delete bundle.";
 
             _bundleServiceMock
                 .Setup(s => s.DeleteBundleAsync(TestUserId, bundleId))
@@ -560,6 +560,24 @@ namespace Enrich.UnitTests.Controllers
                     1,
                     6),
                 Times.Once);
+        }
+
+        [Test]
+        public async Task SubmitForReview_ValidId_ReturnsOk()
+        {
+            // Arrange
+            var bundleId = 1;
+            _bundleServiceMock
+                .Setup(s => s.SubmitBundleForReviewAsync(TestUserId, bundleId))
+                .ReturnsAsync(Result.Success());
+
+            // Act
+            var result = await _controller.SubmitForReview(bundleId);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Assert.That(okResult, Is.Not.Null);
+            _bundleServiceMock.Verify(s => s.SubmitBundleForReviewAsync(TestUserId, bundleId), Times.Once);
         }
     }
 }

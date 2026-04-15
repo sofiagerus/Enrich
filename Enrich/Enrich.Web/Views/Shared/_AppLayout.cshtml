@@ -34,7 +34,7 @@
         .sidebar-container i.bi {
             -webkit-text-stroke: 0.4px;
         }
-        
+
         .sidebar-container .nav-link {
             transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
         }
@@ -144,8 +144,8 @@
                         <div class="text-muted mt-1 text-truncate" style="font-size: 0.8rem;">@displayRole</div>
                     </div>
 
-                    <a asp-controller="Account" asp-action="Settings" 
-                       class="nav-link d-flex align-items-center justify-content-center rounded-4 ms-auto me-1" 
+                    <a asp-controller="Account" asp-action="Settings"
+                       class="nav-link d-flex align-items-center justify-content-center rounded-4 ms-auto me-1"
                        style="width: 38px; height: 38px; padding: 0;">
                         <i class="bi bi-gear fs-5"></i>
                     </a>
@@ -160,8 +160,35 @@
 
     </div>
 
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100">
+        <div id="appToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="appToastMessage">
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showToast(message, type = 'success') {
+            const toastEl = document.getElementById('appToast');
+            const toastMessageEl = document.getElementById('appToastMessage');
+
+            toastMessageEl.textContent = message;
+
+            toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'bg-info');
+            if (type === 'success') toastEl.classList.add('bg-success');
+            else if (type === 'danger') toastEl.classList.add('bg-danger');
+            else if (type === 'warning') toastEl.classList.add('bg-warning');
+            else if (type === 'info') toastEl.classList.add('bg-info');
+
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

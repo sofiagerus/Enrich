@@ -88,7 +88,7 @@ namespace Enrich.Web.Controllers
                 AvailableLevels = availableLevels
             };
 
-            logger.LogInformation("Користувач {UserId} відкрив форму створення бандлу.", CurrentUserId);
+            logger.LogInformation("User {UserId} opened create bundle form.", CurrentUserId);
             return View(viewModel);
         }
 
@@ -100,7 +100,7 @@ namespace Enrich.Web.Controllers
             {
                 var errors = string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 logger.LogWarning(
-                    "Провалена валідація форми створення бандлу для користувача {UserId}. Помилки: {Errors}",
+                    "Validation failed for create bundle form by user {UserId}. Errors: {Errors}",
                     CurrentUserId,
                     errors);
 
@@ -130,12 +130,12 @@ namespace Enrich.Web.Controllers
             if (!result.IsSuccess)
             {
                 logger.LogWarning(
-                    "Помилка створення бандлу '{Title}' для користувача {UserId}: {Error}",
+                    "Error creating bundle '{Title}' for user {UserId}: {Error}",
                     model.Title,
                     CurrentUserId,
                     result.ErrorMessage);
 
-                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Не вдалося створити бандл.");
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Failed to create bundle.");
 
                 var categories = await categoryRepository.GetAllCategoriesAsync();
                 var words = await wordRepository.GetAllWordsAsync();
@@ -149,11 +149,11 @@ namespace Enrich.Web.Controllers
             }
 
             logger.LogInformation(
-                "Бандл '{Title}' успішно створено користувачем {UserId}.",
+                "Bundle '{Title}' successfully created by user {UserId}.",
                 model.Title,
                 CurrentUserId);
 
-            TempData["SuccessMessage"] = $"Бандл '{model.Title}' успішно створено!";
+            TempData["SuccessMessage"] = $"Bundle '{model.Title}' successfully created!";
             return RedirectToAction("Index");
         }
 
@@ -165,7 +165,7 @@ namespace Enrich.Web.Controllers
             if (bundle == null)
             {
                 logger.LogWarning(
-                    "Користувач {UserId} спробував редагувати неіснуючий бандл {BundleId}.",
+                    "User {UserId} attempted to edit non-existent bundle {BundleId}.",
                     CurrentUserId,
                     id);
 
@@ -175,7 +175,7 @@ namespace Enrich.Web.Controllers
             if (bundle.OwnerId != CurrentUserId)
             {
                 logger.LogWarning(
-                    "Користувач {UserId} спробував редагувати чужий бандл {BundleId}.",
+                    "User {UserId} attempted to edit someone else's bundle {BundleId}.",
                     CurrentUserId,
                     id);
 
@@ -203,7 +203,7 @@ namespace Enrich.Web.Controllers
             viewModel.AvailableLevels = availableLevels;
 
             logger.LogInformation(
-                "Користувач {UserId} відкрив форму редагування бандлу {BundleId}.",
+                "User {UserId} opened edit form for bundle {BundleId}.",
                 CurrentUserId,
                 id);
 
@@ -217,7 +217,7 @@ namespace Enrich.Web.Controllers
             if (id != model.Id)
             {
                 logger.LogWarning(
-                    "ID невідповідності при редагуванні бандлу для користувача {UserId}.",
+                    "ID mismatch when editing bundle for user {UserId}.",
                     CurrentUserId);
 
                 return BadRequest();
@@ -227,7 +227,7 @@ namespace Enrich.Web.Controllers
             {
                 var errors = string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 logger.LogWarning(
-                    "Провалена валідація форми редагування бандлу {BundleId} для користувача {UserId}. Помилки: {Errors}",
+                    "Validation failed for edit bundle form {BundleId} by user {UserId}. Errors: {Errors}",
                     id,
                     CurrentUserId,
                     errors);
@@ -258,12 +258,12 @@ namespace Enrich.Web.Controllers
             if (!result.IsSuccess)
             {
                 logger.LogWarning(
-                    "Помилка редагування бандлу {BundleId} користувачем {UserId}: {Error}",
+                    "Error editing bundle {BundleId} by user {UserId}: {Error}",
                     id,
                     CurrentUserId,
                     result.ErrorMessage);
 
-                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Не вдалося оновити бандл.");
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Failed to update bundle.");
                 var categories = await categoryRepository.GetAllCategoriesAsync();
                 var words = await wordRepository.GetAllWordsAsync();
                 var availableLevels = new List<string> { "A1", "A2", "B1", "B2", "C1", "C2" };
@@ -275,11 +275,11 @@ namespace Enrich.Web.Controllers
             }
 
             logger.LogInformation(
-                "Бандл {BundleId} успішно оновлено користувачем {UserId}.",
+                "Bundle {BundleId} successfully updated by user {UserId}.",
                 id,
                 CurrentUserId);
 
-            TempData["SuccessMessage"] = "Бандл успішно оновлено!";
+            TempData["SuccessMessage"] = "Bundle successfully updated!";
             return RedirectToAction("Index");
         }
 
@@ -292,21 +292,21 @@ namespace Enrich.Web.Controllers
             if (!result.IsSuccess)
             {
                 logger.LogWarning(
-                    "Помилка видалення бандлу {BundleId} користувачем {UserId}: {Error}",
+                    "Error deleting bundle {BundleId} by user {UserId}: {Error}",
                     id,
                     CurrentUserId,
                     result.ErrorMessage);
 
-                TempData["ErrorMessage"] = result.ErrorMessage ?? "Не вдалося видалити бандл.";
+                TempData["ErrorMessage"] = result.ErrorMessage ?? "Failed to delete bundle.";
                 return RedirectToAction("Index");
             }
 
             logger.LogInformation(
-                "Бандл {BundleId} успішно видалено користувачем {UserId}.",
+                "Bundle {BundleId} successfully deleted by user {UserId}.",
                 id,
                 CurrentUserId);
 
-            TempData["SuccessMessage"] = "Бандл успішно видалено!";
+            TempData["SuccessMessage"] = "Bundle successfully deleted!";
             return RedirectToAction("Index");
         }
 
@@ -336,7 +336,7 @@ namespace Enrich.Web.Controllers
                 pageSize);
 
             logger.LogInformation(
-                "Користувач {UserId} отримав {BundleCount} бандлів (всього {Total}).",
+                "User {UserId} received {BundleCount} bundles (total {Total}).",
                 CurrentUserId,
                 pageResult.Items.Count(),
                 pageResult.TotalCount);
@@ -351,11 +351,11 @@ namespace Enrich.Web.Controllers
             if (!wordIds.Any())
             {
                 logger.LogWarning(
-                    "Користувач {UserId} спробував додати порожний список слів до бандлу {BundleId}.",
+                    "User {UserId} attempted to add an empty word list to bundle {BundleId}.",
                     CurrentUserId,
                     bundleId);
 
-                return BadRequest("Будь ласка, виберіть щонайменше одне слово.");
+                return BadRequest("Please select at least one word.");
             }
 
             var result = await bundleService.AddWordsToBundleAsync(CurrentUserId, bundleId, wordIds);
@@ -363,7 +363,7 @@ namespace Enrich.Web.Controllers
             if (!result.IsSuccess)
             {
                 logger.LogWarning(
-                    "Помилка додавання слів до бандлу {BundleId} користувачем {UserId}: {Error}",
+                    "Error adding words to bundle {BundleId} by user {UserId}: {Error}",
                     bundleId,
                     CurrentUserId,
                     result.ErrorMessage);
@@ -372,12 +372,12 @@ namespace Enrich.Web.Controllers
             }
 
             logger.LogInformation(
-                "Користувач {UserId} успішно додав {Count} слів до бандлу {BundleId}.",
+                "User {UserId} successfully added {Count} words to bundle {BundleId}.",
                 CurrentUserId,
                 wordIds.Count(),
                 bundleId);
 
-            return Ok("Слова успішно додано до бандлу!");
+            return Ok("Words successfully added to bundle!");
         }
 
         [HttpPost]
@@ -387,11 +387,11 @@ namespace Enrich.Web.Controllers
             if (!wordIds.Any())
             {
                 logger.LogWarning(
-                    "Користувач {UserId} спробував видалити порожний список слів з бандлу {BundleId}.",
+                    "User {UserId} attempted to remove an empty word list from bundle {BundleId}.",
                     CurrentUserId,
                     bundleId);
 
-                return BadRequest("Будь ласка, виберіть щонайменше одне слово.");
+                return BadRequest("Please select at least one word.");
             }
 
             var result = await bundleService.RemoveWordsFromBundleAsync(CurrentUserId, bundleId, wordIds);
@@ -399,7 +399,7 @@ namespace Enrich.Web.Controllers
             if (!result.IsSuccess)
             {
                 logger.LogWarning(
-                    "Помилка видалення слів з бандлу {BundleId} користувачем {UserId}: {Error}",
+                    "Error removing words from bundle {BundleId} by user {UserId}: {Error}",
                     bundleId,
                     CurrentUserId,
                     result.ErrorMessage);
@@ -408,12 +408,12 @@ namespace Enrich.Web.Controllers
             }
 
             logger.LogInformation(
-                "Користувач {UserId} успішно видалив {Count} слів з бандлу {BundleId}.",
+                "User {UserId} successfully removed {Count} words from bundle {BundleId}.",
                 CurrentUserId,
                 wordIds.Count(),
                 bundleId);
 
-            return Ok("Слова успішно видалено з бандлу!");
+            return Ok("Words successfully removed from bundle!");
         }
 
         [HttpPost]
@@ -423,11 +423,36 @@ namespace Enrich.Web.Controllers
 
             if (!result.IsSuccess)
             {
-                logger.LogWarning("Невдала спроба зберегти системний бандл {BundleId} користувачем {UserId}: {Error}", id, CurrentUserId, result.ErrorMessage);
+                logger.LogWarning("Failed attempt to save system bundle {BundleId} by user {UserId}: {Error}", id, CurrentUserId, result.ErrorMessage);
                 return BadRequest(new { message = result.ErrorMessage });
             }
 
             return Ok();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitForReview(int id)
+        {
+            var result = await bundleService.SubmitBundleForReviewAsync(CurrentUserId, id);
+
+            if (!result.IsSuccess)
+            {
+                logger.LogWarning(
+                    "Error submitting bundle {BundleId} for review by user {UserId}: {Error}",
+                    id,
+                    CurrentUserId,
+                    result.ErrorMessage);
+
+                return BadRequest(new { message = result.ErrorMessage });
+            }
+
+            logger.LogInformation(
+                "Bundle {BundleId} successfully submitted for review by user {UserId}.",
+                id,
+                CurrentUserId);
+
+            return Ok(new { message = "Done! Your collection has been sent to moderators." });
         }
     }
 }
