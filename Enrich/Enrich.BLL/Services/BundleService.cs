@@ -260,7 +260,7 @@ namespace Enrich.BLL.Services
                 return "You do not have permission to update this bundle.";
             }
 
-            if (bundle.Status != BundleStatus.Draft && bundle.Status != BundleStatus.Rejected)
+            if (bundle.Status is not BundleStatus.Draft and not BundleStatus.Rejected)
             {
                 logger.LogWarning(
                     "User {UserId} attempted to update bundle {BundleId} which is in status {Status}.",
@@ -344,7 +344,7 @@ namespace Enrich.BLL.Services
                 return "You do not have permission to delete this bundle.";
             }
 
-            if (bundle.Status != BundleStatus.Draft && bundle.Status != BundleStatus.Rejected)
+            if (bundle.Status is not BundleStatus.Draft and not BundleStatus.Rejected)
             {
                 logger.LogWarning(
                     "User {UserId} attempted to delete bundle {BundleId} which is in status {Status}.",
@@ -494,8 +494,29 @@ namespace Enrich.BLL.Services
                 TagCount = bundle.Tags?.Count ?? 0,
                 Categories = bundle.Categories?.Select(c => c.Name).ToList() ?? [],
                 CategoryIds = bundle.Categories?.Select(c => c.Id).ToList() ?? [],
-                WordIds = bundle.Words?.Select(w => w.Id).ToList() ?? []
+                WordIds = bundle.Words?.Select(w => w.Id).ToList() ?? [],
+                Words = bundle.Words?.Select(w => new BundleWordDTO
+                {
+                    Id = w.Id,
+                    Term = w.Term,
+                    Translation = w.Translation,
+                    PartOfSpeech = w.PartOfSpeech,
+                    Example = w.Example
+                }).ToList() ?? []
             };
+        }
+
+        public async Task<BundleDTO?> GetBundleWithWordsAsync(int bundleId)
+        {
+            var bundle = await bundleRepository.GetBundleByIdWithDetailsAsync(bundleId);
+
+            if (bundle == null)
+            {
+                logger.LogWarning("Bundle with ID {BundleId} not found.", bundleId);
+                return null;
+            }
+
+            return MapBundleToDTO(bundle);
         }
 
         public async Task<Result> SaveSystemBundleAsync(string userId, int bundleId)
@@ -550,7 +571,7 @@ namespace Enrich.BLL.Services
                 return "You do not have permission to submit this bundle.";
             }
 
-            if (bundle.Status != BundleStatus.Draft && bundle.Status != BundleStatus.Rejected)
+            if (bundle.Status is not BundleStatus.Draft and not BundleStatus.Rejected)
             {
                 logger.LogWarning(
                     "User {UserId} attempted to submit bundle {BundleId} for review but it is already in status {Status}.",

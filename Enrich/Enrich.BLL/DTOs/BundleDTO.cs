@@ -35,5 +35,7 @@ namespace Enrich.BLL.DTOs
         public List<int> CategoryIds { get; set; } = [];
 
         public List<int> WordIds { get; set; } = [];
+
+        public List<BundleWordDTO> Words { get; set; } = new();
     }
 }
