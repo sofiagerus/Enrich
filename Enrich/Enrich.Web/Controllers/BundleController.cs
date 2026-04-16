@@ -19,8 +19,6 @@ namespace Enrich.Web.Controllers
         IStudySessionService studySessionService,
         IOptions<PaginationSettings> paginationOptions) : BaseController
     {
-        public ILogger<BundleController> Logger { get; } = logger;
-
         [HttpGet]
         public async Task<IActionResult> Index(
             string? search = null,
@@ -39,6 +37,10 @@ namespace Enrich.Web.Controllers
             var pagedBundles = await bundleService.GetUserBundlesPageAsync(
                 CurrentUserId, search, categoryFilter, levelFilter,
                 minWordCount, maxWordCount, page, pageSize);
+
+            logger.LogInformation(
+                "Користувач {UserId} переглянув сторінку {Page} своїх бандлів.",
+                CurrentUserId, page);
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
@@ -176,28 +178,10 @@ namespace Enrich.Web.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var result = await bundleService.DeleteBundleAsync(CurrentUserId, id);
-            if (!result.IsSuccess)
-            {
-                TempData["ErrorMessage"] = result.ErrorMessage;
-            }
-            else
-            {
-                TempData["SuccessMessage"] = "Бандл видалено.";
-            }
-
-            return RedirectToAction("Index");
-        }
-
         [HttpGet]
         public async Task<IActionResult> Study(int bundleId)
         {
             var result = await studySessionService.StartStudySessionAsync(CurrentUserId, bundleId);
-
             if (!result.IsSuccess)
             {
                 TempData["ErrorMessage"] = result.ErrorMessage ?? "Не вдалося розпочати навчання.";
@@ -205,12 +189,6 @@ namespace Enrich.Web.Controllers
             }
 
             var sessionDto = result.Value!;
-            if (sessionDto.TotalCards == 0)
-            {
-                TempData["ErrorMessage"] = "Бандл порожній.";
-                return RedirectToAction("Index");
-            }
-
             var viewModel = new StudySessionViewModel
             {
                 SessionId = sessionDto.SessionId,
@@ -236,11 +214,6 @@ namespace Enrich.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SubmitAnswer([FromBody] SubmitAnswerDTO dto)
         {
-            if (dto == null)
-            {
-                return BadRequest(new { message = "Дані не надано." });
-            }
-
             var result = await studySessionService.SubmitAnswerAsync(CurrentUserId, dto);
             if (!result.IsSuccess)
             {
@@ -253,11 +226,6 @@ namespace Enrich.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> FinishSession([FromBody] FinishSessionRequest request)
         {
-            if (request == null)
-            {
-                return BadRequest();
-            }
-
             var result = await studySessionService.FinishStudySessionAsync(CurrentUserId, request.SessionId);
             if (!result.IsSuccess)
             {
@@ -265,6 +233,48 @@ namespace Enrich.Web.Controllers
             }
 
             return Ok(new { redirectUrl = Url.Action("Index", "Bundle") });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveSystemBundle(int id)
+        {
+            var result = await bundleService.SaveSystemBundleAsync(CurrentUserId, id);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { message = result.ErrorMessage });
+            }
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitForReview(int id)
+        {
+            var result = await bundleService.SubmitBundleForReviewAsync(CurrentUserId, id);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { message = result.ErrorMessage });
+            }
+
+            return Ok(new { message = "Бандл відправлено на модерацію." });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await bundleService.DeleteBundleAsync(CurrentUserId, id);
+            if (!result.IsSuccess)
+            {
+                TempData["ErrorMessage"] = result.ErrorMessage;
+            }
+            else
+            {
+                TempData["SuccessMessage"] = "Бандл видалено.";
+            }
+
+            return RedirectToAction("Index");
         }
 
         private async Task ReloadCreateViewModelData(CreateBundleViewModel model)

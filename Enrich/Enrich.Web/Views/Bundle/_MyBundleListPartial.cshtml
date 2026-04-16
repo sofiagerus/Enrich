@@ -24,10 +24,10 @@
             };
 
             <div class="col-xl-6">
-                <div class="bundle-card h-100">
+                <div class="bundle-card h-100 @(isPending ? "is-pending" : "")">
                     <div class="d-flex flex-row h-100">
-                        
-                        <div class="me-3 d-flex flex-column">
+
+                        <div class="me-3 position-relative d-flex flex-column">
                             <div class="bundle-image-horizontal">
                                 @if (!string.IsNullOrEmpty(bundle.ImageUrl))
                                 {
@@ -39,6 +39,13 @@
                                 }
                             </div>
 
+                            @if (!bundle.IsSystem)
+                            {
+                                <div class="position-absolute top-0 start-0 m-1">
+                                    <span class="status-badge @statusClass">@statusText</span>
+                                </div>
+                            }
+
                             <div class="difficulty-container mt-2">
                                 @foreach (var level in bundle.DifficultyLevels)
                                 {
@@ -49,8 +56,8 @@
 
                         <div class="bundle-content flex-grow-1 d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start">
-                                <h5 class="bundle-title text-truncate" style="max-width: 200px;">@bundle.Title</h5>
-                                
+                                <h5 class="bundle-title text-truncate" style="max-width: 200px;" title="@bundle.Title">@bundle.Title</h5>
+
                                 <div class="dropdown">
                                     <button class="btn btn-link text-muted p-0 shadow-none" type="button" data-bs-toggle="dropdown">
                                         <i class="bi bi-three-dots"></i>
@@ -61,12 +68,22 @@
                                                 <i class="bi bi-play-circle me-2 text-primary"></i> Start Study
                                             </a>
                                         </li>
-                                        <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <a class="dropdown-item py-2" asp-action="Edit" asp-route-id="@bundle.Id">
                                                 <i class="bi bi-pencil me-2"></i> Edit
                                             </a>
                                         </li>
+                                        
+                                        @if (bundle.Status == "Draft")
+                                        {
+                                            <li>
+                                                <button class="dropdown-item py-2" onclick="submitForReview(@bundle.Id)">
+                                                    <i class="bi bi-send me-2"></i> Publish to Community
+                                                </button>
+                                            </li>
+                                        }
+
+                                        <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <form asp-action="Delete" asp-route-id="@bundle.Id" method="post" onsubmit="return confirm('Delete this collection?');">
                                                 @Html.AntiForgeryToken()
@@ -79,22 +96,28 @@
                                 </div>
                             </div>
 
-                            <div class="bundle-wordcount mb-1">
-                                <span class="text-primary fw-bold">@bundle.WordCount</span> words
+                            <div class="bundle-wordcount mb-1 text-muted small">
+                                Words: <span class="fw-bold text-secondary">@bundle.WordCount</span>
                             </div>
 
-                            <p class="bundle-description mb-3">
-                                @bundle.Description
-                            </p>
-
-                            <div class="mb-3 d-flex flex-wrap gap-1">
-                                @if (bundle.Categories?.Any() == true)
-                                {
-                                    @foreach (var category in bundle.Categories)
+                            @if (!string.IsNullOrEmpty(bundle.Description))
+                            {
+                                <div class="bundle-description mb-3">
+                                    <strong class="small text-muted">Description</strong><br />
+                                    <span style="font-size: 0.9rem;">@bundle.Description</span>
+                                </div>
+                            }
+                            
+                            <div class="mt-auto">
+                                <div class="mb-2 d-flex flex-wrap gap-1">
+                                    @if (bundle.Categories?.Any() == true)
                                     {
-                                        <span class="badge-category">@category</span>
+                                        @foreach (var category in bundle.Categories)
+                                        {
+                                            <span class="badge-category">@category</span>
+                                        }
                                     }
-                                }
+                                </div>
                             </div>
                         </div>
                     </div>
