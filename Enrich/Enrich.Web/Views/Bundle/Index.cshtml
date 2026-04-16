@@ -152,7 +152,7 @@
             });
         });
 
-        function confirmSubmission(bundleId, bundleTitle) {
+        function submitForReview(bundleId, bundleTitle = 'this collection') {
             if (confirm(`Are you sure? After sending for review you will not be able to edit the collection "${bundleTitle}" until the admin approves it.`)) {
                 submitBundle(bundleId);
             }
@@ -169,7 +169,7 @@
                 const response = await fetch(`/Bundle/SubmitForReview/${bundleId}`, {
                     method: 'POST',
                     headers: {
-                        'RequestVerificationToken': token,
+                        'X-CSRF-TOKEN': token,
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 });

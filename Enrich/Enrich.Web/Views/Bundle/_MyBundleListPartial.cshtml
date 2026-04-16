@@ -83,7 +83,7 @@
                                         @if (bundle.Status == "Draft")
                                         {
                                             <li>
-                                                <button class="dropdown-item py-2" onclick="submitForReview(@bundle.Id)">
+                                                <button class="dropdown-item py-2" onclick="submitForReview(@bundle.Id, '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(bundle.Title))')">
                                                     <i class="bi bi-send me-2"></i> Publish to Community
                                                 </button>
                                             </li>
