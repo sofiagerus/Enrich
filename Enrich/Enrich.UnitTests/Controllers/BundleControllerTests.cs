@@ -24,7 +24,6 @@ namespace Enrich.UnitTests.Controllers
 
         private Mock<ILogger<BundleController>> _loggerMock = null!;
         private Mock<IBundleService> _bundleServiceMock = null!;
-        private Mock<ICategoryRepository> _categoryRepositoryMock = null!;
         private Mock<IWordRepository> _wordRepositoryMock = null!;
         private Mock<IOptions<PaginationSettings>> _paginationOptionsMock = null!;
 
@@ -35,7 +34,6 @@ namespace Enrich.UnitTests.Controllers
         {
             _loggerMock = new Mock<ILogger<BundleController>>();
             _bundleServiceMock = new Mock<IBundleService>();
-            _categoryRepositoryMock = new Mock<ICategoryRepository>();
             _wordRepositoryMock = new Mock<IWordRepository>();
 
             var studySessionServiceMock = new Mock<IStudySessionService>();
@@ -46,7 +44,6 @@ namespace Enrich.UnitTests.Controllers
             _controller = new BundleController(
                 _loggerMock.Object,
                 _bundleServiceMock.Object,
-                _categoryRepositoryMock.Object,
                 _wordRepositoryMock.Object,
                 studySessionServiceMock.Object,
                 _paginationOptionsMock.Object);
@@ -85,7 +82,7 @@ namespace Enrich.UnitTests.Controllers
                 new Word { Id = 2, Term = "Banana", Translation = "Банан" }
             };
 
-            _categoryRepositoryMock
+            _bundleServiceMock
                 .Setup(r => r.GetAllCategoriesAsync())
                 .ReturnsAsync(categories);
 
@@ -106,7 +103,7 @@ namespace Enrich.UnitTests.Controllers
             Assert.That(model.AvailableLevels, Contains.Item("A1"));
             Assert.That(model.AvailableLevels, Contains.Item("C2"));
 
-            _categoryRepositoryMock.Verify(r => r.GetAllCategoriesAsync(), Times.Once);
+            _bundleServiceMock.Verify(r => r.GetAllCategoriesAsync(), Times.Once);
             _wordRepositoryMock.Verify(r => r.GetAllWordsAsync(), Times.Once);
         }
 
@@ -161,7 +158,7 @@ namespace Enrich.UnitTests.Controllers
             var categories = new List<Category> { new Category { Id = 1, Name = "Fruits" } };
             var words = new List<Word> { new Word { Id = 1, Term = "Apple", Translation = "Яблуко" } };
 
-            _categoryRepositoryMock
+            _bundleServiceMock
                 .Setup(r => r.GetAllCategoriesAsync())
                 .ReturnsAsync(categories);
 
@@ -204,7 +201,7 @@ namespace Enrich.UnitTests.Controllers
             var categories = new List<Category> { new Category { Id = 1, Name = "Fruits" } };
             var words = new List<Word> { new Word { Id = 1, Term = "Apple", Translation = "Яблуко" } };
 
-            _categoryRepositoryMock
+            _bundleServiceMock
                 .Setup(r => r.GetAllCategoriesAsync())
                 .ReturnsAsync(categories);
 
@@ -258,7 +255,7 @@ namespace Enrich.UnitTests.Controllers
                 new Word { Id = 2, Term = "Banana", Translation = "Банан" }
             };
 
-            _categoryRepositoryMock
+            _bundleServiceMock
                 .Setup(r => r.GetAllCategoriesAsync())
                 .ReturnsAsync(categories);
 
@@ -393,7 +390,7 @@ namespace Enrich.UnitTests.Controllers
             var categories = new List<Category> { new Category { Id = 1, Name = "Fruits" } };
             var words = new List<Word> { new Word { Id = 1, Term = "Apple", Translation = "Яблуко" } };
 
-            _categoryRepositoryMock
+            _bundleServiceMock
                 .Setup(r => r.GetAllCategoriesAsync())
                 .ReturnsAsync(categories);
 
@@ -437,7 +434,7 @@ namespace Enrich.UnitTests.Controllers
             var categories = new List<Category> { new Category { Id = 1, Name = "Fruits" } };
             var words = new List<Word> { new Word { Id = 1, Term = "Apple", Translation = "Яблуко" } };
 
-            _categoryRepositoryMock
+            _bundleServiceMock
                 .Setup(r => r.GetAllCategoriesAsync())
                 .ReturnsAsync(categories);
 
@@ -535,7 +532,7 @@ namespace Enrich.UnitTests.Controllers
                 new() { Id = 2, Name = "Fruits" }
             };
 
-            _categoryRepositoryMock
+            _bundleServiceMock
                 .Setup(r => r.GetAllCategoriesAsync())
                 .ReturnsAsync(mockCategories);
 
