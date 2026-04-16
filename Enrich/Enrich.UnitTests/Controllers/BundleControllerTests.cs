@@ -651,5 +651,41 @@ namespace Enrich.UnitTests.Controllers
             // Assert
             Assert.That(result, Is.InstanceOf<ForbidResult>());
         }
+
+        [Test]
+        public async Task SaveCommunityBundle_ValidId_ReturnsOk()
+        {
+            // Arrange
+            var bundleId = 1;
+            _bundleServiceMock
+                .Setup(s => s.SaveCommunityBundleAsync(TestUserId, bundleId))
+                .ReturnsAsync(Result.Success());
+
+            // Act
+            var result = await _controller.SaveCommunityBundle(bundleId);
+
+            // Assert
+            var okResult = result as OkResult;
+            Assert.That(okResult, Is.Not.Null);
+            _bundleServiceMock.Verify(s => s.SaveCommunityBundleAsync(TestUserId, bundleId), Times.Once);
+        }
+
+        [Test]
+        public async Task SaveCommunityBundle_WhenServiceReturnsError_ReturnsBadRequest()
+        {
+            // Arrange
+            var bundleId = 1;
+            var errorMessage = "Collection not found or is not a valid community collection.";
+            _bundleServiceMock
+                .Setup(s => s.SaveCommunityBundleAsync(TestUserId, bundleId))
+                .ReturnsAsync(Result.Failure(errorMessage));
+
+            // Act
+            var result = await _controller.SaveCommunityBundle(bundleId);
+
+            // Assert
+            var badRequestResult = result as BadRequestObjectResult;
+            Assert.That(badRequestResult, Is.Not.Null);
+        }
     }
 }

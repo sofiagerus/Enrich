@@ -605,6 +605,42 @@ namespace Enrich.BLL.Services
             }
         }
 
+        public async Task<Result> SaveCommunityBundleAsync(string userId, int bundleId)
+        {
+            var bundle = await bundleRepository.GetBundleByIdAsync(bundleId);
+
+            if (bundle == null || bundle.IsSystem || bundle.Status != BundleStatus.Published)
+            {
+                logger.LogWarning("User {UserId} attempted to save non-existent or invalid community bundle {BundleId}.", userId, bundleId);
+                return "Collection not found or is not a valid community collection.";
+            }
+
+            var alreadySaved = await bundleRepository.UserHasBundleAsync(userId, bundleId);
+            if (alreadySaved)
+            {
+                return "You have already saved this collection.";
+            }
+
+            var userBundle = new UserBundle
+            {
+                UserId = userId,
+                BundleId = bundleId,
+                SavedAt = DateTime.UtcNow
+            };
+
+            try
+            {
+                await bundleRepository.SaveUserBundleAsync(userBundle);
+                logger.LogInformation("User {UserId} successfully saved community bundle {BundleId}.", userId, bundleId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error saving community bundle {BundleId} by user {UserId}.", bundleId, userId);
+                return "An error occurred while saving the collection.";
+            }
+        }
+
         public async Task<Result> SubmitBundleForReviewAsync(string userId, int bundleId)
         {
             var bundle = await bundleRepository.GetBundleByIdAsync(bundleId);

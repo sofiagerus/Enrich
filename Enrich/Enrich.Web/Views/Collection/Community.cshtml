@@ -153,7 +153,7 @@
 
         async function toggleSaveBundle(bundleId, btnElement) {
             try {
-                const response = await fetch(`/Bundle/SaveSystemBundle?id=${bundleId}`, {
+                const response = await fetch(`/Bundle/SaveCommunityBundle?id=${bundleId}`, {
                     method: 'POST',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
