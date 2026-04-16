@@ -270,6 +270,18 @@ namespace Enrich.Web.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> SaveCommunityBundle(int id)
+        {
+            var result = await bundleService.SaveCommunityBundleAsync(CurrentUserId, id);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { message = result.ErrorMessage });
+            }
+
+            return Ok();
+        }
+
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitForReview(int id)
         {

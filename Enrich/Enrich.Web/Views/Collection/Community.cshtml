@@ -1,0 +1,188 @@
+@using Enrich.Web.ViewModels
+@model SystemBundlesIndexViewModel
+
+@{
+    ViewData["Title"] = "Community Collections";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/collections.css" asp-append-version="true" />
+}
+
+<div class="container-fluid py-4">
+    <div class="row align-items-start">
+        <div class="col-lg-9">
+            <div class="d-flex flex-wrap gap-3 mb-4 align-items-center">
+                <div class="input-group flex-grow-1 search-box overflow-hidden" style="max-width: 600px;">
+                    <span class="input-group-text border-0 bg-transparent ps-3">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" id="searchTerm" class="form-control border-0 bg-transparent p-2"
+                           placeholder="Search collections..." value="@Model.SearchTerm">
+                </div>
+                <button class="btn btn-action ms-auto">
+                    <i class="bi bi-sort-down me-2"></i> Sort by
+                </button>
+            </div>
+
+            <div id="bundles-list-container" data-page-size="@Model.PageSize">
+                <partial name="_BundleListPartial" model="Model" />
+            </div>
+        </div>
+
+        <div class="col-lg-3 ps-lg-4">
+            <div class="sidebar-panel" style="margin-top: 0;">
+                <h6 class="fw-bold mb-2" style="font-size:0.9rem;">Categories</h6>
+                <div class="border rounded-3 bg-white mb-2" style="height:200px; display:flex; flex-direction:column;">
+                    <div class="p-2 border-bottom">
+                        <input type="text" id="categorySearch" class="form-control border-0 bg-transparent"
+                               placeholder="Search categories..." style="font-size:0.85rem;">
+                    </div>
+                    <div class="p-2 overflow-y-scroll flex-grow-1">
+                        <ul class="list-unstyled mb-0" id="category-filters">
+                            @foreach (var cat in Model.Categories)
+                            {
+                                <li class="checkbox-item">
+                                    <input type="checkbox" class="form-check-input me-2 category-checkbox" id="cat-@cat.Id" value="@cat.Name" onchange="onFilterChange()">
+                                    <label class="form-check-label" for="cat-@cat.Id">@cat.Name</label>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="sidebar-divider"></div>
+
+                <h6 class="fw-bold mb-2" style="font-size:0.9rem;">Difficulty Level</h6>
+                <ul class="list-unstyled mb-0" id="level-filters">
+                    @foreach (var level in new[] { "C2", "C1", "B2", "B1", "A2", "A1" })
+                    {
+                        <li class="checkbox-item">
+                            <input type="checkbox" class="form-check-input me-2 level-checkbox" id="level-@level" value="@level" onchange="onFilterChange()">
+                            <label class="form-check-label" for="level-@level">@level</label>
+                        </li>
+                    }
+                </ul>
+
+                <div class="sidebar-divider"></div>
+
+                <h6 class="fw-bold mb-2" style="font-size:0.9rem;">Words Count</h6>
+                <div class="d-flex align-items-center justify-content-between">
+                    <input type="number" id="minWordCount" class="word-count-input" placeholder="Min" min="0" onchange="onFilterChange()">
+                    <span style="color: #adb5bd; font-size: 1.2rem; font-weight: 300;">—</span>
+                    <input type="number" id="maxWordCount" class="word-count-input" placeholder="Max" min="0" onchange="onFilterChange()">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentPage = 1;
+
+        function getFilters() {
+            const searchTerm = document.getElementById('searchTerm').value;
+            const category = Array.from(document.querySelectorAll('.category-checkbox:checked')).map(c => c.value).join(',');
+            const level = Array.from(document.querySelectorAll('.level-checkbox:checked')).map(c => c.value).join(',');
+            const minWordCount = document.getElementById('minWordCount').value;
+            const maxWordCount = document.getElementById('maxWordCount').value;
+
+            return { searchTerm, categoryFilter: category, levelFilter: level, minWordCount, maxWordCount };
+        }
+
+        async function loadBundles(page = 1) {
+            currentPage = page;
+            const filters = getFilters();
+            const params = new URLSearchParams({
+                page: page,
+                pageSize: parseInt(document.getElementById('bundles-list-container').dataset.pageSize, 10) || 12
+            });
+
+            if (filters.searchTerm) params.append('searchTerm', filters.searchTerm);
+            if (filters.categoryFilter) params.append('categoryFilter', filters.categoryFilter);
+            if (filters.levelFilter) params.append('levelFilter', filters.levelFilter);
+            if (filters.minWordCount) params.append('minWordCount', filters.minWordCount);
+            if (filters.maxWordCount) params.append('maxWordCount', filters.maxWordCount);
+
+            try {
+                const response = await fetch(`/Collection/Community?${params.toString()}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.ok) {
+                    const html = await response.text();
+                    document.getElementById('bundles-list-container').innerHTML = html;
+                }
+            } catch (err) {
+                console.error("Failed to load collections", err);
+            }
+        }
+
+        function onFilterChange() {
+            loadBundles(1);
+        }
+
+        function changePage(page) {
+            loadBundles(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        document.getElementById('searchTerm').addEventListener('input', debounce(() => {
+            onFilterChange();
+        }, 500));
+
+        function debounce(func, timeout = 300) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => { func.apply(this, args); }, timeout);
+            };
+        }
+
+        document.getElementById('categorySearch').addEventListener('input', (e) => {
+            const q = e.target.value.trim().toLowerCase();
+            document.querySelectorAll('#category-filters li').forEach(li => {
+                const text = li.innerText.trim().toLowerCase();
+                li.style.display = q === '' || text.includes(q) ? '' : 'none';
+            });
+        });
+
+        async function toggleSaveBundle(bundleId, btnElement) {
+            try {
+                const response = await fetch(`/Bundle/SaveCommunityBundle?id=${bundleId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    if (btnElement) {
+                        const icon = btnElement.querySelector('i');
+                        
+                        icon.classList.remove('bi-star');
+                        icon.classList.add('bi-star-fill');
+                        
+                        btnElement.classList.remove('text-secondary');
+                        btnElement.classList.add('text-warning'); 
+                        
+                        btnElement.title = "Saved";
+                        btnElement.disabled = true;
+                        btnElement.style.opacity = '1';
+                    }
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Error saving the collection.');
+                }
+            } catch (err) {
+                console.error("Failed to save collection", err);
+                alert('A network error occurred.');
+            }
+        }
+    </script>
+}

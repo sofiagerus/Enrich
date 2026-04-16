@@ -44,5 +44,38 @@ namespace Enrich.Web.Controllers
 
             return View(model);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Community(SystemBundlesIndexViewModel model, int page = 1, int pageSize = 0)
+        {
+            if (pageSize <= 0)
+            {
+                pageSize = paginationOptions.Value.DefaultSystemBundlesPageSize;
+            }
+
+            model.PageSize = pageSize;
+
+            model.Bundles = await bundleService.GetCommunityBundlesAsync(
+                model.SearchTerm,
+                model.CategoryFilter,
+                model.LevelFilter,
+                model.MinWordCount,
+                model.MaxWordCount,
+                page,
+                pageSize);
+
+            model.Categories = await bundleService.GetAllCategoriesAsync();
+
+            logger.LogInformation(
+                "User {UserId} browsing community collections: page={Page}, results={Count}",
+                CurrentUserId, page, model.Bundles.Items.Count());
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_BundleListPartial", model);
+            }
+
+            return View(model);
+        }
     }
 }
