@@ -332,13 +332,20 @@
                 container.innerHTML = words.map(word => {
                     const progress = word.progress ?? 0;
                     const isLearned = progress >= 100;
+                    
+                    let progressColor = '#dc3545'; 
+                    if (progress >= 30 && progress < 70) progressColor = '#ffc107'; 
+                    if (progress >= 70) progressColor = 'var(--active-green)'; 
+                    
                     const progressLabel = isLearned
-                        ? `<span class="progress-label learned">Learned!</span>`
-                        : `<span class="progress-label">${progress}%</span>`;
+                        ? `<span class="progress-label learned"><i class="bi bi-star-fill text-warning me-1"></i>Learned</span>`
+                        : `<span class="progress-label" style="color: ${progressColor}">${progress}/100</span>`;
+                        
+                    const glowEffect = isLearned ? 'box-shadow: 0 0 8px var(--active-green);' : '';
 
                     return `
                     <div class="col-md-6" id="word-${word.id}">
-                        <div class="word-card h-100">
+                        <div class="word-card h-100 ${isLearned ? 'border-success' : ''}">
                             <div class="word-header">
                                 <div>
                                     <h5 class="term-title">
@@ -381,9 +388,9 @@
                                 <div class="section-text fst-italic">${escapeHtml(word.example || '...')}</div>
                             </div>
 
-                            <div class="progress-container">
-                                <div class="progress-custom">
-                                    <div class="progress-fill" style="width: ${progress}%"></div>
+                            <div class="progress-container mt-3">
+                                <div class="progress-custom" style="height: 8px; background-color: #e9ecef;">
+                                    <div class="progress-fill" style="width: ${progress}%; background-color: ${progressColor}; transition: width 0.5s ease-in-out; ${glowEffect}"></div>
                                 </div>
                                 ${progressLabel}
                             </div>

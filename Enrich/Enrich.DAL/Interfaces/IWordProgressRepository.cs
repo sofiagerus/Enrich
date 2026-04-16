@@ -11,5 +11,7 @@ namespace Enrich.DAL.Interfaces
         Task UpdateWordProgressAsync(WordProgress progress);
 
         Task<IEnumerable<WordProgress>> GetUserWordProgressAsync(string userId);
+
+        Task<IEnumerable<WordProgress>> GetWordProgressesAsync(string userId, IEnumerable<int> wordIds);
     }
 }

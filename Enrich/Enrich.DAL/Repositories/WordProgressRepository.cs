@@ -33,5 +33,12 @@ namespace Enrich.DAL.Repositories
                 .Include(wp => wp.Word)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<WordProgress>> GetWordProgressesAsync(string userId, IEnumerable<int> wordIds)
+        {
+            return await dbContext.WordProgresses
+                .Where(wp => wp.UserId == userId && wordIds.Contains(wp.WordId))
+                .ToListAsync();
+        }
     }
 }

@@ -12,6 +12,7 @@ namespace Enrich.BLL.Services
     public class WordService(
         IWordRepository wordRepository,
         ICategoryRepository categoryRepository,
+        IWordProgressRepository wordProgressRepository,
         IOptions<PaginationSettings> paginationOptions,
         ILogger<WordService> logger) : IWordService
     {
@@ -84,6 +85,10 @@ namespace Enrich.BLL.Services
             logger.LogInformation("Отримання списку персональних слів для користувача {UserId}", userId);
 
             var userWords = await wordRepository.GetPersonalWordsWithDetailsAsync(userId);
+            var wordIds = userWords.Select(uw => uw.WordId).ToList();
+
+            var progresses = await wordProgressRepository.GetWordProgressesAsync(userId, wordIds);
+            var progressDict = progresses.ToDictionary(p => p.WordId, p => p.Points);
 
             var words = userWords.Select(uw => new PersonalWordDTO
             {
@@ -96,7 +101,8 @@ namespace Enrich.BLL.Services
                 Example = uw.Word.Example,
                 DifficultyLevel = uw.Word.DifficultyLevel,
                 AddedAt = uw.SavedAt,
-                CategoryName = uw.Word.Categories?.OrderBy(c => c.Id).Select(c => c.Name).FirstOrDefault() ?? "General"
+                CategoryName = uw.Word.Categories?.OrderBy(c => c.Id).Select(c => c.Name).FirstOrDefault() ?? "General",
+                Progress = progressDict.TryGetValue(uw.Word.Id, out var points) ? points : 0
             }).ToList();
 
             logger.LogInformation("Успішно отримано {Count} слів для користувача {UserId}", words.Count, userId);
@@ -149,6 +155,10 @@ namespace Enrich.BLL.Services
 
             var (itemsUw, total) = await wordRepository.GetPersonalWordsPageAsync(userId, searchTerm, category, partOfSpeech, difficultyLevel, page, pageSize);
 
+            var wordIds = itemsUw.Select(uw => uw.WordId).ToList();
+            var progresses = await wordProgressRepository.GetWordProgressesAsync(userId, wordIds);
+            var progressDict = progresses.ToDictionary(p => p.WordId, p => p.Points);
+
             var items = itemsUw.Select(uw => new PersonalWordDTO
             {
                 Id = uw.Word.Id,
@@ -160,7 +170,8 @@ namespace Enrich.BLL.Services
                 Example = uw.Word.Example,
                 DifficultyLevel = uw.Word.DifficultyLevel,
                 AddedAt = uw.SavedAt,
-                CategoryName = uw.Word.Categories?.OrderBy(c => c.Id).Select(c => c.Name).FirstOrDefault() ?? "General"
+                CategoryName = uw.Word.Categories?.OrderBy(c => c.Id).Select(c => c.Name).FirstOrDefault() ?? "General",
+                Progress = progressDict.TryGetValue(uw.Word.Id, out var points) ? points : 0
             }).ToList();
 
             return new PagedResult<PersonalWordDTO>
