@@ -14,7 +14,6 @@ namespace Enrich.Web.Controllers
     public class BundleController(
         ILogger<BundleController> logger,
         IBundleService bundleService,
-        ICategoryRepository categoryRepository,
         IWordRepository wordRepository,
         IStudySessionService studySessionService,
         IOptions<PaginationSettings> paginationOptions) : BaseController
@@ -47,7 +46,7 @@ namespace Enrich.Web.Controllers
                 return PartialView("_MyBundleListPartial", pagedBundles);
             }
 
-            var categories = await categoryRepository.GetAllCategoriesAsync();
+            var categories = await bundleService.GetAllCategoriesAsync();
 
             var viewModel = new BundleIndexViewModel
             {
@@ -88,7 +87,7 @@ namespace Enrich.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var categories = await categoryRepository.GetAllCategoriesAsync();
+            var categories = await bundleService.GetAllCategoriesAsync();
             var words = await wordRepository.GetAllWordsAsync();
 
             var viewModel = new CreateBundleViewModel
@@ -313,7 +312,7 @@ namespace Enrich.Web.Controllers
 
         private async Task ReloadCreateViewModelData(CreateBundleViewModel model)
         {
-            var categories = await categoryRepository.GetAllCategoriesAsync();
+            var categories = await bundleService.GetAllCategoriesAsync();
             var words = await wordRepository.GetAllWordsAsync();
             model.Categories = categories.Select(c => (c.Id, c.Name)).ToList();
             model.Words = words.Select(w => new WordItemViewModel { Id = w.Id, Term = w.Term, Translation = w.Translation }).ToList();
@@ -322,7 +321,7 @@ namespace Enrich.Web.Controllers
 
         private async Task ReloadEditViewModelData(EditBundleViewModel model)
         {
-            var categories = await categoryRepository.GetAllCategoriesAsync();
+            var categories = await bundleService.GetAllCategoriesAsync();
             var words = await wordRepository.GetAllWordsAsync();
             model.Categories = categories.Select(c => (c.Id, c.Name)).ToList();
             model.Words = words.Select(w => new WordItemViewModel { Id = w.Id, Term = w.Term, Translation = w.Translation }).ToList();

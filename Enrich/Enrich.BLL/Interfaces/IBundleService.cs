@@ -48,6 +48,15 @@ namespace Enrich.BLL.Interfaces
             int page,
             int pageSize);
 
+        Task<PagedResult<SystemBundleDTO>> GetPendingBundlesAsync(
+            string? searchTerm,
+            string? category,
+            string? difficultyLevel,
+            int? minWordCount,
+            int? maxWordCount,
+            int page,
+            int pageSize);
+
         Task<IEnumerable<Category>> GetAllCategoriesAsync();
 
         Task<Result> SaveSystemBundleAsync(string userId, int bundleId);
@@ -55,6 +64,8 @@ namespace Enrich.BLL.Interfaces
         Task<Result> SaveCommunityBundleAsync(string userId, int bundleId);
 
         Task<Result> SubmitBundleForReviewAsync(string userId, int bundleId);
+
+        Task<Result> ReviewBundleAsync(int bundleId, bool approve);
 
         Task<BundleDTO?> GetBundleWithWordsAsync(int bundleId);
     }

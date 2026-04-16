@@ -280,6 +280,56 @@ namespace Enrich.BLL.Services
             };
         }
 
+        public async Task<PagedResult<SystemBundleDTO>> GetPendingBundlesAsync(
+             string? searchTerm,
+             string? category,
+             string? difficultyLevel,
+             int? minWordCount,
+             int? maxWordCount,
+             int page,
+             int pageSize)
+        {
+            logger.LogInformation("Отримання сторінки бандлів на перевірці: сторінка={Page}, розмір={PageSize}", page, pageSize);
+
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = _pagination.DefaultSystemBundlesPageSize;
+            }
+
+            var (bundles, total) = await bundleRepository.GetPendingBundlesPageAsync(
+                searchTerm,
+                category,
+                difficultyLevel,
+                minWordCount,
+                maxWordCount,
+                page,
+                pageSize);
+
+            var items = bundles.Select(b => new SystemBundleDTO
+            {
+                Id = b.Id,
+                Title = b.Title,
+                Description = b.Description,
+                ImageUrl = b.ImageUrl,
+                WordCount = b.Words?.Count ?? 0,
+                DifficultyLevels = b.DifficultyLevels ?? [],
+                Categories = b.Categories?.Select(c => c.Name).ToList() ?? []
+            }).ToList();
+
+            return new PagedResult<SystemBundleDTO>
+            {
+                Items = items,
+                TotalCount = total,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
         {
             return await categoryRepository.GetAllCategoriesAsync();
@@ -681,6 +731,39 @@ namespace Enrich.BLL.Services
             {
                 logger.LogError(ex, "Error submitting bundle {BundleId} for review by user {UserId}.", bundleId, userId);
                 return "An error occurred while submitting the bundle.";
+            }
+        }
+
+        public async Task<Result> ReviewBundleAsync(int bundleId, bool approve)
+        {
+            var bundle = await bundleRepository.GetBundleByIdAsync(bundleId);
+
+            if (bundle == null)
+            {
+                logger.LogWarning("Attempted to review non-existent bundle {BundleId}.", bundleId);
+                return "Bundle not found.";
+            }
+
+            if (bundle.Status != BundleStatus.PendingReview)
+            {
+                logger.LogWarning("Attempted to review bundle {BundleId} which is in status {Status}.", bundleId, bundle.Status);
+                return "Bundle is not pending review.";
+            }
+
+            bundle.Status = approve ? BundleStatus.Published : BundleStatus.Rejected;
+            bundle.UpdatedAt = DateTime.UtcNow;
+            bundle.ReviewedAt = DateTime.UtcNow;
+
+            try
+            {
+                await bundleRepository.UpdateBundleAsync(bundle);
+                logger.LogInformation("Bundle {BundleId} was successfully {Action}.", bundleId, approve ? "published" : "rejected");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error reviewing bundle {BundleId}.", bundleId);
+                return "An error occurred while reviewing the bundle.";
             }
         }
     }
