@@ -24,10 +24,10 @@
             };
 
             <div class="col-xl-6">
-                <div class="bundle-card @(isPending ? "is-pending" : "")">
-                    <div class="d-flex flex-row">
-
-                        <div class="me-3 position-relative">
+                <div class="bundle-card h-100">
+                    <div class="d-flex flex-row h-100">
+                        
+                        <div class="me-3 d-flex flex-column">
                             <div class="bundle-image-horizontal">
                                 @if (!string.IsNullOrEmpty(bundle.ImageUrl))
                                 {
@@ -39,14 +39,7 @@
                                 }
                             </div>
 
-                            @if (!bundle.IsSystem)
-                            {
-                                <div class="position-absolute top-0 start-0 m-1">
-                                    <span class="status-badge @statusClass">@statusText</span>
-                                </div>
-                            }
-
-                            <div class="difficulty-container">
+                            <div class="difficulty-container mt-2">
                                 @foreach (var level in bundle.DifficultyLevels)
                                 {
                                     <span class="badge-level">@level</span>
@@ -54,37 +47,28 @@
                             </div>
                         </div>
 
-                        <div class="bundle-content flex-grow-1">
+                        <div class="bundle-content flex-grow-1 d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start">
-                                <h5 class="bundle-title text-truncate" style="max-width: 250px;">@bundle.Title</h5>
-
+                                <h5 class="bundle-title text-truncate" style="max-width: 200px;">@bundle.Title</h5>
+                                
                                 <div class="dropdown">
-                                    <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
+                                    <button class="btn btn-link text-muted p-0 shadow-none" type="button" data-bs-toggle="dropdown">
                                         <i class="bi bi-three-dots"></i>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
                                         <li>
-                                            <a class="dropdown-item py-2 @(isPending ? "disabled" : "")"
-                                               asp-action="Edit" asp-route-id="@bundle.Id">
+                                            <a class="dropdown-item py-2" asp-action="Study" asp-route-bundleId="@bundle.Id">
+                                                <i class="bi bi-play-circle me-2 text-primary"></i> Start Study
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item py-2" asp-action="Edit" asp-route-id="@bundle.Id">
                                                 <i class="bi bi-pencil me-2"></i> Edit
                                             </a>
                                         </li>
-
-                                        @if (bundle.Status == "Draft" || bundle.Status == "Rejected")
-                                        {
-                                            <li>
-                                                @{
-                                                    var escapedTitle = bundle.Title.Replace("'", "\\'");
-                                                }
-                                                <button type="button" class="dropdown-item py-2" onclick="confirmSubmission(@bundle.Id, '@escapedTitle')">
-                                                    <i class="bi bi-send-fill me-2"></i> Publish to Community
-                                                </button>
-                                            </li>
-                                        }
-
-                                        <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <form asp-action="Delete" asp-route-id="@bundle.Id" method="post" onsubmit="return @(isPending ? "false" : "confirm('Delete this collection?')")">
+                                            <form asp-action="Delete" asp-route-id="@bundle.Id" method="post" onsubmit="return confirm('Delete this collection?');">
                                                 @Html.AntiForgeryToken()
                                                 <button type="submit" class="dropdown-item py-2 text-danger @(isPending ? "disabled" : "")" @(isPending ? "disabled" : "")>
                                                     <i class="bi bi-trash me-2"></i> Delete
@@ -95,13 +79,15 @@
                                 </div>
                             </div>
 
-                            <div class="bundle-wordcount">Words: @bundle.WordCount</div>
+                            <div class="bundle-wordcount mb-1">
+                                <span class="text-primary fw-bold">@bundle.WordCount</span> words
+                            </div>
 
-                            <p class="bundle-description">
+                            <p class="bundle-description mb-3">
                                 @bundle.Description
                             </p>
 
-                            <div class="mt-auto d-flex flex-wrap gap-1">
+                            <div class="mb-3 d-flex flex-wrap gap-1">
                                 @if (bundle.Categories?.Any() == true)
                                 {
                                     @foreach (var category in bundle.Categories)
@@ -119,15 +105,16 @@
     else
     {
         <div class="col-12">
-            <div class="empty-state">
-                <i class="bi bi-collection" style="font-size: 3rem; display:block; margin-bottom:12px;"></i>
+            <div class="empty-state py-5 text-center">
+                <i class="bi bi-collection text-muted" style="font-size: 3rem; display:block; margin-bottom:12px;"></i>
                 <p class="fw-semibold mb-1">No collections found</p>
-                <p class="small">Try adjusting your filters or search term.</p>
+                <p class="small text-muted">Try adjusting your filters or search term.</p>
             </div>
         </div>
     }
 </div>
 
+@* Логіка пагінації *@
 @{
     var totalCount = Model?.TotalCount ?? 0;
     var pageSize = Model?.PageSize ?? 1;

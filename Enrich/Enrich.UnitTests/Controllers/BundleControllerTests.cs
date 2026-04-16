@@ -38,6 +38,8 @@ namespace Enrich.UnitTests.Controllers
             _categoryRepositoryMock = new Mock<ICategoryRepository>();
             _wordRepositoryMock = new Mock<IWordRepository>();
 
+            var studySessionServiceMock = new Mock<IStudySessionService>();
+
             _paginationOptionsMock = new Mock<IOptions<PaginationSettings>>();
             _paginationOptionsMock.Setup(o => o.Value).Returns(new PaginationSettings());
 
@@ -46,6 +48,7 @@ namespace Enrich.UnitTests.Controllers
                 _bundleServiceMock.Object,
                 _categoryRepositoryMock.Object,
                 _wordRepositoryMock.Object,
+                studySessionServiceMock.Object,
                 _paginationOptionsMock.Object);
 
             var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, TestUserId) };
