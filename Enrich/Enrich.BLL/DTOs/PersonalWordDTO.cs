@@ -21,5 +21,7 @@ namespace Enrich.BLL.DTOs
         public DateTime AddedAt { get; set; }
 
         public string? CategoryName { get; internal set; }
+
+        public int Progress { get; set; }
     }
 }

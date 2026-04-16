@@ -15,6 +15,7 @@ namespace Enrich.UnitTests.Services
     {
         private Mock<IWordRepository> _wordRepositoryMock = null!;
         private Mock<ICategoryRepository> _categoryRepositoryMock = null!;
+        private Mock<IWordProgressRepository> _wordProgressRepositoryMock = null!;
         private Mock<ILogger<WordService>> _loggerMock = null!;
         private Mock<IOptions<PaginationSettings>> _paginationOptionsMock = null!;
         private WordService _wordService = null!;
@@ -24,6 +25,7 @@ namespace Enrich.UnitTests.Services
         {
             _wordRepositoryMock = new Mock<IWordRepository>();
             _categoryRepositoryMock = new Mock<ICategoryRepository>();
+            _wordProgressRepositoryMock = new Mock<IWordProgressRepository>();
             _loggerMock = new Mock<ILogger<WordService>>();
 
             _paginationOptionsMock = new Mock<IOptions<PaginationSettings>>();
@@ -32,6 +34,7 @@ namespace Enrich.UnitTests.Services
             _wordService = new WordService(
                 _wordRepositoryMock.Object,
                 _categoryRepositoryMock.Object,
+                _wordProgressRepositoryMock.Object,
                 _paginationOptionsMock.Object,
                 _loggerMock.Object);
         }
@@ -50,6 +53,14 @@ namespace Enrich.UnitTests.Services
             _wordRepositoryMock
                 .Setup(r => r.GetPersonalWordsPageAsync(userId, "app", "Fruits", "noun", null, 1, 10))
                 .ReturnsAsync((userWords.AsEnumerable(), 2));
+
+            _wordProgressRepositoryMock
+                .Setup(r => r.GetWordProgressesAsync(userId, It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new List<WordProgress>
+                {
+                    new WordProgress { UserId = userId, WordId = 1, Points = 50 },
+                    new WordProgress { UserId = userId, WordId = 2, Points = 100 }
+                });
 
             // Act
             var pageResult = await _wordService.GetPersonalWordsAsync(userId, "app", "Fruits", "noun", null, 1, 10);
