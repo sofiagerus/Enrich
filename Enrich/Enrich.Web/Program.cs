@@ -30,6 +30,7 @@ try
 
     builder.Services.Configure<IdentitySettings>(
         builder.Configuration.GetSection(IdentitySettings.Section));
+
     builder.Services.Configure<LocalizationSettings>(
         builder.Configuration.GetSection(LocalizationSettings.Section));
 
@@ -65,7 +66,18 @@ try
 
     builder.Services.AddLocalization(o => o.ResourcesPath = "Resources");
     builder.Services.AddControllersWithViews()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+            options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+            options.JsonSerializerOptions.DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        })
         .AddViewLocalization();
+
+    builder.Services.AddAntiforgery(options =>
+    {
+        options.HeaderName = "X-CSRF-TOKEN";
+    });
 
     WebApplication app = builder.Build();
 
@@ -101,6 +113,7 @@ try
     });
 
     app.UseRouting();
+    app.UseAntiforgery();
     app.UseAuthorization();
 
     if (app.Environment.IsDevelopment())

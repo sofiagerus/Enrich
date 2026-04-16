@@ -200,24 +200,30 @@ namespace Enrich.DAL.Repositories
             }
         }
 
+        // У файлі BundleRepository.cs
         public async Task DeleteBundleAsync(int bundleId)
         {
+            // Знаходимо бандл разом з усіма зв'язками, які треба очистити
             var bundle = await dbContext.Bundles
                 .Include(b => b.Words)
                 .Include(b => b.Categories)
                 .Include(b => b.Tags)
                 .Include(b => b.UserBundles)
-                .AsSplitQuery()
+                .AsSplitQuery() // Покращує продуктивність для багатьох Include
                 .FirstOrDefaultAsync(b => b.Id == bundleId);
 
             if (bundle != null)
             {
+                // Очищуємо колекції зв'язків Many-to-Many
                 bundle.Words.Clear();
                 bundle.Categories.Clear();
                 bundle.Tags.Clear();
                 bundle.UserBundles.Clear();
 
+                // Видаляємо сам об'єкт
                 dbContext.Bundles.Remove(bundle);
+
+                // Зберігаємо зміни в БД
                 await dbContext.SaveChangesAsync();
             }
         }

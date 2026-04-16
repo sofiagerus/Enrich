@@ -2,6 +2,7 @@ using System.Reflection;
 using Enrich.DAL.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Enrich.DAL.Data
 {
@@ -30,17 +31,21 @@ namespace Enrich.DAL.Data
         {
             var entries = ChangeTracker
                 .Entries()
-                .Where(e => e.Entity is Word && (e.State == EntityState.Added || e.State == EntityState.Modified));
+                .Where(e => e.State is EntityState.Added or EntityState.Modified);
 
             foreach (var entityEntry in entries)
             {
-                var word = (Word)entityEntry.Entity;
-                word.UpdatedAt = DateTime.UtcNow;
-
-                if (entityEntry.State == EntityState.Added)
+                if (entityEntry.Entity is Word word)
                 {
-                    word.CreatedAt = DateTime.UtcNow;
+                    word.UpdatedAt = DateTime.UtcNow;
+
+                    if (entityEntry.State == EntityState.Added)
+                    {
+                        word.CreatedAt = DateTime.UtcNow;
+                    }
                 }
+
+                // Тут можна додати логіку для інших сутностей, якщо у них з'являться дати
             }
 
             return base.SaveChangesAsync(cancellationToken);
@@ -50,7 +55,30 @@ namespace Enrich.DAL.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            _ = modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+            var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
+                v => v.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(v, DateTimeKind.Utc) : v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+            var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
+                v => !v.HasValue ? v : (v.Value.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v.Value.ToUniversalTime()),
+                v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.ClrType == typeof(DateTime))
+                    {
+                        property.SetValueConverter(dateTimeConverter);
+                    }
+                    else if (property.ClrType == typeof(DateTime?))
+                    {
+                        property.SetValueConverter(nullableDateTimeConverter);
+                    }
+                }
+            }
         }
     }
 }
