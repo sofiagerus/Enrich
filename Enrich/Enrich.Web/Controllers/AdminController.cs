@@ -144,5 +144,24 @@ namespace Enrich.Web.Controllers
 
             return View(model);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ReviewBundle(int id, string decision)
+        {
+            if (string.IsNullOrWhiteSpace(decision) || (decision != "publish" && decision != "reject"))
+            {
+                return BadRequest(new { message = "Invalid action." });
+            }
+
+            bool approve = decision == "publish";
+            var result = await bundleService.ReviewBundleAsync(id, approve);
+
+            if (result.IsSuccess)
+            {
+                return Ok(new { message = $"Bundle successfully {decision}ed!" });
+            }
+
+            return BadRequest(new { message = result.ErrorMessage });
+        }
     }
 }

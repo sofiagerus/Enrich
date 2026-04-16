@@ -733,5 +733,38 @@ namespace Enrich.BLL.Services
                 return "An error occurred while submitting the bundle.";
             }
         }
+
+        public async Task<Result> ReviewBundleAsync(int bundleId, bool approve)
+        {
+            var bundle = await bundleRepository.GetBundleByIdAsync(bundleId);
+
+            if (bundle == null)
+            {
+                logger.LogWarning("Attempted to review non-existent bundle {BundleId}.", bundleId);
+                return "Bundle not found.";
+            }
+
+            if (bundle.Status != BundleStatus.PendingReview)
+            {
+                logger.LogWarning("Attempted to review bundle {BundleId} which is in status {Status}.", bundleId, bundle.Status);
+                return "Bundle is not pending review.";
+            }
+
+            bundle.Status = approve ? BundleStatus.Published : BundleStatus.Rejected;
+            bundle.UpdatedAt = DateTime.UtcNow;
+            bundle.ReviewedAt = DateTime.UtcNow;
+
+            try
+            {
+                await bundleRepository.UpdateBundleAsync(bundle);
+                logger.LogInformation("Bundle {BundleId} was successfully {Action}.", bundleId, approve ? "published" : "rejected");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error reviewing bundle {BundleId}.", bundleId);
+                return "An error occurred while reviewing the bundle.";
+            }
+        }
     }
 }

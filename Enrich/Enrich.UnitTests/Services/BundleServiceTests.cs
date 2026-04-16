@@ -354,5 +354,74 @@ namespace Enrich.UnitTests.Services
                 r => r.GetPendingBundlesPageAsync(null, null, null, null, null, 1, 12),
                 Times.Once);
         }
+
+        [Test]
+        public async Task ReviewBundleAsync_BundleNotFound_ReturnsError()
+        {
+            // Arrange
+            var bundleId = 1;
+            _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId)).ReturnsAsync((Bundle?)null);
+
+            // Act
+            var result = await _bundleService.ReviewBundleAsync(bundleId, true);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("Bundle not found."));
+            _bundleRepositoryMock.Verify(r => r.UpdateBundleAsync(It.IsAny<Bundle>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ReviewBundleAsync_BundleNotPending_ReturnsError()
+        {
+            // Arrange
+            var bundleId = 1;
+            var bundle = new Bundle { Id = bundleId, Status = BundleStatus.Draft };
+            _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId)).ReturnsAsync(bundle);
+
+            // Act
+            var result = await _bundleService.ReviewBundleAsync(bundleId, true);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("Bundle is not pending review."));
+            _bundleRepositoryMock.Verify(r => r.UpdateBundleAsync(It.IsAny<Bundle>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ReviewBundleAsync_ApproveTrue_SetsPublishedStatus()
+        {
+            // Arrange
+            var bundleId = 1;
+            var bundle = new Bundle { Id = bundleId, Status = BundleStatus.PendingReview };
+            _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId)).ReturnsAsync(bundle);
+
+            // Act
+            var result = await _bundleService.ReviewBundleAsync(bundleId, true);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(bundle.Status, Is.EqualTo(BundleStatus.Published));
+            Assert.That(bundle.ReviewedAt, Is.Not.Null);
+            _bundleRepositoryMock.Verify(r => r.UpdateBundleAsync(bundle), Times.Once);
+        }
+
+        [Test]
+        public async Task ReviewBundleAsync_ApproveFalse_SetsRejectedStatus()
+        {
+            // Arrange
+            var bundleId = 1;
+            var bundle = new Bundle { Id = bundleId, Status = BundleStatus.PendingReview };
+            _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId)).ReturnsAsync(bundle);
+
+            // Act
+            var result = await _bundleService.ReviewBundleAsync(bundleId, false);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(bundle.Status, Is.EqualTo(BundleStatus.Rejected));
+            Assert.That(bundle.ReviewedAt, Is.Not.Null);
+            _bundleRepositoryMock.Verify(r => r.UpdateBundleAsync(bundle), Times.Once);
+        }
     }
 }

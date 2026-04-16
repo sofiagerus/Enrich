@@ -65,6 +65,8 @@ namespace Enrich.BLL.Interfaces
 
         Task<Result> SubmitBundleForReviewAsync(string userId, int bundleId);
 
+        Task<Result> ReviewBundleAsync(int bundleId, bool approve);
+
         Task<BundleDTO?> GetBundleWithWordsAsync(int bundleId);
     }
 }

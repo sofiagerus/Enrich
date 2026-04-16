@@ -34,8 +34,10 @@
                                 <h5 class="bundle-title mb-0">
                                     <a asp-controller="Bundle" asp-action="Details" asp-route-id="@bundle.Id" class="text-decoration-none text-dark hover-green">@bundle.Title</a>
                                 </h5>
-                                @* Change from Save collection to Review button if it was needed, but we can just leave it as Review text or just link *@
-                                <a asp-controller="Bundle" asp-action="Details" asp-route-id="@bundle.Id" class="btn btn-sm btn-outline-primary">Review</a>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-success" onclick="reviewBundle(@bundle.Id, 'publish')">Publish</button>
+                                    <button class="btn btn-sm btn-danger" onclick="reviewBundle(@bundle.Id, 'reject')">Reject</button>
+                                </div>
                             </div>
                             <div class="bundle-wordcount">Words: @bundle.WordCount</div>
 

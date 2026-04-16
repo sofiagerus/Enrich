@@ -147,5 +147,31 @@
                 li.style.display = q === '' || text.includes(q) ? '' : 'none';
             });
         });
+
+        async function reviewBundle(id, action) {
+            if (!confirm(`Are you sure you want to ${action} this bundle?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/Admin/ReviewBundle?id=${id}&decision=${action}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.ok) {
+                    showToast(`Bundle successfully ${action}ed!`, 'success');
+                    loadBundles(currentPage);
+                } else {
+                    const result = await response.json();
+                    showToast(result.message || `Failed to ${action} bundle.`, 'danger');
+                }
+            } catch (err) {
+                console.error("Error reviewing bundle", err);
+                showToast(`An error occurred while trying to ${action} the bundle.`, 'danger');
+            }
+        }
     </script>
 }
