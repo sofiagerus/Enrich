@@ -36,6 +36,31 @@ namespace Enrich.UnitTests.Services
         }
 
         [Test]
+        public async Task GetBundleByIdAsync_ValidId_ReturnsBundleWithWords()
+        {
+            // Arrange
+            var bundleId = 1;
+            var bundle = new Bundle
+            {
+                Id = bundleId,
+                Title = "Test Bundle",
+                Words = new List<Word> { new Word { Id = 1, Term = "Apple", Translation = "Яблуко" } }
+            };
+
+            _bundleRepositoryMock
+                .Setup(r => r.GetBundleByIdWithDetailsAsync(bundleId))
+                .ReturnsAsync(bundle);
+
+            // Act
+            var result = await _bundleService.GetBundleByIdAsync(bundleId);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result!.Words.Count, Is.EqualTo(1));
+            Assert.That(result.Words[0].Term, Is.EqualTo("Apple"));
+        }
+
+        [Test]
         public async Task GetSystemBundlesAsync_ReturnsPagedResult()
         {
             // Arrange
@@ -549,6 +574,59 @@ namespace Enrich.UnitTests.Services
             // Assert
             Assert.That(result.IsSuccess, Is.False);
             Assert.That(result.ErrorMessage, Is.EqualTo("This bundle is already submitted or published."));
+        }
+
+        [Test]
+        public async Task GetBundleWithWordsAsync_ExistingBundle_ReturnsMappedDTO()
+        {
+            // Arrange
+            var bundleId = 1;
+            var bundle = new Bundle
+            {
+                Id = bundleId,
+                Title = "Test Bundle",
+                Words = new List<Word>
+                {
+                    new Word { Id = 1, Term = "Apple", Translation = "Яблуко", PartOfSpeech = "noun", Example = "An apple a day." }
+                },
+                Categories = new List<Category> { new Category { Id = 2, Name = "Fruits" } },
+                Tags = new List<Tag>()
+            };
+
+            _bundleRepositoryMock
+                .Setup(r => r.GetBundleByIdWithDetailsAsync(bundleId))
+                .ReturnsAsync(bundle);
+
+            // Act
+            var result = await _bundleService.GetBundleWithWordsAsync(bundleId);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result!.Id, Is.EqualTo(bundleId));
+            Assert.That(result.Words.Count, Is.EqualTo(1));
+            Assert.That(result.Words[0].Term, Is.EqualTo("Apple"));
+            Assert.That(result.Words[0].PartOfSpeech, Is.EqualTo("noun"));
+            Assert.That(result.Categories.Count, Is.EqualTo(1));
+            Assert.That(result.Categories[0], Is.EqualTo("Fruits"));
+            _bundleRepositoryMock.Verify(r => r.GetBundleByIdWithDetailsAsync(bundleId), Times.Once);
+        }
+
+        [Test]
+        public async Task GetBundleWithWordsAsync_NonExistentBundle_ReturnsNull()
+        {
+            // Arrange
+            var bundleId = 999;
+
+            _bundleRepositoryMock
+                .Setup(r => r.GetBundleByIdWithDetailsAsync(bundleId))
+                .ReturnsAsync((Bundle?)null);
+
+            // Act
+            var result = await _bundleService.GetBundleWithWordsAsync(bundleId);
+
+            // Assert
+            Assert.That(result, Is.Null);
+            _bundleRepositoryMock.Verify(r => r.GetBundleByIdWithDetailsAsync(bundleId), Times.Once);
         }
     }
 }
