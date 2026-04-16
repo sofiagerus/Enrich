@@ -40,9 +40,6 @@ namespace Enrich.UnitTests.Services
         }
 
         [Test]
-<<<<<<< study
-        public async Task GetSystemBundlesAsync_ReturnsPagedResult_WithCorrectMapping()
-=======
         public async Task GetBundleByIdAsync_ValidId_ReturnsBundleWithWords()
         {
             // Arrange
@@ -69,10 +66,8 @@ namespace Enrich.UnitTests.Services
 
         [Test]
         public async Task GetSystemBundlesAsync_ReturnsPagedResult()
->>>>>>> main
         {
             // Arrange
-            // ВИПРАВЛЕНО CS0029: Судячи з помилки, твоя сутність очікує string[], а не List<string>
             var bundles = new List<Bundle>
             {
                 new Bundle
@@ -84,7 +79,6 @@ namespace Enrich.UnitTests.Services
                     IsSystem = true,
                     Words = new List<Word>
                     {
-                        // ВИПРАВЛЕНО CS0117: Властивість називається Meaning
                         new Word { Id = 1, Term = "Word1", Meaning = "Def1" },
                         new Word { Id = 2, Term = "Word2", Meaning = "Def2" }
                     },
@@ -95,7 +89,6 @@ namespace Enrich.UnitTests.Services
                 }
             };
 
-            // ВИПРАВЛЕНО SA1116: Параметри мають починатися з нового рядка, якщо їх багато
             _bundleRepositoryMock
                 .Setup(r => r.GetSystemBundlesPageAsync(
                     It.IsAny<string>(),
@@ -156,7 +149,6 @@ namespace Enrich.UnitTests.Services
             _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId)).ReturnsAsync(bundle);
 
             // Act
-            // ВИПРАВЛЕНО: Використовуємо CreateBundleDTO
             var result = await _bundleService.UpdateBundleAsync(TestUserId, bundleId, new CreateBundleDTO { Title = "New" });
 
             // Assert
