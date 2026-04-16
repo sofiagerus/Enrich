@@ -312,5 +312,47 @@ namespace Enrich.UnitTests.Services
                 r => r.GetCommunityBundlesPageAsync(null, null, null, null, null, 1, 12),
                 Times.Once);
         }
+
+        [Test]
+        public async Task GetPendingBundlesAsync_ReturnsPagedResult()
+        {
+            // Arrange
+            var bundles = new List<Bundle>
+            {
+                new Bundle
+                {
+                    Id = 1,
+                    Title = "Pending Bundle 1",
+                    Description = "Test Description",
+                    DifficultyLevels = ["B1", "B2"],
+                    Words = new List<Word> { new Word { Id = 1, Term = "Test" } },
+                    Categories = new List<Category> { new Category { Id = 1, Name = "Education" } },
+                    Status = BundleStatus.PendingReview
+                }
+            };
+
+            _bundleRepositoryMock
+                .Setup(r => r.GetPendingBundlesPageAsync(null, null, null, null, null, 1, 12))
+                .ReturnsAsync((bundles.AsEnumerable(), 1));
+
+            // Act
+            var result = await _bundleService.GetPendingBundlesAsync(null, null, null, null, null, 1, 12);
+
+            // Assert
+            Assert.That(result.TotalCount, Is.EqualTo(1));
+            Assert.That(result.Items.Count(), Is.EqualTo(1));
+            Assert.That(result.Page, Is.EqualTo(1));
+            Assert.That(result.PageSize, Is.EqualTo(12));
+
+            var bundle = result.Items.First();
+            Assert.That(bundle.Id, Is.EqualTo(1));
+            Assert.That(bundle.Title, Is.EqualTo("Pending Bundle 1"));
+            Assert.That(bundle.WordCount, Is.EqualTo(1));
+            Assert.That(bundle.Categories.Count, Is.EqualTo(1));
+
+            _bundleRepositoryMock.Verify(
+                r => r.GetPendingBundlesPageAsync(null, null, null, null, null, 1, 12),
+                Times.Once);
+        }
     }
 }

@@ -1,0 +1,94 @@
+@using Enrich.Web.ViewModels
+@model SystemBundlesIndexViewModel
+
+<div class="row g-3">
+    @if (Model.Bundles.Items.Any())
+    {
+        @foreach (var bundle in Model.Bundles.Items)
+        {
+            <div class="col-lg-6">
+                <div class="bundle-card">
+                    <div class="d-flex gap-3">
+                        <div class="flex-shrink-0" style="width: 120px;">
+                            <div class="bundle-image-horizontal">
+                                @if (!string.IsNullOrEmpty(bundle.ImageUrl))
+                                {
+                                    <img src="@bundle.ImageUrl" alt="@bundle.Title" />
+                                }
+                                else
+                                {
+                                    <i class="bi bi-camera"></i>
+                                }
+                            </div>
+                            
+                            <div class="difficulty-container">
+                                @foreach (var level in bundle.DifficultyLevels)
+                                {
+                                    <span class="badge-level">@level</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="flex-grow-1 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="bundle-title mb-0">
+                                    <a asp-controller="Bundle" asp-action="Details" asp-route-id="@bundle.Id" class="text-decoration-none text-dark hover-green">@bundle.Title</a>
+                                </h5>
+                                @* Change from Save collection to Review button if it was needed, but we can just leave it as Review text or just link *@
+                                <a asp-controller="Bundle" asp-action="Details" asp-route-id="@bundle.Id" class="btn btn-sm btn-outline-primary">Review</a>
+                            </div>
+                            <div class="bundle-wordcount">Words: @bundle.WordCount</div>
+
+                            @if (!string.IsNullOrEmpty(bundle.Description))
+                            {
+                                <div class="bundle-description">
+                                    <strong>Description</strong><br />
+                                    @bundle.Description
+                                </div>
+                            }
+
+                            <div class="mt-auto">
+                                @foreach (var cat in bundle.Categories.Take(3))
+                                {
+                                    <span class="badge-category">@cat</span>
+                                }
+                                @if (bundle.Categories.Count > 3)
+                                {
+                                    <span class="badge-category-muted">+@(bundle.Categories.Count - 3)</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="empty-state">
+                <i class="bi bi-collection" style="font-size: 3rem;"></i>
+                <p class="fw-semibold mb-1">No collections found</p>
+                <p class="small">Try adjusting your filters or search term.</p>
+            </div>
+        </div>
+    }
+</div>
+
+@{
+    var totalPages = (int)Math.Ceiling((double)Model.Bundles.TotalCount / Model.Bundles.PageSize);
+}
+
+@if (totalPages > 1)
+{
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == Model.Bundles.Page ? "active" : "")">
+                    <button class="page-link" onclick="changePage(@i)">@i</button>
+                </li>
+            }
+        </ul>
+    </nav>
+}

@@ -280,6 +280,56 @@ namespace Enrich.BLL.Services
             };
         }
 
+        public async Task<PagedResult<SystemBundleDTO>> GetPendingBundlesAsync(
+             string? searchTerm,
+             string? category,
+             string? difficultyLevel,
+             int? minWordCount,
+             int? maxWordCount,
+             int page,
+             int pageSize)
+        {
+            logger.LogInformation("Отримання сторінки бандлів на перевірці: сторінка={Page}, розмір={PageSize}", page, pageSize);
+
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = _pagination.DefaultSystemBundlesPageSize;
+            }
+
+            var (bundles, total) = await bundleRepository.GetPendingBundlesPageAsync(
+                searchTerm,
+                category,
+                difficultyLevel,
+                minWordCount,
+                maxWordCount,
+                page,
+                pageSize);
+
+            var items = bundles.Select(b => new SystemBundleDTO
+            {
+                Id = b.Id,
+                Title = b.Title,
+                Description = b.Description,
+                ImageUrl = b.ImageUrl,
+                WordCount = b.Words?.Count ?? 0,
+                DifficultyLevels = b.DifficultyLevels ?? [],
+                Categories = b.Categories?.Select(c => c.Name).ToList() ?? []
+            }).ToList();
+
+            return new PagedResult<SystemBundleDTO>
+            {
+                Items = items,
+                TotalCount = total,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
         {
             return await categoryRepository.GetAllCategoriesAsync();

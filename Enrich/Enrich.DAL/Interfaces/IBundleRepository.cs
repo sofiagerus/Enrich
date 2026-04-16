@@ -54,6 +54,15 @@ namespace Enrich.DAL.Interfaces
             int page,
             int pageSize);
 
+        Task<(IEnumerable<Bundle> Items, int Total)> GetPendingBundlesPageAsync(
+            string? searchTerm,
+            string? category,
+            string? difficultyLevel,
+            int? minWordCount,
+            int? maxWordCount,
+            int page,
+            int pageSize);
+
         Task<Bundle> CreateBundleAsync(Bundle bundle);
 
         Task<bool> UserHasBundleAsync(string userId, int bundleId);

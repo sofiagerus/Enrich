@@ -1,14 +1,18 @@
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
+using Enrich.BLL.Settings;
 using Enrich.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Enrich.Web.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class AdminController(
         IUserService userService,
+        IBundleService bundleService,
+        IOptions<PaginationSettings> paginationOptions,
         ILogger<AdminController> logger) : BaseController
     {
         [HttpGet]
@@ -104,6 +108,39 @@ namespace Enrich.Web.Controllers
             }
 
             ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Failed to restore account.");
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PendingBundles(SystemBundlesIndexViewModel model, int page = 1, int pageSize = 0)
+        {
+            if (pageSize <= 0)
+            {
+                pageSize = paginationOptions.Value.DefaultSystemBundlesPageSize;
+            }
+
+            model.PageSize = pageSize;
+
+            model.Bundles = await bundleService.GetPendingBundlesAsync(
+                model.SearchTerm,
+                model.CategoryFilter,
+                model.LevelFilter,
+                model.MinWordCount,
+                model.MaxWordCount,
+                page,
+                pageSize);
+
+            model.Categories = await bundleService.GetAllCategoriesAsync();
+
+            logger.LogInformation(
+                "Admin {UserId} browsing pending bundles: page={Page}, results={Count}",
+                CurrentUserId, page, model.Bundles.Items.Count());
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_BundleListPartial", model);
+            }
 
             return View(model);
         }
