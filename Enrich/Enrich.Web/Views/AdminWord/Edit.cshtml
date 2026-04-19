@@ -1,0 +1,106 @@
+@model Enrich.Web.ViewModels.EditSystemWordViewModel
+@{
+    ViewData["Title"] = "Edit System Word";
+}
+
+<div class="d-flex align-items-center mb-4 gap-3">
+    <a asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-3 d-flex align-items-center gap-1 text-decoration-none">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+    <h1 class="fw-semibold fs-4 mb-0">Edit System Word</h1>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 mx-auto" style="max-width: 800px;">
+    <div class="card-body p-4">
+        <form method="post" asp-action="Edit">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Term" class="form-label fw-medium mb-1"></label>
+                    <input asp-for="Term" class="form-control border-1 shadow-sm rounded-4 py-2" placeholder="Enter word" />
+                    <span asp-validation-for="Term" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Translation" class="form-label fw-medium mb-1"></label>
+                    <input asp-for="Translation" class="form-control border-1 shadow-sm rounded-4 py-2" placeholder="Enter translation" />
+                    <span asp-validation-for="Translation" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Transcription" class="form-label fw-medium mb-1"></label>
+                    <input asp-for="Transcription" class="form-control border-1 shadow-sm rounded-4 py-2" placeholder="e.g. /həˈləʊ/" />
+                    <span asp-validation-for="Transcription" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PartOfSpeech" class="form-label fw-medium mb-1"></label>
+                    <select asp-for="PartOfSpeech" class="form-select border-1 shadow-sm rounded-4 py-2">
+                        <option value="">Select POS...</option>
+                        <option value="noun">Noun</option>
+                        <option value="verb">Verb</option>
+                        <option value="adjective">Adjective</option>
+                        <option value="adverb">Adverb</option>
+                        <option value="pronoun">Pronoun</option>
+                        <option value="preposition">Preposition</option>
+                        <option value="conjunction">Conjunction</option>
+                        <option value="interjection">Interjection</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Meaning" class="form-label fw-medium mb-1"></label>
+                <textarea asp-for="Meaning" class="form-control border-1 shadow-sm rounded-4 py-2" rows="2" placeholder="Definition or meaning"></textarea>
+                <span asp-validation-for="Meaning" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Example" class="form-label fw-medium mb-1"></label>
+                <textarea asp-for="Example" class="form-control border-1 shadow-sm rounded-4 py-2" rows="2" placeholder="Example sentence"></textarea>
+                <span asp-validation-for="Example" class="text-danger small"></span>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label asp-for="DifficultyLevel" class="form-label fw-medium mb-1"></label>
+                    <select asp-for="DifficultyLevel" class="form-select border-1 shadow-sm rounded-4 py-2">
+                        <option value="">Select Level...</option>
+                        <option value="A1">A1 - Beginner</option>
+                        <option value="A2">A2 - Elementary</option>
+                        <option value="B1">B1 - Intermediate</option>
+                        <option value="B2">B2 - Upper Intermediate</option>
+                        <option value="C1">C1 - Advanced</option>
+                        <option value="C2">C2 - Proficient</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="NewCategory" class="form-label fw-medium mb-1"></label>
+                    <input type="text" asp-for="NewCategory" list="categoriesList" class="form-control border-1 shadow-sm rounded-4 py-2" placeholder="Type or select Category">
+                    <datalist id="categoriesList">
+                        @if (Model.Categories != null)
+                        {
+                            foreach (var c in Model.Categories)
+                            {
+                                <option value="@c.Name" />
+                            }
+                        }
+                    </datalist>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="submit" class="btn btn-success rounded-4 px-5 fw-medium shadow-sm">
+                    <i class="bi bi-check2"></i> Save Changes
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary rounded-4 px-4 shadow-sm">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

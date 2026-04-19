@@ -385,5 +385,41 @@ namespace Enrich.UnitTests.Services
             Assert.That(result.ErrorMessage, Is.Not.Null);
             _wordRepositoryMock.Verify(r => r.UpdateWordAsync(It.IsAny<Word>()), Times.Never);
         }
+
+        [Test]
+        public async Task CreateSystemWordAsync_ValidDTO_CreatesGlobalWord()
+        {
+            var dto = new CreateSystemWordDTO { Term = "AdminWord", CategoryIds = new List<int>() };
+            var result = await _wordService.CreateSystemWordAsync(dto);
+
+            Assert.That(result.IsSuccess, Is.True);
+            _wordRepositoryMock.Verify(r => r.CreateWordAsync(It.Is<Word>(w => w.Term == "AdminWord" && w.IsGlobal)), Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateSystemWordAsync_ValidId_UpdatesGlobalWord()
+        {
+            var word = new Word { Id = 1, Term = "Old", IsGlobal = true };
+            _wordRepositoryMock.Setup(r => r.GetWordAsync(1)).ReturnsAsync(word);
+
+            var dto = new UpdateSystemWordDTO { Id = 1, Term = "New" };
+            var result = await _wordService.UpdateSystemWordAsync(1, dto);
+
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(word.Term, Is.EqualTo("New"));
+            _wordRepositoryMock.Verify(r => r.UpdateWordAsync(word), Times.Once);
+        }
+
+        [Test]
+        public async Task DeleteSystemWordAsync_ValidId_DeletesGlobalWord()
+        {
+            var word = new Word { Id = 1, Term = "AdminWord", IsGlobal = true };
+            _wordRepositoryMock.Setup(r => r.GetWordAsync(1)).ReturnsAsync(word);
+
+            var result = await _wordService.DeleteSystemWordAsync(1);
+
+            Assert.That(result.IsSuccess, Is.True);
+            _wordRepositoryMock.Verify(r => r.DeleteWordAsync(word), Times.Once);
+        }
     }
 }

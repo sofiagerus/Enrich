@@ -29,5 +29,14 @@ namespace Enrich.BLL.Interfaces
         Task<Result<Word>> GetPersonalWordForEditAsync(string userId, int wordId);
 
         Task<Result> UpdateUserWordAsync(string userId, UpdateWordDTO dto);
+
+        // System Words Management for Admin
+        Task<Result> CreateSystemWordAsync(CreateSystemWordDTO dto);
+
+        Task<Result> UpdateSystemWordAsync(int id, UpdateSystemWordDTO dto);
+
+        Task<Result> DeleteSystemWordAsync(int id);
+
+        Task<Result<Word>> GetSystemWordForEditAsync(int id);
     }
 }

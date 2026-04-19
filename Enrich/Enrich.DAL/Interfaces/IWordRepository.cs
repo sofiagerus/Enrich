@@ -8,6 +8,8 @@ namespace Enrich.DAL.Interfaces
 
         Task<Word> CreatePersonalWordAsync(Word word, UserWord userWord);
 
+        Task<Word> CreateWordAsync(Word word);
+
         Task<UserWord?> GetUserWordAsync(string userId, int wordId);
 
         Task DeleteUserWordAsync(UserWord userWord);
