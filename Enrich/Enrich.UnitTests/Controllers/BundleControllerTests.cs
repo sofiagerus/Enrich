@@ -684,5 +684,51 @@ namespace Enrich.UnitTests.Controllers
             var badRequestResult = result as BadRequestObjectResult;
             Assert.That(badRequestResult, Is.Not.Null);
         }
+
+        [Test]
+        public void PreviewGenerated_WhenWordsJsonIsNullOrWhitespace_SetsToEmptyArrayAndReturnsView()
+        {
+            // Arrange
+            var model = new PreviewGeneratedViewModel
+            {
+                Title = "Test Bundle",
+                Description = "Test Description",
+                WordsJson = "  "
+            };
+
+            // Act
+            var result = _controller.PreviewGenerated(model);
+
+            // Assert
+            var viewResult = result as ViewResult;
+            Assert.That(viewResult, Is.Not.Null);
+            var returnedModel = viewResult.Model as PreviewGeneratedViewModel;
+            Assert.That(returnedModel, Is.Not.Null);
+            Assert.That(returnedModel.WordsJson, Is.EqualTo("[]"));
+        }
+
+        [Test]
+        public void PreviewGenerated_WhenWordsJsonIsValid_ReturnsViewWithModel()
+        {
+            // Arrange
+            var json = "[{\"Term\":\"test\",\"Translation\":\"тест\"}]";
+            var model = new PreviewGeneratedViewModel
+            {
+                Title = "Test Bundle",
+                WordsJson = json
+            };
+
+            // Act
+            var result = _controller.PreviewGenerated(model);
+
+            // Assert
+            var viewResult = result as ViewResult;
+            Assert.That(viewResult, Is.Not.Null);
+            var returnedModel = viewResult.Model as PreviewGeneratedViewModel;
+            Assert.That(returnedModel, Is.Not.Null);
+            Assert.That(returnedModel.WordsJson, Is.EqualTo(json));
+            Assert.That(returnedModel.Words.Count, Is.EqualTo(1));
+            Assert.That(returnedModel.Words[0].Term, Is.EqualTo("test"));
+        }
     }
 }

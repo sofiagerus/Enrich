@@ -1,0 +1,264 @@
+@model Enrich.Web.ViewModels.PreviewGeneratedViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/collections.css" asp-append-version="true" />
+    <style>
+        .word-card-preview {
+            background: #FFFFFF !important;
+            border-radius: 16px !important;
+            border: 1px solid #E9ECEF !important;
+            padding: 16px 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .word-card-preview:hover {
+            border-color: #ced4da !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important;
+        }
+
+        .word-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .term-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #212529;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .badge-level-word {
+            background: #E9ECEF;
+            color: #6c757d;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 5px;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        .pos-label {
+            color: #198754;
+            font-weight: 500;
+            font-size: 0.82rem;
+            margin-top: 2px;
+            display: block;
+        }
+
+        .translation-title {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #555;
+            white-space: nowrap;
+            margin-left: 8px;
+        }
+
+        .transcription {
+            color: #888;
+            font-size: 0.82rem;
+            margin-top: 6px;
+        }
+
+        .section-label {
+            font-weight: 700;
+            font-size: 0.78rem;
+            color: #333;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .section-text {
+            color: #666;
+            font-size: 0.82rem;
+            line-height: 1.4;
+        }
+        
+        .badge-category-word {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #edf7f1;
+            color: #198754;
+            border: 1px solid #c3e6cb;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 10px;
+        }
+
+        /* Buttons matching the site design */
+        .btn-action-success {
+            background-color: #198754;
+            color: white;
+            border-radius: 20px;
+            padding: 7px 18px;
+            border: 1px solid #198754;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-action-success:hover {
+            background-color: #157347;
+            border-color: #146c43;
+            color: white;
+        }
+        
+        .btn-action-outline-success {
+            background-color: transparent;
+            color: #198754;
+            border-radius: 20px;
+            padding: 7px 18px;
+            border: 1px solid #198754;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-action-outline-success:hover {
+            background-color: #198754;
+            color: white;
+        }
+    </style>
+}
+
+<div class="container-fluid py-4 h-100 d-flex flex-column">
+    <div class="d-flex flex-column mb-4">
+        <div class="mb-2">
+            <a href="@Url.Action("Generator", "Bundle")" class="text-decoration-none text-muted d-inline-flex align-items-center fw-medium" style="font-size: 0.95rem; transition: color 0.2s;" onmouseover="this.className='text-decoration-none text-dark d-inline-flex align-items-center fw-medium'" onmouseout="this.className='text-decoration-none text-muted d-inline-flex align-items-center fw-medium'">
+                <i class="bi bi-arrow-left me-2"></i> Back to Generator
+            </a>
+        </div>
+        <h1 class="fw-bold fs-4 mb-0 text-dark">@Model.Title <span class="text-muted fw-normal fs-5 ms-1">(Preview)</span></h1>
+    </div>
+
+    <div class="row flex-grow-1 overflow-hidden">
+        <div class="col-lg-5 col-md-12 mb-4">
+            <div class="bundle-card p-4 d-flex flex-column" style="height: auto; min-height: auto; cursor: default !important;">
+                <div class="d-flex gap-3 mb-4">
+                    <div class="flex-shrink-0" style="width: 120px;">
+                        <div class="bundle-image-horizontal mb-2">
+                            <i class="bi bi-collection"></i>
+                        </div>
+                        
+                        <div class="difficulty-container">
+                            <span class="badge-level">C2</span>
+                            <span class="badge-level">C1</span>
+                            <span class="badge-level">B2</span>
+                            <span class="badge-level">B1</span>
+                            <span class="badge-level">A2</span>
+                            <span class="badge-level">A1</span>
+                        </div>
+                    </div>
+
+                    <div class="flex-grow-1 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="bundle-title mb-0 text-dark">@Model.Title</h5>
+                        </div>
+                        <div class="bundle-wordcount">Words: @(Model.Words?.Count ?? 0)</div>
+
+                        <div class="bundle-description" style="-webkit-line-clamp: 10;">
+                            <strong>Description</strong><br />
+                            @(string.IsNullOrWhiteSpace(Model.Description) ? "No description provided." : Model.Description)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-auto flex-column flex-sm-row">
+                    <button class="btn btn-action-success rounded-4 w-100 justify-content-center">
+                        <i class="bi bi-plus-circle me-2"></i> Add to My Collections
+                    </button>
+                    <button class="btn btn-action-outline-success rounded-4 w-100 justify-content-center">
+                        <i class="bi bi-controller me-2"></i> Start a Quiz
+                    </button>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-3 small py-2 border-0 rounded-3 shadow-sm d-flex align-items-start gap-2" style="background-color: #e8f4f8; color: #0c5460;">
+                <i class="bi bi-info-circle-fill mt-1"></i> 
+                <div>
+                    <strong>Temporary Preview</strong><br />
+                    If you want to keep this collection, remember to save it!
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7 col-md-12 h-100" style="overflow-y: auto; max-height: calc(100vh - 140px);">
+            <div class="row g-3 pe-2 pb-5">
+                @if (Model.Words != null && Model.Words.Any())
+                {
+                    @foreach (var word in Model.Words)
+                    {
+                        <div class="col-md-12">
+                            <div class="word-card-preview">
+                                <div class="word-header">
+                                    <div>
+                                        <h5 class="term-title">
+                                            @word.Term
+                                            @if (!string.IsNullOrEmpty(word.DifficultyLevel))
+                                            {
+                                                <span class="badge-level-word">@word.DifficultyLevel</span>
+                                            }
+                                        </h5>
+                                        <span class="pos-label">@(word.PartOfSpeech ?? "unknown")</span>
+                                    </div>
+                                    <div class="translation-title">@word.Translation</div>
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(word.Transcription))
+                                {
+                                    <div class="transcription">[@word.Transcription]</div>
+                                }
+                                else
+                                {
+                                    <div class="transcription">[...]</div>
+                                }
+
+                                <div class="mt-2">
+                                    <div class="section-label">Category</div>
+                                    <span class="badge-category-word">@word.CategoryName</span>
+                                </div>
+
+                                <div class="mt-2">
+                                    <div class="section-label">Meaning</div>
+                                    <div class="section-text">@(string.IsNullOrEmpty(word.Meaning) ? "..." : word.Meaning)</div>
+                                </div>
+
+                                <div class="mt-2">
+                                    <div class="section-label">Example</div>
+                                    <div class="section-text fst-italic">@(string.IsNullOrEmpty(word.Example) ? "..." : word.Example)</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12">
+                        <div class="text-center py-5 text-muted" style="background: #FFFFFF; border-radius: 16px; border: 1px solid #E9ECEF;">
+                            <i class="bi bi-chat-left-dots fs-1 mb-2 d-block"></i>
+                            <p class="fw-medium text-dark mb-0">No words found</p>
+                            <p class="small">Try adjusting your generation criteria.</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

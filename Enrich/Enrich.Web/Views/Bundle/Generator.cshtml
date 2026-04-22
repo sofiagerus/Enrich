@@ -123,9 +123,20 @@
                 <h4 class="fw-bold mb-1" id="resultTitle">Generation Result</h4>
                 <p class="text-muted mb-0" id="resultDescription"></p>
             </div>
-            <button class="btn btn-outline-secondary rounded-pill px-4" onclick="document.getElementById('resultContainer').style.display='none'">
-                <i class="bi bi-x-lg me-2"></i>Close
-            </button>
+            <div>
+                <form id="previewForm" action="/Bundle/PreviewGenerated" method="POST" target="_blank" class="d-inline-block me-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="previewTitle" name="Title" />
+                    <input type="hidden" id="previewDescription" name="Description" />
+                    <input type="hidden" id="previewWordsJson" name="WordsJson" />
+                    <button type="submit" id="btnPreviewFull" class="btn btn-primary rounded-pill px-4">
+                        <i class="bi bi-eye me-2"></i>Open Full Preview
+                    </button>
+                </form>
+                <button class="btn btn-outline-secondary rounded-pill px-4" onclick="document.getElementById('resultContainer').style.display='none'">
+                    <i class="bi bi-x-lg me-2"></i>Close
+                </button>
+            </div>
         </div>
         
         <div class="row g-4" id="wordsResultList">
@@ -322,6 +333,11 @@
             title.innerText = data.title;
             desc.innerText = data.description || 'Temporarily generated word list';
             list.innerHTML = '';
+
+            // Set hidden form fields for the full preview
+            document.getElementById('previewTitle').value = data.title || '';
+            document.getElementById('previewDescription').value = data.description || '';
+            document.getElementById('previewWordsJson').value = JSON.stringify(data.words || []);
 
             data.words.forEach(word => {
                 const col = document.createElement('div');
