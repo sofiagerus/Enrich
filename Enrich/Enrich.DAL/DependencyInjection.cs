@@ -13,7 +13,8 @@ namespace Enrich.DAL
         {
             _ = services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(
-                    configuration.GetConnectionString("DefaultConnection")));
+                    configuration.GetConnectionString("DefaultConnection"),
+                    o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
             services.AddScoped<IWordRepository, WordRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();

@@ -17,6 +17,7 @@ namespace Enrich.UnitTests.Services
         private const string TestUserId = "user-123";
 
         private Mock<IBundleRepository> _bundleRepositoryMock = null!;
+        private Mock<IWordRepository> _wordRepositoryMock = null!;
         private Mock<ICategoryRepository> _categoryRepositoryMock = null!;
         private Mock<ILogger<BundleService>> _loggerMock = null!;
         private Mock<IOptions<PaginationSettings>> _paginationOptionsMock = null!;
@@ -26,6 +27,7 @@ namespace Enrich.UnitTests.Services
         public void SetUp()
         {
             _bundleRepositoryMock = new Mock<IBundleRepository>();
+            _wordRepositoryMock = new Mock<IWordRepository>();
             _categoryRepositoryMock = new Mock<ICategoryRepository>();
             _loggerMock = new Mock<ILogger<BundleService>>();
 
@@ -34,6 +36,7 @@ namespace Enrich.UnitTests.Services
 
             _bundleService = new BundleService(
                 _bundleRepositoryMock.Object,
+                _wordRepositoryMock.Object,
                 _categoryRepositoryMock.Object,
                 _paginationOptionsMock.Object,
                 _loggerMock.Object);
@@ -422,6 +425,67 @@ namespace Enrich.UnitTests.Services
             Assert.That(bundle.Status, Is.EqualTo(BundleStatus.Rejected));
             Assert.That(bundle.ReviewedAt, Is.Not.Null);
             _bundleRepositoryMock.Verify(r => r.UpdateBundleAsync(bundle), Times.Once);
+        }
+
+        [Test]
+        public async Task GenerateBundleAsync_WithValidRules_ReturnsGeneratedWords()
+        {
+            // Arrange
+            var dto = new GenerateBundleDTO
+            {
+                Title = "Custom Generated",
+                Rules = new List<BundleGenerationRuleDTO>
+                {
+                    new BundleGenerationRuleDTO { CategoryId = 1, WordCount = 2 }
+                }
+            };
+
+            var words = new List<Word>
+            {
+                new Word { Id = 1, Term = "Word1", DifficultyLevel = "A1", Categories = new List<Category> { new Category { Name = "General" } } },
+                new Word { Id = 2, Term = "Word2", DifficultyLevel = "A2", Categories = new List<Category> { new Category { Name = "General" } } }
+            };
+
+            _wordRepositoryMock
+                .Setup(r => r.GetRandomWordsByCriteriaAsync(1, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), 2))
+                .ReturnsAsync(words);
+
+            // Act
+            var result = await _bundleService.GenerateBundleAsync(TestUserId, dto);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.Value, Is.Not.Null);
+            Assert.That(result.Value!.Title, Is.EqualTo("Custom Generated"));
+            Assert.That(result.Value.Words.Count, Is.EqualTo(2));
+            Assert.That(result.Value.Words[0].Term, Is.EqualTo("Word1"));
+            _bundleRepositoryMock.Verify(r => r.CreateBundleAsync(It.IsAny<Bundle>()), Times.Never);
+        }
+
+        [Test]
+        public async Task GenerateBundleAsync_NoWordsFound_ReturnsError()
+        {
+            // Arrange
+            var dto = new GenerateBundleDTO
+            {
+                Title = "Empty Bundle",
+                Rules = new List<BundleGenerationRuleDTO>
+                {
+                    new BundleGenerationRuleDTO { CategoryId = 1, WordCount = 5 }
+                }
+            };
+
+            _wordRepositoryMock
+                .Setup(r => r.GetRandomWordsByCriteriaAsync(It.IsAny<int?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync(new List<Word>());
+
+            // Act
+            var result = await _bundleService.GenerateBundleAsync(TestUserId, dto);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Does.Contain("No words found"));
+            _bundleRepositoryMock.Verify(r => r.CreateBundleAsync(It.IsAny<Bundle>()), Times.Never);
         }
     }
 }

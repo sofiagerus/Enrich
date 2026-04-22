@@ -218,5 +218,43 @@ namespace Enrich.DAL.Repositories
                 .OrderBy(w => w.Term)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Word>> GetRandomWordsByCriteriaAsync(
+            int? categoryId,
+            string? partOfSpeech,
+            string? minDifficulty,
+            string? maxDifficulty,
+            int count)
+        {
+            var query = dbContext.Words.AsQueryable();
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(w => w.Categories.Any(c => c.Id == categoryId.Value));
+            }
+
+            if (!string.IsNullOrWhiteSpace(partOfSpeech) && !partOfSpeech.Equals("Any", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Where(w => w.PartOfSpeech == partOfSpeech);
+            }
+
+            if (!string.IsNullOrWhiteSpace(minDifficulty) || !string.IsNullOrWhiteSpace(maxDifficulty))
+            {
+                var levels = new List<string> { "A1", "A2", "B1", "B2", "C1", "C2" };
+                int minIdx = !string.IsNullOrWhiteSpace(minDifficulty) ? levels.IndexOf(minDifficulty) : 0;
+                int maxIdx = !string.IsNullOrWhiteSpace(maxDifficulty) ? levels.IndexOf(maxDifficulty) : levels.Count - 1;
+
+                if (minIdx != -1 && maxIdx != -1)
+                {
+                    var allowedLevels = levels.GetRange(minIdx, maxIdx - minIdx + 1);
+                    query = query.Where(w => w.DifficultyLevel != null && allowedLevels.Contains(w.DifficultyLevel));
+                }
+            }
+
+            return await query
+                .OrderBy(w => Guid.NewGuid())
+                .Take(count)
+                .ToListAsync();
+        }
     }
 }
