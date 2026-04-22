@@ -344,6 +344,17 @@ namespace Enrich.Web.Controllers
             return Ok(result.Value);
         }
 
+        [HttpPost]
+        public IActionResult PreviewGenerated([FromForm] PreviewGeneratedViewModel model)
+        {
+            if (string.IsNullOrWhiteSpace(model.WordsJson))
+            {
+                model.WordsJson = "[]";
+            }
+
+            return View(model);
+        }
+
         private async Task ReloadCreateViewModelData(CreateBundleViewModel model)
         {
             var categories = await bundleService.GetAllCategoriesAsync();
