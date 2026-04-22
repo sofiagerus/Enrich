@@ -12,6 +12,7 @@ namespace Enrich.BLL.Services
 {
     public class BundleService(
         IBundleRepository bundleRepository,
+        IWordRepository wordRepository,
         ICategoryRepository categoryRepository,
         IOptions<PaginationSettings> paginationOptions,
         ILogger<BundleService> logger) : IBundleService
@@ -144,12 +145,12 @@ namespace Enrich.BLL.Services
             }
 
             logger.LogInformation(
-                "Отримання сторінки {Page} бандлів користувача {UserId} з пошуком '{SearchTerm}', категорії: '{Category}', рівні: '{Level}'.",
+                "Fetching page {Page} of bundles for user {UserId} with search '{SearchTerm}', category: '{Category}', level: '{Level}'.",
                 page,
                 userId,
-                searchTerm ?? "(немає)",
-                categoryFilter ?? "(немає)",
-                difficultyLevel ?? "(немає)");
+                searchTerm ?? "(none)",
+                categoryFilter ?? "(none)",
+                difficultyLevel ?? "(none)");
 
             var (bundles, total) = await bundleRepository.GetUserBundlesPageAsync(
                 userId,
@@ -172,7 +173,7 @@ namespace Enrich.BLL.Services
             };
 
             logger.LogInformation(
-                "Успішно отримано {Count} бандлів (всього {Total}) для користувача {UserId}.",
+                "Successfully retrieved {Count} bundles (total {Total}) for user {UserId}.",
                 bundleDTOs.Count,
                 total,
                 userId);
@@ -189,7 +190,7 @@ namespace Enrich.BLL.Services
             int page,
             int pageSize)
         {
-            logger.LogInformation("Отримання сторінки системних бандлів: сторінка={Page}, розмір={PageSize}", page, pageSize);
+            logger.LogInformation("Fetching page of system bundles: page={Page}, size={PageSize}", page, pageSize);
 
             if (page <= 0)
             {
@@ -765,6 +766,60 @@ namespace Enrich.BLL.Services
                 logger.LogError(ex, "Error reviewing bundle {BundleId}.", bundleId);
                 return "An error occurred while reviewing the bundle.";
             }
+        }
+
+        public async Task<Result<GeneratedBundleResultDTO>> GenerateBundleAsync(string userId, GenerateBundleDTO dto)
+        {
+            logger.LogInformation("User {UserId} started temporary bundle generation: '{Title}'", userId, dto.Title);
+
+            var allFoundWords = new List<Word>();
+            var allFoundWordIds = new HashSet<int>();
+
+            foreach (var rule in dto.Rules)
+            {
+                var words = await wordRepository.GetRandomWordsByCriteriaAsync(
+                    rule.CategoryId,
+                    rule.PartOfSpeech,
+                    rule.MinDifficulty,
+                    rule.MaxDifficulty,
+                    rule.WordCount);
+
+                foreach (var word in words)
+                {
+                    if (allFoundWordIds.Add(word.Id))
+                    {
+                        allFoundWords.Add(word);
+                    }
+                }
+            }
+
+            if (!allFoundWords.Any())
+            {
+                logger.LogWarning("No words found for bundle '{Title}' requested by user {UserId}.", dto.Title, userId);
+                return "No words found matching the specified criteria.";
+            }
+
+            var result = new GeneratedBundleResultDTO
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                Words = allFoundWords.Select(w => new SystemWordDTO
+                {
+                    Id = w.Id,
+                    Term = w.Term,
+                    Translation = w.Translation,
+                    Transcription = w.Transcription,
+                    Meaning = w.Meaning,
+                    PartOfSpeech = w.PartOfSpeech,
+                    Example = w.Example,
+                    DifficultyLevel = w.DifficultyLevel,
+                    CategoryName = w.Categories.FirstOrDefault()?.Name ?? "General"
+                }).ToList()
+            };
+
+            logger.LogInformation("Temporary bundle '{Title}' successfully generated ({WordCount} words).", dto.Title, result.Words.Count);
+
+            return result;
         }
     }
 }

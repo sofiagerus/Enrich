@@ -69,17 +69,17 @@ namespace Enrich.Web.Controllers
 
             if (bundle == null)
             {
-                logger.LogWarning("Користувач {UserId} намагався переглянути неіснуючу колекцію {BundleId}.", CurrentUserId, id);
+                logger.LogWarning("User {UserId} attempted to view a non-existent collection {BundleId}.", CurrentUserId, id);
                 return NotFound();
             }
 
             if (!bundle.IsSystem && bundle.OwnerId != CurrentUserId && !bundle.IsPublic)
             {
-                logger.LogWarning("Доступ заборонено: Користувач {UserId} намагався переглянути приватну колекцію {BundleId}.", CurrentUserId, id);
+                logger.LogWarning("Access denied: User {UserId} attempted to view private collection {BundleId}.", CurrentUserId, id);
                 return Forbid();
             }
 
-            logger.LogInformation("Користувач {UserId} переглядає вміст колекції {BundleId} (\"{Title}\").", CurrentUserId, id, bundle.Title);
+            logger.LogInformation("User {UserId} is viewing collection {BundleId} (\"{Title}\").", CurrentUserId, id, bundle.Title);
 
             return View(bundle);
         }
@@ -308,6 +308,40 @@ namespace Enrich.Web.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Generator()
+        {
+            var categories = await bundleService.GetAllCategoriesAsync();
+            var viewModel = new GeneratorViewModel
+            {
+                Categories = categories
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Generate([FromBody] GenerateBundleDTO dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Title))
+            {
+                logger.LogWarning("Invalid temporary bundle generation request received.");
+                return BadRequest(new { message = "Invalid data." });
+            }
+
+            logger.LogInformation("Processing temporary bundle generation request: '{Title}'", dto.Title);
+
+            var result = await bundleService.GenerateBundleAsync(CurrentUserId, dto);
+            if (!result.IsSuccess)
+            {
+                logger.LogWarning("Failed to generate temporary bundle: {Error}", result.ErrorMessage);
+                return BadRequest(new { message = result.ErrorMessage });
+            }
+
+            logger.LogInformation("Temporary bundle '{Title}' successfully generated ({WordCount} words).", dto.Title, result.Value!.Words.Count);
+            return Ok(result.Value);
         }
 
         private async Task ReloadCreateViewModelData(CreateBundleViewModel model)

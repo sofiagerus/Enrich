@@ -1,0 +1,405 @@
+@model Enrich.Web.ViewModels.GeneratorViewModel
+@{
+    ViewData["Title"] = "Bundle Generator";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row align-items-start">
+        <!-- Left Column: Parameters -->
+        <div class="col-lg-4">
+            <div class="sidebar-panel">
+                <h6 class="fw-bold mb-3" style="font-size:0.9rem;">Bundle Information</h6>
+                
+                <div class="mb-3">
+                    <label class="small fw-semibold text-muted mb-1">Title</label>
+                    <div class="search-box p-1">
+                        <input type="text" id="bundleTitle" class="form-control border-0 bg-transparent px-3" 
+                               placeholder="Auto-generated collection" value="@Model.Title">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="small fw-semibold text-muted mb-1">Description</label>
+                    <div class="search-box p-1">
+                        <textarea id="bundleDescription" class="form-control border-0 bg-transparent px-3" 
+                                  rows="2" placeholder="Description">@Model.Description</textarea>
+                    </div>
+                </div>
+
+                <div class="sidebar-divider mb-4"></div>
+                
+                <h6 class="fw-bold mb-3" style="font-size:0.9rem;">Add Generation Rule</h6>
+
+                <div class="mb-3">
+                    <label class="small fw-semibold text-muted mb-1">Category</label>
+                    <div class="search-box p-1">
+                        <select id="categorySelect" class="form-select border-0 bg-transparent px-3">
+                            <option value="">Any</option>
+                            @foreach (var cat in Model.Categories)
+                            {
+                                <option value="@cat.Id">@cat.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="small fw-semibold text-muted mb-1">Part of Speech</label>
+                    <div class="search-box p-1">
+                        <select id="posSelect" class="form-select border-0 bg-transparent px-3">
+                            @foreach (var pos in Model.PartsOfSpeech)
+                            {
+                                <option value="@pos">@pos</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="small fw-semibold text-muted mb-1">Difficulty Level</label>
+                    <div class="d-flex gap-2">
+                        <div class="search-box p-1 flex-grow-1">
+                            <select id="minDifficulty" class="form-select border-0 bg-transparent px-2" style="font-size: 0.85rem;">
+                                <option value="">Min</option>
+                                @foreach (var level in Model.DifficultyLevels)
+                                {
+                                    <option value="@level">@level</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="search-box p-1 flex-grow-1">
+                            <select id="maxDifficulty" class="form-select border-0 bg-transparent px-2" style="font-size: 0.85rem;">
+                                <option value="">Max</option>
+                                @foreach (var level in Model.DifficultyLevels)
+                                {
+                                    <option value="@level">@level</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="small fw-semibold text-muted mb-1">Words Count</label>
+                    <div class="search-box p-1">
+                        <input type="number" id="wordCount" class="form-control border-0 bg-transparent px-3" 
+                               value="5" min="1" max="50">
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="button" id="btnAddRule" class="btn btn-action py-2 border-0 shadow-sm" style="background-color: #e9ecef;">
+                        <i class="bi bi-plus-lg me-2"></i>Add
+                    </button>
+                    <button type="button" id="btnGenerate" class="btn btn-success py-2 rounded-4 shadow-sm fw-bold">
+                        <i class="bi bi-stars me-2"></i>Generate
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Right Column: Queue -->
+        <div class="col-lg-8 ps-lg-4">
+            <div class="d-flex align-items-center mb-4">
+                <h5 class="fw-bold mb-0">Generation Queue</h5>
+                <span id="ruleCountBadge" class="badge bg-success ms-3 rounded-pill" style="display:none;">0</span>
+            </div>
+            
+            <div id="ruleList" class="row g-3">
+                <!-- Rules will be added here dynamically -->
+                <div id="emptyRulesMessage" class="col-12 text-center py-5 bg-white rounded-4 border border-dashed">
+                    <i class="bi bi-clipboard-plus fs-1 text-muted opacity-25"></i>
+                    <p class="text-muted mt-3">Queue is empty.<br>Select criteria on the left and click "Add".</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generation Result Section (Initially Hidden) -->
+    <div id="resultContainer" class="mt-5" style="display:none;">
+        <hr class="my-5 opacity-10">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h4 class="fw-bold mb-1" id="resultTitle">Generation Result</h4>
+                <p class="text-muted mb-0" id="resultDescription"></p>
+            </div>
+            <button class="btn btn-outline-secondary rounded-pill px-4" onclick="document.getElementById('resultContainer').style.display='none'">
+                <i class="bi bi-x-lg me-2"></i>Close
+            </button>
+        </div>
+        
+        <div class="row g-4" id="wordsResultList">
+            <!-- Words will be rendered here -->
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/collections.css" asp-append-version="true" />
+    <style>
+        .rule-item-card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+            border: 1px solid #f1f3f5;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+            transition: all 0.2s ease;
+            height: auto;
+            animation: slideIn 0.3s ease-out;
+            margin-bottom: 16px;
+        }
+        .rule-item-card:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-color: #e9ecef;
+        }
+        @@keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn-remove-rule {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #f8f9fa;
+            border: none;
+            color: #adb5bd;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        .btn-remove-rule:hover {
+            background-color: #f1f3f5;
+            color: #6c757d;
+            transform: rotate(90deg);
+        }
+        .rule-detail {
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start; /* Align to top for wrapping */
+            padding-right: 40px; /* Space for the absolute-positioned close button */
+        }
+        .rule-detail strong {
+            font-weight: 600;
+            color: #94a3b8;
+            flex-shrink: 0;
+            margin-right: 15px;
+        }
+        .rule-detail span {
+            font-weight: 600;
+            color: #1e293b;
+            text-align: right;
+            word-break: break-word; /* Allow wrapping for long words */
+        }
+        .rule-divider {
+            height: 1px;
+            background-color: #f1f3f5;
+            margin: 12px 0;
+        }
+        .search-box select.form-select {
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+        }
+        .word-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #f1f3f5;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        .word-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .word-term {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+        .word-transcription {
+            color: #64748b;
+            font-size: 0.9rem;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .word-translation {
+            color: #198754;
+            font-weight: 600;
+            margin: 8px 0;
+        }
+        .word-meta {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f8fafc;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        const rules = [];
+
+        function renderRules() {
+            const list = document.getElementById('ruleList');
+            const emptyMsg = document.getElementById('emptyRulesMessage');
+            const badge = document.getElementById('ruleCountBadge');
+
+            // Clear current items
+            const currentItems = list.querySelectorAll('.rule-wrapper');
+            currentItems.forEach(c => c.remove());
+
+            badge.innerText = rules.length;
+            badge.style.display = rules.length > 0 ? 'inline-block' : 'none';
+
+            if (rules.length === 0) {
+                emptyMsg.style.display = 'block';
+                return;
+            }
+
+            emptyMsg.style.display = 'none';
+
+            rules.forEach((rule, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'col-12 rule-wrapper';
+                wrapper.innerHTML = `
+                    <div class="rule-item-card">
+                        <button type="button" class="btn-remove-rule" onclick="removeRule(${index})"><i class="bi bi-x-lg" style="font-size: 0.8rem;"></i></button>
+                        <div class="rule-detail"><strong>Category:</strong> <span>${rule.categoryId ? rule.categoryName : 'Any'}</span></div>
+                        <div class="rule-detail"><strong>P.O.S:</strong> <span>${rule.partOfSpeech}</span></div>
+                        <div class="rule-detail"><strong>Difficulty:</strong> <span>${rule.minDifficulty || 'Min'} &rarr; ${rule.maxDifficulty || 'Max'}</span></div>
+                        <div class="rule-divider"></div>
+                        <div class="rule-detail mb-0"><strong>Words Count:</strong> <span>${rule.wordCount}</span></div>
+                    </div>
+                `;
+                list.appendChild(wrapper);
+            });
+        }
+
+        document.getElementById('btnAddRule').addEventListener('click', () => {
+            const categorySelect = document.getElementById('categorySelect');
+            const posSelect = document.getElementById('posSelect');
+            const minDifficulty = document.getElementById('minDifficulty');
+            const maxDifficulty = document.getElementById('maxDifficulty');
+            const wordCount = document.getElementById('wordCount');
+
+            const rule = {
+                categoryId: categorySelect.value ? parseInt(categorySelect.value) : null,
+                categoryName: categorySelect.options[categorySelect.selectedIndex].text,
+                partOfSpeech: posSelect.value,
+                minDifficulty: minDifficulty.value,
+                maxDifficulty: maxDifficulty.value,
+                wordCount: parseInt(wordCount.value) || 5
+            };
+
+            rules.push(rule);
+            renderRules();
+            showToast('Rule added to queue');
+        });
+
+        window.removeRule = (index) => {
+            rules.splice(index, 1);
+            renderRules();
+        };
+
+        function renderWords(data) {
+            const container = document.getElementById('resultContainer');
+            const list = document.getElementById('wordsResultList');
+            const title = document.getElementById('resultTitle');
+            const desc = document.getElementById('resultDescription');
+
+            title.innerText = data.title;
+            desc.innerText = data.description || 'Temporarily generated word list';
+            list.innerHTML = '';
+
+            data.words.forEach(word => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-xl-4';
+                col.innerHTML = `
+                    <div class="word-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="word-term">${word.term}</div>
+                            <span class="badge bg-light text-dark rounded-pill">${word.difficultyLevel || '-'}</span>
+                        </div>
+                        ${word.transcription ? `<div class="word-transcription">[${word.transcription}]</div>` : ''}
+                        <div class="word-translation">${word.translation}</div>
+                        ${word.meaning ? `<p class="small text-muted mb-2">${word.meaning}</p>` : ''}
+                        ${word.example ? `<div class="p-2 bg-light rounded-3 small mt-2"><em>"${word.example}"</em></div>` : ''}
+                        <div class="word-meta d-flex justify-content-between">
+                            <span><i class="bi bi-tag me-1"></i>${word.categoryName}</span>
+                            <span><i class="bi bi-layers me-1"></i>${word.partOfSpeech}</span>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(col);
+            });
+
+            container.style.display = 'block';
+            container.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById('btnGenerate').addEventListener('click', async () => {
+            if (rules.length === 0) {
+                showToast('Please add at least one rule.', 'warning');
+                return;
+            }
+
+            const title = document.getElementById('bundleTitle').value.trim() || 'Auto-generated collection';
+            const description = document.getElementById('bundleDescription').value.trim();
+
+            const payload = {
+                title: title,
+                description: description,
+                rules: rules.map(r => ({
+                    categoryId: r.categoryId,
+                    partOfSpeech: r.partOfSpeech,
+                    minDifficulty: r.minDifficulty,
+                    maxDifficulty: r.maxDifficulty,
+                    wordCount: r.wordCount
+                }))
+            };
+
+            const btn = document.getElementById('btnGenerate');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'Generating...';
+
+            try {
+                const response = await fetch('@Url.Action("Generate", "Bundle")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    renderWords(data);
+                    showToast('Generation completed successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    showToast(error.message || 'Generation failed.', 'danger');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('An unexpected error occurred.', 'danger');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        });
+    </script>
+}
