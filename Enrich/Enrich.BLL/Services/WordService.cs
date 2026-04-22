@@ -312,5 +312,91 @@ namespace Enrich.BLL.Services
 
             return true;
         }
+
+        public async Task<Result> CreateSystemWordAsync(CreateSystemWordDTO dto)
+        {
+            var word = new Word
+            {
+                Term = dto.Term,
+                Translation = dto.Translation,
+                Transcription = dto.Transcription,
+                Meaning = dto.Meaning,
+                PartOfSpeech = dto.PartOfSpeech,
+                Example = dto.Example,
+                DifficultyLevel = dto.DifficultyLevel,
+                IsGlobal = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            if (dto.CategoryIds != null && dto.CategoryIds.Any())
+            {
+                var cats = await categoryRepository.GetCategoriesByIdsAsync(dto.CategoryIds);
+                foreach (var cat in cats)
+                {
+                    word.Categories.Add(cat);
+                }
+            }
+
+            await wordRepository.CreateWordAsync(word);
+            logger.LogInformation("Адміністратор створив системне слово {WordId}", word.Id);
+            return true;
+        }
+
+        public async Task<Result> UpdateSystemWordAsync(int id, UpdateSystemWordDTO dto)
+        {
+            var word = await wordRepository.GetWordAsync(id);
+            if (word == null || !word.IsGlobal)
+            {
+                return "System word not found.";
+            }
+
+            word.Term = dto.Term;
+            word.Translation = dto.Translation;
+            word.Transcription = dto.Transcription;
+            word.Meaning = dto.Meaning;
+            word.PartOfSpeech = dto.PartOfSpeech;
+            word.Example = dto.Example;
+            word.DifficultyLevel = dto.DifficultyLevel;
+            word.UpdatedAt = DateTime.UtcNow;
+
+            word.Categories.Clear();
+            if (dto.CategoryIds != null && dto.CategoryIds.Any())
+            {
+                var cats = await categoryRepository.GetCategoriesByIdsAsync(dto.CategoryIds);
+                foreach (var cat in cats)
+                {
+                    word.Categories.Add(cat);
+                }
+            }
+
+            await wordRepository.UpdateWordAsync(word);
+            logger.LogInformation("Адміністратор оновив системне слово {WordId}", id);
+            return true;
+        }
+
+        public async Task<Result> DeleteSystemWordAsync(int id)
+        {
+            var word = await wordRepository.GetWordAsync(id);
+            if (word == null || !word.IsGlobal)
+            {
+                return "System word not found.";
+            }
+
+            await wordRepository.DeleteWordAsync(word);
+            logger.LogInformation("Адміністратор видалив системне слово {WordId}", id);
+            return true;
+        }
+
+        public async Task<Result<Word>> GetSystemWordForEditAsync(int id)
+        {
+            var word = await wordRepository.GetWordAsync(id);
+            if (word == null || !word.IsGlobal)
+            {
+                return "System word not found.";
+            }
+
+            return word;
+        }
     }
 }

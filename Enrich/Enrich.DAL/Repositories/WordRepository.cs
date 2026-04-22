@@ -27,6 +27,13 @@ namespace Enrich.DAL.Repositories
             return word;
         }
 
+        public async Task<Word> CreateWordAsync(Word word)
+        {
+            dbContext.Words.Add(word);
+            await dbContext.SaveChangesAsync();
+            return word;
+        }
+
         public async Task<IEnumerable<UserWord>> GetPersonalWordsWithDetailsAsync(string userId)
         {
             return await dbContext.UserWords
