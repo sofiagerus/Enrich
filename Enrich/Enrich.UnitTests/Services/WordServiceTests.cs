@@ -3,6 +3,7 @@ using Enrich.BLL.Services;
 using Enrich.BLL.Settings;
 using Enrich.DAL.Entities;
 using Enrich.DAL.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -18,6 +19,7 @@ namespace Enrich.UnitTests.Services
         private Mock<IWordProgressRepository> _wordProgressRepositoryMock = null!;
         private Mock<ILogger<WordService>> _loggerMock = null!;
         private Mock<IOptions<PaginationSettings>> _paginationOptionsMock = null!;
+        private IMemoryCache _memoryCache = null!;
         private WordService _wordService = null!;
 
         [SetUp]
@@ -27,16 +29,27 @@ namespace Enrich.UnitTests.Services
             _categoryRepositoryMock = new Mock<ICategoryRepository>();
             _wordProgressRepositoryMock = new Mock<IWordProgressRepository>();
             _loggerMock = new Mock<ILogger<WordService>>();
+            _memoryCache = new MemoryCache(new MemoryCacheOptions());
 
             _paginationOptionsMock = new Mock<IOptions<PaginationSettings>>();
             _paginationOptionsMock.Setup(o => o.Value).Returns(new PaginationSettings());
+
+            var cacheSettings = Options.Create(new CacheSettings { CategoriesCacheDurationMinutes = 60 });
 
             _wordService = new WordService(
                 _wordRepositoryMock.Object,
                 _categoryRepositoryMock.Object,
                 _wordProgressRepositoryMock.Object,
+                _memoryCache,
+                cacheSettings,
                 _paginationOptionsMock.Object,
                 _loggerMock.Object);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _memoryCache?.Dispose();
         }
 
         [Test]
@@ -127,12 +140,6 @@ namespace Enrich.UnitTests.Services
             Assert.That(result.IsSuccess, Is.False);
             Assert.That(result.ErrorMessage, Is.Not.Null);
             _wordRepositoryMock.Verify(r => r.DeleteUserWordAsync(It.IsAny<UserWord>()), Times.Never);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            // No cleanup needed for mocked tests
         }
 
         [Test]

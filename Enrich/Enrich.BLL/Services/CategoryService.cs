@@ -1,20 +1,32 @@
 using Enrich.BLL.Common;
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
+using Enrich.BLL.Settings;
 using Enrich.DAL.Entities;
 using Enrich.DAL.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Enrich.BLL.Services
 {
     public class CategoryService(
         ICategoryRepository categoryRepository,
+        IMemoryCache cache,
+        IOptions<CacheSettings> cacheSettings,
         ILogger<CategoryService> logger) : ICategoryService
     {
+        private readonly CacheSettings _cacheSettings = cacheSettings.Value;
+
         public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync()
         {
-            var categories = await categoryRepository.GetAllCategoriesAsync();
-            return categories.Select(c => new CategoryDTO { Id = c.Id, Name = c.Name });
+            var categories = await cache.GetOrCreateAsync(CacheKeys.AllCategories, async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheSettings.CategoriesCacheDurationMinutes);
+                return await categoryRepository.GetAllCategoriesAsync();
+            });
+
+            return categories!.Select(c => new CategoryDTO { Id = c.Id, Name = c.Name });
         }
 
         public async Task<CategoryDTO?> GetCategoryByIdAsync(int id)
@@ -45,6 +57,8 @@ namespace Enrich.BLL.Services
             var category = new Category { Name = dto.Name.Trim() };
             await categoryRepository.CreateCategoryAsync(category);
 
+            cache.Remove(CacheKeys.AllCategories);
+
             logger.LogInformation("Адміністратор створив нову категорію: {Name} (ID: {Id})", category.Name, category.Id);
             return true;
         }
@@ -66,6 +80,8 @@ namespace Enrich.BLL.Services
             category.Name = dto.Name.Trim();
             await categoryRepository.UpdateCategoryAsync(category);
 
+            cache.Remove(CacheKeys.AllCategories);
+
             logger.LogInformation("Категорію ID: {Id} оновлено на: {Name}", dto.Id, dto.Name);
             return true;
         }
@@ -79,6 +95,8 @@ namespace Enrich.BLL.Services
             }
 
             await categoryRepository.DeleteCategoryAsync(id);
+
+            cache.Remove(CacheKeys.AllCategories);
 
             logger.LogInformation("Категорію '{Name}' (ID: {Id}) було видалено.", category.Name, id);
             return true;
