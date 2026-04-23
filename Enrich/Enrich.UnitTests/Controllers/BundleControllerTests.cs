@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Enrich.BLL.Common;
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
@@ -679,6 +680,60 @@ namespace Enrich.UnitTests.Controllers
 
             // Act
             var result = await _controller.SaveCommunityBundle(bundleId);
+
+            // Assert
+            var badRequestResult = result as BadRequestObjectResult;
+            Assert.That(badRequestResult, Is.Not.Null);
+        }
+
+        [Test]
+        public async Task SaveGenerated_ValidRequest_ReturnsOk()
+        {
+            // Arrange
+            var model = new PreviewGeneratedViewModel
+            {
+                Title = "Generated Bundle",
+                Description = "Auto generated",
+                WordsJson = JsonSerializer.Serialize(new[] { new { Id = 1, Term = "Test", CategoryName = "General", DifficultyLevel = "A1" } })
+            };
+
+            _bundleServiceMock
+                .Setup(s => s.SaveGeneratedBundleAsync(TestUserId, It.IsAny<SaveGeneratedBundleDTO>()))
+                .ReturnsAsync(Result.Success());
+
+            // Act
+            var result = await _controller.SaveGenerated(model);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Assert.That(okResult, Is.Not.Null);
+            _bundleServiceMock.Verify(
+                s => s.SaveGeneratedBundleAsync(
+                    TestUserId,
+                    It.Is<SaveGeneratedBundleDTO>(dto =>
+                        dto.Title == "Generated Bundle" &&
+                        dto.WordIds.Contains(1) &&
+                        dto.DifficultyLevels.Contains("A1") &&
+                        dto.CategoryNames.Contains("General"))),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task SaveGenerated_WhenServiceReturnsError_ReturnsBadRequest()
+        {
+            // Arrange
+            var model = new PreviewGeneratedViewModel
+            {
+                Title = "Generated Bundle",
+                WordsJson = JsonSerializer.Serialize(new[] { new { Id = 1, Term = "Test" } })
+            };
+
+            _bundleServiceMock
+                .Setup(s => s.SaveGeneratedBundleAsync(TestUserId, It.IsAny<SaveGeneratedBundleDTO>()))
+                .ReturnsAsync(Result.Failure("Failed"));
+
+            // Act
+            var result = await _controller.SaveGenerated(model);
 
             // Assert
             var badRequestResult = result as BadRequestObjectResult;

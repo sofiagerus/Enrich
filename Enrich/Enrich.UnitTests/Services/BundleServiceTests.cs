@@ -502,6 +502,73 @@ namespace Enrich.UnitTests.Services
         }
 
         [Test]
+        public async Task SaveGeneratedBundleAsync_DuplicateTitle_ReturnsError()
+        {
+            // Arrange
+            var dto = new SaveGeneratedBundleDTO
+            {
+                Title = "Generated Bundle",
+                WordIds = new[] { 1 }
+            };
+
+            _bundleRepositoryMock
+                .Setup(r => r.BundleTitleExistsForUserAsync(TestUserId, "generated bundle"))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await _bundleService.SaveGeneratedBundleAsync(TestUserId, dto);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Does.Contain("already have a bundle"));
+            _bundleRepositoryMock.Verify(r => r.CreateBundleAsync(It.IsAny<Bundle>()), Times.Never);
+        }
+
+        [Test]
+        public async Task SaveGeneratedBundleAsync_ValidData_SavesBundleWithWordsAndCategories()
+        {
+            // Arrange
+            var dto = new SaveGeneratedBundleDTO
+            {
+                Title = "Generated Bundle",
+                Description = "Auto generated bundle",
+                WordIds = new[] { 2, 5 },
+                DifficultyLevels = ["A1", "B1"],
+                CategoryNames = ["General", "Science"]
+            };
+
+            var createdBundle = new Bundle { Id = 101 };
+
+            _bundleRepositoryMock
+                .Setup(r => r.BundleTitleExistsForUserAsync(TestUserId, "generated bundle"))
+                .ReturnsAsync(false);
+
+            _bundleRepositoryMock
+                .Setup(r => r.CreateBundleAsync(It.IsAny<Bundle>()))
+                .ReturnsAsync(createdBundle);
+
+            _categoryRepositoryMock
+                .Setup(r => r.GetCategoryByNameAsync("General"))
+                .ReturnsAsync(new Category { Id = 7, Name = "General" });
+            _categoryRepositoryMock
+                .Setup(r => r.GetCategoryByNameAsync("Science"))
+                .ReturnsAsync(new Category { Id = 8, Name = "Science" });
+
+            // Act
+            var result = await _bundleService.SaveGeneratedBundleAsync(TestUserId, dto);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.True);
+            _bundleRepositoryMock.Verify(
+                r => r.AddWordsToBundleAsync(
+                    createdBundle.Id,
+                    It.Is<IEnumerable<int>>(ids => ids.Contains(2) && ids.Contains(5))),
+                Times.Once);
+            _bundleRepositoryMock.Verify(
+                r => r.AddCategoriesToBundleAsync(
+                    createdBundle.Id,
+                    It.Is<IEnumerable<int>>(ids => ids.Contains(7) && ids.Contains(8))),
+                Times.Once);
         public async Task CreateSystemBundleAsync_ValidDto_SetsSystemFlagsAndStatus()
         {
             // Arrange

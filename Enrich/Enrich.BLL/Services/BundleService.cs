@@ -31,7 +31,8 @@ namespace Enrich.BLL.Services
                 return "Bundle title cannot be empty.";
             }
 
-            var titleLower = dto.Title.Trim().ToLowerInvariant();
+            var trimmedTitle = dto.Title.Trim();
+            var titleLower = trimmedTitle.ToLowerInvariant();
 
             var duplicateExists = await bundleRepository.BundleTitleExistsForUserAsync(userId, titleLower);
 
@@ -49,7 +50,7 @@ namespace Enrich.BLL.Services
 
             var bundle = new Bundle
             {
-                Title = dto.Title.Trim(),
+                Title = trimmedTitle,
                 Description = dto.Description?.Trim(),
                 DifficultyLevels = dto.DifficultyLevels ?? [],
                 ImageUrl = dto.ImageUrl,
@@ -84,7 +85,7 @@ namespace Enrich.BLL.Services
                 }
 
                 logger.LogInformation(
-                    "Користувач {UserId} успішно створив новий бандл '{Title}' (ID: {BundleId}) зі статусом {Status}.",
+                    "User {UserId} successfully created a new bundle '{Title}' (ID: {BundleId}) with status {Status}.",
                     userId,
                     createdBundle.Title,
                     createdBundle.Id,
@@ -110,7 +111,7 @@ namespace Enrich.BLL.Services
 
             if (bundle == null)
             {
-                logger.LogWarning("Спроба отримати неіснуючий бандл з ID: {BundleId}.", bundleId);
+                logger.LogWarning("Attempting to get a non-existent bundle with ID: {BundleId}.", bundleId);
                 return null;
             }
 
@@ -119,14 +120,14 @@ namespace Enrich.BLL.Services
 
         public async Task<IEnumerable<BundleDTO>> GetUserBundlesAsync(string userId)
         {
-            logger.LogInformation("Отримання списку бандлів користувача {UserId}.", userId);
+            logger.LogInformation("Retrieving bundle list for user {UserId}.", userId);
 
             var bundles = await bundleRepository.GetUserBundlesAsync(userId);
 
             var bundleDTOs = bundles.Select(MapBundleToDTO).ToList();
 
             logger.LogInformation(
-                "Успішно отримано {Count} бандлів для користувача {UserId}.",
+                "Successfully retrieved {Count} bundles for user {UserId}.",
                 bundleDTOs.Count,
                 userId);
 
@@ -244,7 +245,7 @@ namespace Enrich.BLL.Services
              int page,
              int pageSize)
         {
-            logger.LogInformation("Отримання сторінки ком'юніті бандлів: сторінка={Page}, розмір={PageSize}", page, pageSize);
+            logger.LogInformation("Retrieving community bundles page: page={Page}, size={PageSize}", page, pageSize);
 
             if (page <= 0)
             {
@@ -294,7 +295,7 @@ namespace Enrich.BLL.Services
              int page,
              int pageSize)
         {
-            logger.LogInformation("Отримання сторінки бандлів на перевірці: сторінка={Page}, розмір={PageSize}", page, pageSize);
+            logger.LogInformation("Retrieving pending review bundles page: page={Page}, size={PageSize}", page, pageSize);
 
             if (page <= 0)
             {
@@ -697,6 +698,108 @@ namespace Enrich.BLL.Services
             {
                 logger.LogError(ex, "Error saving community bundle {BundleId} by user {UserId}.", bundleId, userId);
                 return "An error occurred while saving the collection.";
+            }
+        }
+
+        public async Task<Result> SaveGeneratedBundleAsync(string userId, SaveGeneratedBundleDTO dto)
+        {
+            if (dto == null)
+            {
+                logger.LogWarning("User {UserId} attempted to save a generated bundle with empty payload.", userId);
+                return "Invalid bundle data.";
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.Title))
+            {
+                logger.LogWarning("User {UserId} attempted to save a generated bundle with an empty title.", userId);
+                return "Bundle title cannot be empty.";
+            }
+
+            var wordIds = dto.WordIds?
+                .Where(id => id > 0)
+                .Distinct()
+                .ToList() ?? new List<int>();
+
+            if (!wordIds.Any())
+            {
+                logger.LogWarning("User {UserId} attempted to save a generated bundle '{Title}' with no words.", userId, dto.Title);
+                return "Generated bundle has no words to save.";
+            }
+
+            var titleLower = dto.Title.Trim().ToLowerInvariant();
+            var duplicateExists = await bundleRepository.BundleTitleExistsForUserAsync(userId, titleLower);
+            if (duplicateExists)
+            {
+                logger.LogWarning("User {UserId} attempted to save a duplicate generated bundle '{Title}'.", userId, dto.Title);
+                return $"You already have a bundle named '{dto.Title}'.";
+            }
+
+            var difficultyLevels = dto.DifficultyLevels?
+                .Where(level => !string.IsNullOrWhiteSpace(level))
+                .Select(level => level.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray() ?? [];
+
+            var now = DateTime.UtcNow;
+            var bundle = new Bundle
+            {
+                Title = dto.Title.Trim(),
+                Description = dto.Description?.Trim(),
+                DifficultyLevels = difficultyLevels,
+                Status = BundleStatus.Draft,
+                IsSystem = false,
+                IsPublic = false,
+                OwnerId = userId,
+                CreatedAt = now,
+                UpdatedAt = now,
+                Words = new List<Word>(),
+                Categories = new List<Category>(),
+                Tags = new List<Tag>()
+            };
+
+            try
+            {
+                var createdBundle = await bundleRepository.CreateBundleAsync(bundle);
+
+                await bundleRepository.AddWordsToBundleAsync(createdBundle.Id, wordIds);
+
+                var categoryNames = dto.CategoryNames?
+                    .Where(name => !string.IsNullOrWhiteSpace(name))
+                    .Select(name => name.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList() ?? new List<string>();
+
+                if (categoryNames.Any())
+                {
+                    var categoryIds = new List<int>();
+                    foreach (var name in categoryNames)
+                    {
+                        var category = await categoryRepository.GetCategoryByNameAsync(name);
+                        if (category != null)
+                        {
+                            categoryIds.Add(category.Id);
+                        }
+                    }
+
+                    if (categoryIds.Any())
+                    {
+                        await bundleRepository.AddCategoriesToBundleAsync(createdBundle.Id, categoryIds.Distinct());
+                    }
+                }
+
+                logger.LogInformation(
+                    "User {UserId} saved generated bundle '{Title}' (ID: {BundleId}) with {WordCount} words.",
+                    userId,
+                    createdBundle.Title,
+                    createdBundle.Id,
+                    wordIds.Count);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error saving generated bundle '{Title}' by user {UserId}.", dto.Title, userId);
+                return "An error occurred while saving the generated bundle.";
             }
         }
 

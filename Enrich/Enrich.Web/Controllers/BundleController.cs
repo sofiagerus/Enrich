@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
 using Enrich.BLL.Settings;
@@ -278,6 +279,62 @@ namespace Enrich.Web.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveGenerated([FromBody] PreviewGeneratedViewModel model)
+        {
+            if (model == null)
+            {
+                logger.LogWarning("User {UserId} submitted an empty generated bundle save request.", CurrentUserId);
+                return BadRequest(new { message = "Invalid data." });
+            }
+
+            List<SystemWordDTO> words;
+            try
+            {
+                words = model.Words;
+            }
+            catch (JsonException ex)
+            {
+                logger.LogWarning(ex, "User {UserId} submitted invalid generated bundle words payload.", CurrentUserId);
+                return BadRequest(new { message = "Invalid words data." });
+            }
+
+            var wordIds = words.Select(w => w.Id).Where(id => id > 0).Distinct().ToList();
+            if (!wordIds.Any())
+            {
+                logger.LogWarning("User {UserId} attempted to save a generated bundle without words.", CurrentUserId);
+                return BadRequest(new { message = "Generated bundle has no words to save." });
+            }
+
+            var dto = new SaveGeneratedBundleDTO
+            {
+                Title = model.Title?.Trim() ?? string.Empty,
+                Description = model.Description?.Trim(),
+                WordIds = wordIds,
+                DifficultyLevels = words
+                    .Where(w => !string.IsNullOrWhiteSpace(w.DifficultyLevel))
+                    .Select(w => w.DifficultyLevel!.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToArray(),
+                CategoryNames = words
+                    .Select(w => w.CategoryName?.Trim())
+                    .Where(name => !string.IsNullOrWhiteSpace(name))
+                    .Select(name => name!)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToArray()
+            };
+
+            var result = await bundleService.SaveGeneratedBundleAsync(CurrentUserId, dto);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { message = result.ErrorMessage });
+            }
+
+            logger.LogInformation("User {UserId} saved generated bundle '{Title}'.", CurrentUserId, dto.Title);
+            return Ok(new { message = "Collection saved.", redirectUrl = Url?.Action("Index", "Bundle") });
         }
 
         [HttpPost]
