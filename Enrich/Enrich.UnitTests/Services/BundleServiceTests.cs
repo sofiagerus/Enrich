@@ -500,5 +500,88 @@ namespace Enrich.UnitTests.Services
             Assert.That(result.ErrorMessage, Does.Contain("No words found"));
             _bundleRepositoryMock.Verify(r => r.CreateBundleAsync(It.IsAny<Bundle>()), Times.Never);
         }
+
+        [Test]
+        public async Task CreateSystemBundleAsync_ValidDto_SetsSystemFlagsAndStatus()
+        {
+            // Arrange
+            var dto = new CreateBundleDTO
+            {
+                Title = "New System Collection",
+                CategoryIds = new List<int> { 1 },
+                WordIds = new List<int> { 10, 11 }
+            };
+
+            _bundleRepositoryMock
+                .Setup(r => r.CreateBundleAsync(It.IsAny<Bundle>()))
+                .ReturnsAsync((Bundle b) =>
+                {
+                    b.Id = 100;
+                    return b;
+                });
+
+            // Act
+            var result = await _bundleService.CreateSystemBundleAsync(dto);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.True);
+            _bundleRepositoryMock.Verify(
+                r => r.CreateBundleAsync(It.Is<Bundle>(b =>
+                b.Title == "New System Collection" &&
+                b.IsSystem &&
+                b.OwnerId == "SYSTEM" &&
+                b.Status == BundleStatus.Published)),
+                Times.Once);
+
+            _bundleRepositoryMock.Verify(r => r.AddWordsToBundleAsync(100, dto.WordIds), Times.Once);
+            _bundleRepositoryMock.Verify(r => r.AddCategoriesToBundleAsync(100, dto.CategoryIds), Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateSystemBundleAsync_ExistingSystemBundle_UpdatesAndSyncs()
+        {
+            // Arrange
+            var bundleId = 55;
+            var systemBundle = new Bundle { Id = bundleId, IsSystem = true, Title = "Old Title" };
+            var dto = new CreateBundleDTO
+            {
+                Title = "Updated Title",
+                WordIds = new List<int> { 1, 2 },
+                CategoryIds = new List<int> { 3 }
+            };
+
+            _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(systemBundle);
+
+            // Act
+            var result = await _bundleService.UpdateSystemBundleAsync(bundleId, dto);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(systemBundle.Title, Is.EqualTo("Updated Title"));
+
+            _bundleRepositoryMock.Verify(r => r.UpdateBundleAsync(systemBundle), Times.Once);
+            _bundleRepositoryMock.Verify(r => r.SyncBundleRelationsAsync(bundleId, dto.WordIds, dto.CategoryIds), Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateSystemBundleAsync_NonSystemBundle_ReturnsError()
+        {
+            // Arrange
+            var bundleId = 1;
+            var userBundle = new Bundle { Id = bundleId, IsSystem = false };
+            var dto = new CreateBundleDTO { Title = "Hacker Title" };
+
+            _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(userBundle);
+
+            // Act
+            var result = await _bundleService.UpdateSystemBundleAsync(bundleId, dto);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("System bundle not found."));
+            _bundleRepositoryMock.Verify(r => r.UpdateBundleAsync(It.IsAny<Bundle>()), Times.Never);
+        }
     }
 }

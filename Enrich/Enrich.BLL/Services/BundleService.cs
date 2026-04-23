@@ -829,5 +829,87 @@ namespace Enrich.BLL.Services
 
             return result;
         }
+
+        public async Task<Result> CreateSystemBundleAsync(CreateBundleDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Title))
+            {
+                logger.LogWarning("Attempt to create a system bundle with an empty title.");
+                return "Bundle title cannot be empty.";
+            }
+
+            var now = DateTime.UtcNow;
+
+            var bundle = new Bundle
+            {
+                Title = dto.Title.Trim(),
+                Description = dto.Description?.Trim(),
+                DifficultyLevels = dto.DifficultyLevels ?? [],
+                ImageUrl = dto.ImageUrl,
+                Status = BundleStatus.Published, // Системні бандли відразу опубліковані
+                IsSystem = true,                 // Головна відмінність!
+                IsPublic = true,
+                OwnerId = "SYSTEM",              // Власник - система
+                CreatedAt = now,
+                UpdatedAt = now,
+                Words = new List<Word>(),
+                Categories = new List<Category>(),
+                Tags = new List<Tag>()
+            };
+
+            try
+            {
+                var createdBundle = await bundleRepository.CreateBundleAsync(bundle);
+
+                if (dto.WordIds != null && dto.WordIds.Any())
+                {
+                    await bundleRepository.AddWordsToBundleAsync(createdBundle.Id, dto.WordIds);
+                }
+
+                if (dto.CategoryIds != null && dto.CategoryIds.Any())
+                {
+                    await bundleRepository.AddCategoriesToBundleAsync(createdBundle.Id, dto.CategoryIds);
+                }
+
+                logger.LogInformation("System bundle '{Title}' (ID: {BundleId}) successfully created.", createdBundle.Title, createdBundle.Id);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error creating system bundle '{Title}'.", dto.Title);
+                return "An error occurred while creating the system bundle.";
+            }
+        }
+
+        public async Task<Result> UpdateSystemBundleAsync(int bundleId, CreateBundleDTO dto)
+        {
+            var bundle = await bundleRepository.GetBundleByIdAsync(bundleId);
+
+            if (bundle == null || !bundle.IsSystem)
+            {
+                logger.LogWarning("Attempted to update non-existent or non-system bundle {BundleId}.", bundleId);
+                return "System bundle not found.";
+            }
+
+            bundle.Title = dto.Title.Trim();
+            bundle.Description = dto.Description?.Trim();
+            bundle.DifficultyLevels = dto.DifficultyLevels ?? [];
+            bundle.ImageUrl = dto.ImageUrl;
+            bundle.UpdatedAt = DateTime.UtcNow;
+
+            try
+            {
+                await bundleRepository.UpdateBundleAsync(bundle);
+                await bundleRepository.SyncBundleRelationsAsync(bundle.Id, dto.WordIds, dto.CategoryIds);
+
+                logger.LogInformation("System bundle {BundleId} successfully updated.", bundleId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error updating system bundle {BundleId}.", bundleId);
+                return "An error occurred while updating the system bundle.";
+            }
+        }
     }
 }
