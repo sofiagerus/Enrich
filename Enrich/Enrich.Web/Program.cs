@@ -3,6 +3,7 @@ using Enrich.DAL;
 using Enrich.DAL.Data;
 using Enrich.DAL.Entities;
 using Enrich.Web.Handlers;
+using Enrich.Web.Middlewares;
 using Enrich.Web.Seeders;
 using Enrich.Web.Settings;
 using Microsoft.AspNetCore.Identity;
@@ -94,6 +95,9 @@ try
     app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 
     // Configure the HTTP request pipeline
+    app.UseMiddleware<ExecutionTimeMiddleware>();
+    app.UseMiddleware<RequestLoggingMiddleware>();
+
     if (!app.Environment.IsDevelopment())
     {
         app.UseHsts();
