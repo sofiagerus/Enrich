@@ -3,6 +3,7 @@ using Enrich.DAL;
 using Enrich.DAL.Data;
 using Enrich.DAL.Entities;
 using Enrich.Web.Handlers;
+using Enrich.Web.Middlewares;
 using Enrich.Web.Seeders;
 using Enrich.Web.Settings;
 using Microsoft.AspNetCore.Identity;
@@ -39,6 +40,7 @@ try
         .Get<IdentitySettings>() ?? new IdentitySettings();
 
     // Register Services
+    builder.Services.AddMemoryCache();
     builder.Services.AddDalServices(builder.Configuration);
     builder.Services.AddBllServices(builder.Configuration);
     builder.Services.AddIdentity<User, IdentityRole>(options =>
@@ -94,6 +96,9 @@ try
     app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 
     // Configure the HTTP request pipeline
+    app.UseMiddleware<ExecutionTimeMiddleware>();
+    app.UseMiddleware<RequestLoggingMiddleware>();
+
     if (!app.Environment.IsDevelopment())
     {
         app.UseHsts();

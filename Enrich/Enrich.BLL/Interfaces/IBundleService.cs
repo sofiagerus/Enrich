@@ -72,5 +72,9 @@ namespace Enrich.BLL.Interfaces
         Task<BundleDTO?> GetBundleWithWordsAsync(int bundleId);
 
         Task<Result<GeneratedBundleResultDTO>> GenerateBundleAsync(string userId, GenerateBundleDTO dto);
+
+        Task<Result> CreateSystemBundleAsync(CreateBundleDTO dto);
+
+        Task<Result> UpdateSystemBundleAsync(int bundleId, CreateBundleDTO dto);
     }
 }

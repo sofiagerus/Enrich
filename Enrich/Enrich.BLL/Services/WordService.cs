@@ -4,6 +4,7 @@ using Enrich.BLL.Interfaces;
 using Enrich.BLL.Settings;
 using Enrich.DAL.Entities;
 using Enrich.DAL.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -13,10 +14,13 @@ namespace Enrich.BLL.Services
         IWordRepository wordRepository,
         ICategoryRepository categoryRepository,
         IWordProgressRepository wordProgressRepository,
+        IMemoryCache cache,
+        IOptions<CacheSettings> cacheSettings,
         IOptions<PaginationSettings> paginationOptions,
         ILogger<WordService> logger) : IWordService
     {
         private readonly PaginationSettings _pagination = paginationOptions.Value;
+        private readonly CacheSettings _cacheSettings = cacheSettings.Value;
 
         public async Task<Result> CreatePersonalWordAsync(string userId, CreatePersonalWordDTO dto)
         {
@@ -253,7 +257,11 @@ namespace Enrich.BLL.Services
 
         public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
         {
-            return await categoryRepository.GetAllCategoriesAsync();
+            return await cache.GetOrCreateAsync(CacheKeys.AllCategories, async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheSettings.CategoriesCacheDurationMinutes);
+                return await categoryRepository.GetAllCategoriesAsync();
+            }) ?? [];
         }
 
         public async Task<IEnumerable<Category>> GetCategoriesByIdsAsync(IEnumerable<int> ids)
@@ -270,7 +278,11 @@ namespace Enrich.BLL.Services
             }
 
             var cat = new Category { Name = name.Trim() };
-            return await categoryRepository.CreateCategoryAsync(cat);
+            var result = await categoryRepository.CreateCategoryAsync(cat);
+
+            cache.Remove(CacheKeys.AllCategories);
+
+            return result;
         }
 
         public async Task<Category?> GetCategoryByNameAsync(string name)

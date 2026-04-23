@@ -766,7 +766,7 @@ namespace Enrich.UnitTests.Controllers
         public void PreviewGenerated_WhenWordsJsonIsValid_ReturnsViewWithModel()
         {
             // Arrange
-            var json = JsonSerializer.Serialize(new[] { new { Term = "test", Translation = "тест" } });
+            var json = /*lang=json,strict*/ "[{\"Term\":\"test\",\"Translation\":\"тест\"}]";
             var model = new PreviewGeneratedViewModel
             {
                 Title = "Test Bundle",

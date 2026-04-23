@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 	<UserSecretsId>0b3db9af-3af8-4478-8efd-c84696a8c34d</UserSecretsId>
+    <StaticWebAssetCompressionEnabled>false</StaticWebAssetCompressionEnabled>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,6 +33,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Enrich.BLL\Enrich.BLL.csproj" />
     <ProjectReference Include="..\Enrich.DAL\Enrich.DAL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Views\AdminBundle\" />
   </ItemGroup>
 
 </Project>
