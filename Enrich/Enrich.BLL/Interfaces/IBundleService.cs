@@ -63,6 +63,8 @@ namespace Enrich.BLL.Interfaces
 
         Task<Result> SaveCommunityBundleAsync(string userId, int bundleId);
 
+        Task<Result> SaveGeneratedBundleAsync(string userId, SaveGeneratedBundleDTO dto);
+
         Task<Result> SubmitBundleForReviewAsync(string userId, int bundleId);
 
         Task<Result> ReviewBundleAsync(int bundleId, bool approve);

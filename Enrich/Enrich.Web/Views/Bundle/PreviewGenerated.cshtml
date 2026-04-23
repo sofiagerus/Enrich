@@ -180,8 +180,13 @@
                     </div>
                 </div>
 
+                <input type="hidden" id="generatedTitle" value="@Model.Title" />
+                <input type="hidden" id="generatedDescription" value="@Model.Description" />
+                <input type="hidden" id="generatedWordsJson" value="@Model.WordsJson" />
+                @Html.AntiForgeryToken()
+
                 <div class="d-flex gap-2 mt-auto flex-column flex-sm-row">
-                    <button class="btn btn-action-success rounded-4 w-100 justify-content-center">
+                    <button id="btnSaveGenerated" type="button" class="btn btn-action-success rounded-4 w-100 justify-content-center">
                         <i class="bi bi-plus-circle me-2"></i> Add to My Collections
                     </button>
                     <button class="btn btn-action-outline-success rounded-4 w-100 justify-content-center">
@@ -262,3 +267,61 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('btnSaveGenerated').addEventListener('click', async () => {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            if (!token) {
+                showToast('Verification token missing.', 'danger');
+                return;
+            }
+
+            const payload = {
+                title: document.getElementById('generatedTitle').value,
+                description: document.getElementById('generatedDescription').value,
+                wordsJson: document.getElementById('generatedWordsJson').value
+            };
+
+            const btn = document.getElementById('btnSaveGenerated');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'Saving...';
+
+            try {
+                const response = await fetch('@Url.Action("SaveGenerated", "Bundle")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showToast(data.message || 'Collection saved.', 'success');
+                    if (data.redirectUrl) {
+                        window.location.href = data.redirectUrl;
+                        return;
+                    }
+                } else {
+                    let errorMessage = 'Failed to save the collection.';
+                    try {
+                        const error = await response.json();
+                        errorMessage = error.message || errorMessage;
+                    } catch (err) {
+                        console.error(err);
+                    }
+                    showToast(errorMessage, 'danger');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('An unexpected error occurred.', 'danger');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        });
+    </script>
+}
