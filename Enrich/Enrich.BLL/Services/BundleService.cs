@@ -5,6 +5,7 @@ using Enrich.BLL.Settings;
 using Enrich.DAL.Entities;
 using Enrich.DAL.Entities.Enums;
 using Enrich.DAL.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -14,10 +15,13 @@ namespace Enrich.BLL.Services
         IBundleRepository bundleRepository,
         IWordRepository wordRepository,
         ICategoryRepository categoryRepository,
+        IMemoryCache cache,
+        IOptions<CacheSettings> cacheSettings,
         IOptions<PaginationSettings> paginationOptions,
         ILogger<BundleService> logger) : IBundleService
     {
         private readonly PaginationSettings _pagination = paginationOptions.Value;
+        private readonly CacheSettings _cacheSettings = cacheSettings.Value;
 
         public async Task<Result> CreateBundleAsync(string userId, CreateBundleDTO dto)
         {
@@ -333,7 +337,11 @@ namespace Enrich.BLL.Services
 
         public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
         {
-            return await categoryRepository.GetAllCategoriesAsync();
+            return await cache.GetOrCreateAsync(CacheKeys.AllCategories, async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheSettings.CategoriesCacheDurationMinutes);
+                return await categoryRepository.GetAllCategoriesAsync();
+            }) ?? [];
         }
 
         public async Task<Result> UpdateBundleAsync(string userId, int bundleId, CreateBundleDTO dto)

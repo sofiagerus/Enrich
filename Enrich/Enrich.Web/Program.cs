@@ -40,6 +40,7 @@ try
         .Get<IdentitySettings>() ?? new IdentitySettings();
 
     // Register Services
+    builder.Services.AddMemoryCache();
     builder.Services.AddDalServices(builder.Configuration);
     builder.Services.AddBllServices(builder.Configuration);
     builder.Services.AddIdentity<User, IdentityRole>(options =>

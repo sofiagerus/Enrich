@@ -1,8 +1,11 @@
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Services;
+using Enrich.BLL.Settings;
 using Enrich.DAL.Entities;
 using Enrich.DAL.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -13,6 +16,7 @@ namespace Enrich.UnitTests.Services
     {
         private Mock<ICategoryRepository> _categoryRepositoryMock = null!;
         private Mock<ILogger<CategoryService>> _loggerMock = null!;
+        private IMemoryCache _memoryCache = null!;
         private CategoryService _categoryService = null!;
 
         [SetUp]
@@ -20,7 +24,20 @@ namespace Enrich.UnitTests.Services
         {
             _categoryRepositoryMock = new Mock<ICategoryRepository>();
             _loggerMock = new Mock<ILogger<CategoryService>>();
-            _categoryService = new CategoryService(_categoryRepositoryMock.Object, _loggerMock.Object);
+            _memoryCache = new MemoryCache(new MemoryCacheOptions());
+            var cacheSettings = Options.Create(new CacheSettings { CategoriesCacheDurationMinutes = 60 });
+
+            _categoryService = new CategoryService(
+                _categoryRepositoryMock.Object,
+                _memoryCache,
+                cacheSettings,
+                _loggerMock.Object);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _memoryCache?.Dispose();
         }
 
         [Test]

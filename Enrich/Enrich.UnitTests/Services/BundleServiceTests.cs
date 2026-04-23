@@ -4,6 +4,7 @@ using Enrich.BLL.Settings;
 using Enrich.DAL.Entities;
 using Enrich.DAL.Entities.Enums;
 using Enrich.DAL.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -21,6 +22,7 @@ namespace Enrich.UnitTests.Services
         private Mock<ICategoryRepository> _categoryRepositoryMock = null!;
         private Mock<ILogger<BundleService>> _loggerMock = null!;
         private Mock<IOptions<PaginationSettings>> _paginationOptionsMock = null!;
+        private IMemoryCache _memoryCache = null!;
         private BundleService _bundleService = null!;
 
         [SetUp]
@@ -30,16 +32,27 @@ namespace Enrich.UnitTests.Services
             _wordRepositoryMock = new Mock<IWordRepository>();
             _categoryRepositoryMock = new Mock<ICategoryRepository>();
             _loggerMock = new Mock<ILogger<BundleService>>();
+            _memoryCache = new MemoryCache(new MemoryCacheOptions());
 
             _paginationOptionsMock = new Mock<IOptions<PaginationSettings>>();
             _paginationOptionsMock.Setup(o => o.Value).Returns(new PaginationSettings());
+
+            var cacheSettings = Options.Create(new CacheSettings { CategoriesCacheDurationMinutes = 60 });
 
             _bundleService = new BundleService(
                 _bundleRepositoryMock.Object,
                 _wordRepositoryMock.Object,
                 _categoryRepositoryMock.Object,
+                _memoryCache,
+                cacheSettings,
                 _paginationOptionsMock.Object,
                 _loggerMock.Object);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _memoryCache?.Dispose();
         }
 
         [Test]

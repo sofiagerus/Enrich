@@ -15,6 +15,9 @@ namespace Enrich.BLL
             services.Configure<PaginationSettings>(
                 configuration.GetSection(PaginationSettings.Section));
 
+            services.Configure<CacheSettings>(
+                configuration.GetSection(CacheSettings.Section));
+
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IWordService, WordService>();
