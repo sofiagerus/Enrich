@@ -569,6 +569,9 @@ namespace Enrich.UnitTests.Services
                     createdBundle.Id,
                     It.Is<IEnumerable<int>>(ids => ids.Contains(7) && ids.Contains(8))),
                 Times.Once);
+        }
+
+        [Test]
         public async Task CreateSystemBundleAsync_ValidDto_SetsSystemFlagsAndStatus()
         {
             // Arrange

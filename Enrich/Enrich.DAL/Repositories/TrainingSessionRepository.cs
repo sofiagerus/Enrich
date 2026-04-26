@@ -23,7 +23,7 @@ namespace Enrich.DAL.Repositories
         {
             return await dbContext.TrainingSessions
                 .Include(s => s.Bundle)
-                .ThenInclude(b => b.Words)
+                .ThenInclude(b => b!.Words)
                 .Include(s => s.SessionResults)
                 .ThenInclude(sr => sr.Word)
                 .FirstOrDefaultAsync(s => s.Id == sessionId);

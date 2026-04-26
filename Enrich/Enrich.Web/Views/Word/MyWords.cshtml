@@ -248,6 +248,9 @@
                 <a asp-action="Create" class="btn btn-action primary">
                     <i class="bi bi-plus-lg me-1"></i> Add New Word
                 </a>
+                <a asp-controller="Quiz" asp-action="Setup" class="btn btn-action primary">
+                    <i class="bi bi-play-fill me-1"></i> Start Quiz
+                </a>
             </div>
 
             <div id="words-container" class="row g-3" data-page-size="@ViewData["PageSize"]"></div>
