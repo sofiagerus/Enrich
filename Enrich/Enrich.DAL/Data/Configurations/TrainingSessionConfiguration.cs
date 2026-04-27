@@ -26,7 +26,8 @@ namespace Enrich.DAL.Data.Configurations
             _ = builder.HasOne(ts => ts.Bundle)
                 .WithMany(b => b.TrainingSessions)
                 .HasForeignKey(ts => ts.BundleId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

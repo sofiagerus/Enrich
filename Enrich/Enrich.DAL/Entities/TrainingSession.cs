@@ -6,7 +6,7 @@ namespace Enrich.DAL.Entities
 
         public required string UserId { get; set; }
 
-        public int BundleId { get; set; }
+        public int? BundleId { get; set; }
 
         public DateTime StartedAt { get; set; }
 
@@ -20,7 +20,7 @@ namespace Enrich.DAL.Entities
 
         public virtual User User { get; set; } = null!;
 
-        public virtual Bundle Bundle { get; set; } = null!;
+        public virtual Bundle? Bundle { get; set; }
 
         public virtual ICollection<SessionResult> SessionResults { get; set; } = new List<SessionResult>();
     }

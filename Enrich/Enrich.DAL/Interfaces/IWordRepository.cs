@@ -33,5 +33,7 @@ namespace Enrich.DAL.Interfaces
         Task<IEnumerable<Word>> GetAllWordsAsync();
 
         Task<IEnumerable<Word>> GetRandomWordsByCriteriaAsync(int? categoryId, string? partOfSpeech, string? minDifficulty, string? maxDifficulty, int count);
+
+        Task<IEnumerable<Word>> GetRandomPersonalWordsByCriteriaAsync(string userId, string? category, string? partOfSpeech, string? minDifficulty, string? maxDifficulty, int count);
     }
 }

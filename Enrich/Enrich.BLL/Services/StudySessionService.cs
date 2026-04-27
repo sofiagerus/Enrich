@@ -100,36 +100,36 @@ namespace Enrich.BLL.Services
 
                 if (session == null)
                 {
-                    logger.LogWarning("Користувач {UserId} спробував подати відповідь для неіснуючої сесії {SessionId}.", userId, dto.SessionId);
-                    return Result<StudyProgressDTO>.Failure("Сесія не знайдена.");
+                    logger.LogWarning("User {UserId} tried to submit an answer for a non-existent session {SessionId}.", userId, dto.SessionId);
+                    return Result<StudyProgressDTO>.Failure("Session not found.");
                 }
 
                 if (session.UserId != userId)
                 {
-                    logger.LogWarning("Користувач {UserId} спробував подати відповідь для сесії іншого користувача {SessionId}.", userId, dto.SessionId);
-                    return Result<StudyProgressDTO>.Failure("Доступ заборонено.");
+                    logger.LogWarning("User {UserId} tried to submit an answer for another user's session {SessionId}.", userId, dto.SessionId);
+                    return Result<StudyProgressDTO>.Failure("Access denied.");
                 }
 
                 if (session.FinishedAt.HasValue)
                 {
-                    logger.LogWarning("Користувач {UserId} спробував подати відповідь для завершеної сесії {SessionId}.", userId, dto.SessionId);
-                    return Result<StudyProgressDTO>.Failure("Сесія вже завершена.");
+                    logger.LogWarning("User {UserId} tried to submit an answer for a finished session {SessionId}.", userId, dto.SessionId);
+                    return Result<StudyProgressDTO>.Failure("Session is already finished.");
                 }
 
                 var existingResult = await trainingSessionRepository.GetSessionResultAsync(dto.SessionId, dto.WordId);
 
                 if (existingResult != null)
                 {
-                    logger.LogWarning("Користувач {UserId} спробував подати дублікат відповіді для слова {WordId} в сесії {SessionId}.", userId, dto.WordId, dto.SessionId);
-                    return Result<StudyProgressDTO>.Failure("Відповідь для цього слова вже подана.");
+                    logger.LogWarning("User {UserId} tried to submit a duplicate answer for word {WordId} in session {SessionId}.", userId, dto.WordId, dto.SessionId);
+                    return Result<StudyProgressDTO>.Failure("Answer for this word has already been submitted.");
                 }
 
                 var word = await wordRepository.GetWordAsync(dto.WordId);
 
                 if (word == null)
                 {
-                    logger.LogWarning("Користувач {UserId} спробував подати відповідь для неіснуючого слова {WordId}.", userId, dto.WordId);
-                    return Result<StudyProgressDTO>.Failure("Слово не знайдено.");
+                    logger.LogWarning("User {UserId} tried to submit an answer for a non-existent word {WordId}.", userId, dto.WordId);
+                    return Result<StudyProgressDTO>.Failure("Word not found.");
                 }
 
                 int pointsAwarded = dto.IsKnown ? PointsForKnown : PointsForUnknown;
@@ -180,9 +180,9 @@ namespace Enrich.BLL.Services
                 await trainingSessionRepository.UpdateSessionAsync(session);
 
                 logger.LogInformation(
-                    "Користувач {UserId} подав відповідь '{Answer}' для слова {WordId} в сесії {SessionId}. Отримано балів: {Points}.",
+                    "User {UserId} submitted answer '{Answer}' for word {WordId} in session {SessionId}. Points awarded: {Points}.",
                     userId,
-                    dto.IsKnown ? "знав" : "не знав",
+                    dto.IsKnown ? "known" : "unknown",
                     dto.WordId,
                     dto.SessionId,
                     pointsAwarded);
@@ -202,11 +202,11 @@ namespace Enrich.BLL.Services
             {
                 logger.LogError(
                     ex,
-                    "Помилка при подачі відповіді користувачем {UserId} для сесії {SessionId}.",
+                    "Error submitting answer by user {UserId} for session {SessionId}.",
                     userId,
                     dto.SessionId);
 
-                return Result<StudyProgressDTO>.Failure("Помилка при обробці відповіді.");
+                return Result<StudyProgressDTO>.Failure("Error processing answer.");
             }
         }
 
@@ -218,21 +218,21 @@ namespace Enrich.BLL.Services
 
                 if (session == null)
                 {
-                    logger.LogWarning("Користувач {UserId} спробував завершити неіснуючу сесію {SessionId}.", userId, sessionId);
-                    return Result.Failure("Сесія не знайдена.");
+                    logger.LogWarning("User {UserId} tried to finish a non-existent session {SessionId}.", userId, sessionId);
+                    return Result.Failure("Session not found.");
                 }
 
                 if (session.UserId != userId)
                 {
-                    logger.LogWarning("Користувач {UserId} спробував завершити сесію іншого користувача {SessionId}.", userId, sessionId);
-                    return Result.Failure("Доступ заборонено.");
+                    logger.LogWarning("User {UserId} tried to finish another user's session {SessionId}.", userId, sessionId);
+                    return Result.Failure("Access denied.");
                 }
 
                 session.FinishedAt = DateTime.UtcNow;
                 await trainingSessionRepository.UpdateSessionAsync(session);
 
                 logger.LogInformation(
-                    "Користувач {UserId} завершив сесію {SessionId}. Результат: {Known} знав, {Unknown} не знав з {Total} карток.",
+                    "User {UserId} finished session {SessionId}. Result: {Known} known, {Unknown} unknown out of {Total} cards.",
                     userId,
                     sessionId,
                     session.KnownCount,
