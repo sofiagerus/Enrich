@@ -152,11 +152,15 @@ namespace Enrich.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var bundle = await bundleService.GetBundleByIdAsync(id);
-            if (bundle != null && bundle.IsSystem)
+            var result = await bundleService.DeleteSystemBundleAsync(id);
+
+            if (result.IsSuccess)
             {
-                await bundleService.DeleteBundleAsync(bundle.OwnerId ?? "SYSTEM", id);
                 TempData["SuccessMessage"] = "Collection deleted successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = result.ErrorMessage ?? "Failed to delete the collection.";
             }
 
             return RedirectToAction(nameof(Index));

@@ -1014,5 +1014,40 @@ namespace Enrich.BLL.Services
                 return "An error occurred while updating the system bundle.";
             }
         }
+
+        public async Task<Result> DeleteSystemBundleAsync(int bundleId)
+        {
+            var bundle = await bundleRepository.GetBundleByIdAsync(bundleId);
+
+            if (bundle == null || !bundle.IsSystem)
+            {
+                logger.LogWarning("Attempted to delete non-existent or non-system bundle {BundleId}.", bundleId);
+                return "System bundle not found.";
+            }
+
+            if (bundle.Status != BundleStatus.Published)
+            {
+                logger.LogWarning(
+                    "Attempted to delete system bundle {BundleId} which is in status {Status}.",
+                    bundleId,
+                    bundle.Status);
+
+                return "Only published system bundles can be deleted.";
+            }
+
+            try
+            {
+                await bundleRepository.DeleteBundleAsync(bundleId);
+
+                logger.LogInformation("System bundle {BundleId} ('{Title}') successfully deleted.", bundleId, bundle.Title);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error deleting system bundle {BundleId}.", bundleId);
+                return "An error occurred while deleting the system bundle.";
+            }
+        }
     }
 }

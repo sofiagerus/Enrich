@@ -76,5 +76,7 @@ namespace Enrich.BLL.Interfaces
         Task<Result> CreateSystemBundleAsync(CreateBundleDTO dto);
 
         Task<Result> UpdateSystemBundleAsync(int bundleId, CreateBundleDTO dto);
+
+        Task<Result> DeleteSystemBundleAsync(int bundleId);
     }
 }
