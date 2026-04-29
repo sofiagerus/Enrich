@@ -1,0 +1,71 @@
+@model Enrich.Web.ViewModels.CreateBundleViewModel
+@{
+    ViewData["Title"] = "Create System Bundle";
+}
+
+<div class="container mt-4">
+    <h2>Create System Bundle</h2>
+    <hr />
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label fw-bold"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label fw-bold"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ImageUrl" class="form-label fw-bold"></label>
+                    <input asp-for="ImageUrl" class="form-control" placeholder="https://..." />
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="CategoryIds" class="form-label fw-bold"></label>
+                    <select asp-for="CategoryIds" class="form-select" multiple size="4">
+                        @foreach (var cat in Model.Categories)
+                        {
+                            <option value="@cat.Id">@cat.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="DifficultyLevels" class="form-label fw-bold"></label>
+                    <select asp-for="DifficultyLevels" class="form-select" multiple size="4">
+                        @foreach (var level in Model.AvailableLevels)
+                        {
+                            <option value="@level">@level</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="WordIds" class="form-label fw-bold"></label>
+                    <select asp-for="WordIds" class="form-select" multiple size="5">
+                        @foreach (var word in Model.Words)
+                        {
+                            <option value="@word.Id">@word.Term - @word.Translation</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success px-4">Create</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
+        </div>
+    </form>
+</div>

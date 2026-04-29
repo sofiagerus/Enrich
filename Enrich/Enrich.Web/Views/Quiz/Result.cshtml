@@ -1,0 +1,135 @@
+@model Enrich.BLL.DTOs.StudyProgressDTO
+@{
+    ViewData["Title"] = "Quiz Result";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+<style>
+    .result-page {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        font-family: 'Open Sans', sans-serif;
+        text-align: center;
+    }
+
+    .star-icon {
+        color: #ffc107;
+        font-size: 5rem;
+        margin-bottom: 10px;
+    }
+
+    .session-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 40px;
+        color: #212529;
+    }
+
+    .points-circle {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        border: 2px solid #D1E7DD;
+        background-color: #F8FCF9;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 50px;
+    }
+
+    .points-value {
+        font-size: 4rem;
+        font-weight: 800;
+        color: #198754;
+        line-height: 1;
+    }
+
+    .points-label {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #198754;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .mastery-text {
+        font-size: 1.5rem;
+        color: #6C757D;
+        margin-bottom: 50px;
+    }
+
+    .mastery-text strong {
+        color: #212529;
+    }
+
+    .result-buttons {
+        display: flex;
+        gap: 20px;
+        width: 100%;
+        max-width: 550px;
+    }
+
+    .btn-result {
+        flex: 1;
+        padding: 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-white {
+        background: white;
+        border: 1px solid #E9ECEF;
+        color: #212529;
+    }
+
+    .btn-white:hover {
+        background: #F8F9FA;
+    }
+
+    .btn-green {
+        background: #198754;
+        color: white;
+        border: none;
+    }
+
+    .btn-green:hover {
+        background: #157347;
+    }
+</style>
+
+<div class="result-page">
+    <div class="star-icon">
+        <i class="bi bi-star-fill"></i>
+    </div>
+    
+    <h1 class="session-title">Session Finished!</h1>
+
+    <div class="points-circle">
+        <div class="points-value">@Model.TotalPoints</div>
+        <div class="points-label">Points</div>
+    </div>
+
+    <p class="mastery-text">
+        You've mastered <strong>@Model.KnownCount</strong> out of @Model.TotalCards words!
+    </p>
+
+    <div class="result-buttons">
+        <a asp-action="Setup" class="btn-result btn-white">
+            <i class="bi bi-arrow-clockwise"></i> Restart
+        </a>
+        <a asp-controller="Word" asp-action="MyWords" class="btn-result btn-green">
+            Return to My Words
+        </a>
+    </div>
+</div>

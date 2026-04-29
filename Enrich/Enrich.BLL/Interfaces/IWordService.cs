@@ -18,6 +18,8 @@ namespace Enrich.BLL.Interfaces
 
         Task<Result> SaveSystemWordAsync(string userId, int wordId);
 
+        Task<Result> SaveWordToLibraryAsync(string userId, int wordId);
+
         Task<IEnumerable<Category>> GetAllCategoriesAsync();
 
         Task<IEnumerable<Category>> GetCategoriesByIdsAsync(IEnumerable<int> ids);

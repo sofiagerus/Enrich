@@ -104,7 +104,7 @@
                     <ul class="nav flex-column nav-pills gap-1 mb-1">
                         <li class="nav-item">
                             <a asp-controller="Admin" asp-action="Browse"
-                               class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "Admin" ? activeClass : inactiveClass)"
+                               class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "Admin" && currentAction != "PendingBundles" ? activeClass : inactiveClass)"
                                style="font-weight: 500; font-size: 0.95rem;">
                                 <i class="bi bi-person-gear me-3 fs-6"></i>Manage users
                             </a>
@@ -124,7 +124,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 text-dark" style="font-weight: 500; font-size: 0.95rem;">
+                            <a asp-controller="AdminBundle" asp-action="Index"
+                               class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "AdminBundle" ? activeClass : inactiveClass)"
+                               style="font-weight: 500; font-size: 0.95rem;">
                                 <i class="bi bi-folder-fill me-3 fs-6"></i>Manage collections
                             </a>
                         </li>

@@ -1,0 +1,233 @@
+@model Enrich.BLL.DTOs.StudySessionDTO
+@{
+    ViewData["Title"] = "Quiz Session";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+<style>
+    .quiz-page {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .progress-counter {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 30px;
+        color: #212529;
+    }
+
+    .quiz-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        width: 100%;
+        max-width: 650px;
+        height: 350px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.2s;
+        margin-bottom: 40px;
+        perspective: 1000px;
+    }
+
+    .quiz-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+    }
+
+    .quiz-card.flipped .card-inner {
+        transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+    }
+
+    .card-back {
+        transform: rotateY(180deg);
+    }
+
+    .word-term {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #212529;
+        margin-bottom: 8px;
+    }
+
+    .word-transcription {
+        font-size: 1.25rem;
+        color: #adb5bd;
+        margin-bottom: 20px;
+    }
+
+    .word-translation {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #198754;
+    }
+
+    .tap-to-flip {
+        position: absolute;
+        bottom: 30px;
+        color: #adb5bd;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .quiz-buttons {
+        display: flex;
+        gap: 15px;
+        width: 100%;
+        max-width: 650px;
+    }
+
+    .btn-quiz {
+        flex: 1;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .btn-outline-custom {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        color: #212529;
+    }
+
+    .btn-outline-custom:hover {
+        background: #e9ecef;
+    }
+
+    .btn-success-custom {
+        background: #198754;
+        color: white;
+        border: none;
+    }
+
+    .btn-success-custom:hover {
+        background: #157347;
+    }
+</style>
+
+<div class="quiz-page">
+    <div id="progressCounter" class="progress-counter">1/@Model.TotalCards</div>
+
+    <div class="quiz-card" onclick="this.classList.toggle('flipped')">
+        <div class="card-inner">
+            <div class="card-front">
+                <div id="frontTerm" class="word-term">Algorithm</div>
+                <div id="frontTranscription" class="word-transcription">[ˈælɡərɪðəm]</div>
+                <div class="tap-to-flip">
+                    <i class="bi bi-arrow-repeat"></i> Tap to flip
+                </div>
+            </div>
+            <div class="card-back">
+                <div id="backTranslation" class="word-translation">Алгоритм</div>
+                <div id="backMeaning" class="text-muted mt-2">A set of rules for solving a problem.</div>
+                <div class="tap-to-flip">
+                    <i class="bi bi-arrow-repeat"></i> Tap to flip
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="quiz-buttons">
+        <button class="btn-quiz btn-outline-custom" onclick="submitAnswer(false)">
+            <i class="bi bi-x-circle"></i> Don't Know
+        </button>
+        <button class="btn-quiz btn-success-custom" onclick="submitAnswer(true)">
+            <i class="bi bi-check-circle"></i> Know This
+        </button>
+    </div>
+</div>
+
+<form id="finishForm" asp-action="Finish" method="post" style="display: none;">
+    <input type="hidden" name="sessionId" value="@Model.SessionId" />
+</form>
+
+@section Scripts {
+    <script>
+        const cards = @Html.Raw(Json.Serialize(Model.Cards));
+        let currentIndex = 0;
+        const sessionId = @Model.SessionId;
+
+        function updateCard() {
+            if (currentIndex >= cards.length) {
+                document.getElementById('finishForm').submit();
+                return;
+            }
+
+            const card = cards[currentIndex];
+            document.getElementById('progressCounter').innerText = (currentIndex + 1) + '/' + cards.length;
+            document.getElementById('frontTerm').innerText = card.term;
+            document.getElementById('frontTranscription').innerText = card.transcription ? '[' + card.transcription + ']' : '';
+            document.getElementById('backTranslation').innerText = card.translation;
+            document.getElementById('backMeaning').innerText = card.meaning || '';
+            
+            document.querySelector('.quiz-card').classList.remove('flipped');
+        }
+
+        async function submitAnswer(isKnown) {
+            const wordId = cards[currentIndex].wordId;
+            
+            try {
+                const response = await fetch('/Quiz/SubmitAnswer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        sessionId: sessionId,
+                        wordId: wordId,
+                        isKnown: isKnown
+                    })
+                });
+
+                if (response.ok) {
+                    currentIndex++;
+                    updateCard();
+                } else {
+                    showToast('Error submitting answer', 'danger');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Network error', 'danger');
+            }
+        }
+
+        updateCard();
+    </script>
+}

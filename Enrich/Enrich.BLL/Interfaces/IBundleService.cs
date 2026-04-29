@@ -63,6 +63,8 @@ namespace Enrich.BLL.Interfaces
 
         Task<Result> SaveCommunityBundleAsync(string userId, int bundleId);
 
+        Task<Result> SaveGeneratedBundleAsync(string userId, SaveGeneratedBundleDTO dto);
+
         Task<Result> SubmitBundleForReviewAsync(string userId, int bundleId);
 
         Task<Result> ReviewBundleAsync(int bundleId, bool approve);
@@ -70,5 +72,9 @@ namespace Enrich.BLL.Interfaces
         Task<BundleDTO?> GetBundleWithWordsAsync(int bundleId);
 
         Task<Result<GeneratedBundleResultDTO>> GenerateBundleAsync(string userId, GenerateBundleDTO dto);
+
+        Task<Result> CreateSystemBundleAsync(CreateBundleDTO dto);
+
+        Task<Result> UpdateSystemBundleAsync(int bundleId, CreateBundleDTO dto);
     }
 }
