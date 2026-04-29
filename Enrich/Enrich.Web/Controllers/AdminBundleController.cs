@@ -23,6 +23,30 @@ namespace Enrich.Web.Controllers
             return View(pagedResult);
         }
 
+        [HttpGet("Community")]
+        public async Task<IActionResult> Community(SystemBundlesIndexViewModel model, int page = 1, int pageSize = 12)
+        {
+            model.PageSize = pageSize;
+
+            model.Bundles = await bundleService.GetCommunityBundlesAsync(
+                model.SearchTerm,
+                model.CategoryFilter,
+                model.LevelFilter,
+                model.MinWordCount,
+                model.MaxWordCount,
+                page,
+                pageSize);
+
+            model.Categories = await categoryRepository.GetAllCategoriesAsync();
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_CommunityBundleListPartial", model);
+            }
+
+            return View("CommunityBundles", model);
+        }
+
         [HttpGet("Create")]
         public async Task<IActionResult> Create()
         {
@@ -54,12 +78,12 @@ namespace Enrich.Web.Controllers
             var result = await bundleService.CreateSystemBundleAsync(dto);
             if (!result.IsSuccess)
             {
-                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Помилка створення.");
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.");
                 await PopulateDropdowns(model);
                 return View(model);
             }
 
-            TempData["SuccessMessage"] = "Системний бандл успішно створено!";
+            TempData["SuccessMessage"] = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -116,12 +140,12 @@ namespace Enrich.Web.Controllers
             var result = await bundleService.UpdateSystemBundleAsync(id, dto);
             if (!result.IsSuccess)
             {
-                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Помилка оновлення.");
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.");
                 await PopulateDropdowns(model);
                 return View(model);
             }
 
-            TempData["SuccessMessage"] = "Системний бандл успішно оновлено!";
+            TempData["SuccessMessage"] = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -133,7 +157,7 @@ namespace Enrich.Web.Controllers
             if (bundle != null && bundle.IsSystem)
             {
                 await bundleService.DeleteBundleAsync(bundle.OwnerId ?? "SYSTEM", id);
-                TempData["SuccessMessage"] = "Бандл видалено.";
+                TempData["SuccessMessage"] = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.";
             }
 
             return RedirectToAction(nameof(Index));
