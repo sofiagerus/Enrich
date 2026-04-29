@@ -85,10 +85,10 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a asp-controller="Collection" asp-action="Community" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentAction == "Community" ? activeClass : inactiveClass)"
-                             style="font-weight: 500; font-size: 0.95rem;">
-                               <i class="bi bi-people me-3 fs-6"></i>Community
-</a>
+                        <a asp-controller="Collection" asp-action="Community" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "Collection" && currentAction == "Community" ? activeClass : inactiveClass)"
+                           style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-people me-3 fs-6"></i>Community
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a asp-controller="Bundle" asp-action="Generator" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentAction == "Generator" && currentController == "Bundle" ? activeClass : inactiveClass)"
@@ -125,9 +125,16 @@
                         </li>
                         <li class="nav-item">
                             <a asp-controller="AdminBundle" asp-action="Index"
-                               class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "AdminBundle" ? activeClass : inactiveClass)"
+                               class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "AdminBundle" && currentAction != "Community" ? activeClass : inactiveClass)"
                                style="font-weight: 500; font-size: 0.95rem;">
                                 <i class="bi bi-folder-fill me-3 fs-6"></i>Manage collections
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="AdminBundle" asp-action="Community"
+                               class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "AdminBundle" && currentAction == "Community" ? activeClass : inactiveClass)"
+                               style="font-weight: 500; font-size: 0.95rem;">
+                                <i class="bi bi-globe me-3 fs-6"></i>Manage community
                             </a>
                         </li>
                         <li class="nav-item">

@@ -40,5 +40,7 @@ namespace Enrich.BLL.Interfaces
         Task<Result> DeleteSystemWordAsync(int id);
 
         Task<Result<Word>> GetSystemWordForEditAsync(int id);
+
+        Task<IEnumerable<Word>> GetAllWordsAsync();
     }
 }

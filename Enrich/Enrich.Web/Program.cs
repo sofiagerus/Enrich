@@ -92,12 +92,12 @@ try
 
     Log.Information("Додаток Enrich запущено");
 
-    app.UseExceptionHandler("/Home/Error");
-    app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
-
     // Configure the HTTP request pipeline
     app.UseMiddleware<ExecutionTimeMiddleware>();
     app.UseMiddleware<RequestLoggingMiddleware>();
+
+    app.UseExceptionHandler("/Home/Error");
+    app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 
     if (!app.Environment.IsDevelopment())
     {
