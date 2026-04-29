@@ -78,6 +78,28 @@ namespace Enrich.Web.Controllers
             var result = await bundleService.CreateSystemBundleAsync(dto);
             if (!result.IsSuccess)
             {
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Failed to create collection.");
+                await PopulateDropdowns(model);
+                return View(model);
+            }
+
+            TempData["SuccessMessage"] = "Collection created successfully!";
+            return RedirectToAction(nameof(Index));
+        }
+
+            var dto = new CreateBundleDTO
+            {
+                Title = model.Title,
+                Description = model.Description,
+                DifficultyLevels = model.DifficultyLevels?.ToArray() ?? [],
+                ImageUrl = model.ImageUrl,
+                CategoryIds = model.CategoryIds,
+                WordIds = model.WordIds
+            };
+
+            var result = await bundleService.CreateSystemBundleAsync(dto);
+            if (!result.IsSuccess)
+            {
                 ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "������� ���������.");
                 await PopulateDropdowns(model);
                 return View(model);
@@ -140,10 +162,28 @@ namespace Enrich.Web.Controllers
             var result = await bundleService.UpdateSystemBundleAsync(id, dto);
             if (!result.IsSuccess)
             {
-                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "������� ���������.");
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Failed to update collection.");
                 await PopulateDropdowns(model);
                 return View(model);
             }
+
+            TempData["SuccessMessage"] = "Collection updated successfully!";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost("Delete/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var bundle = await bundleService.GetBundleByIdAsync(id);
+            if (bundle != null && bundle.IsSystem)
+            {
+                await bundleService.DeleteBundleAsync(bundle.OwnerId ?? "SYSTEM", id);
+                TempData["SuccessMessage"] = "Collection deleted successfully.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
 
             TempData["SuccessMessage"] = "��������� ����� ������ ��������!";
             return RedirectToAction(nameof(Index));
