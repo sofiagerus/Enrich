@@ -441,10 +441,15 @@ namespace Enrich.BLL.Services
             var word = await wordRepository.GetWordAsync(id);
             if (word == null || !word.IsGlobal)
             {
-                return "System word not found.";
+                return "Global word not found.";
             }
 
             return word;
+        }
+
+        public async Task<IEnumerable<Word>> GetAllWordsAsync()
+        {
+            return await wordRepository.GetAllWordsAsync();
         }
     }
 }

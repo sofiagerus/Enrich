@@ -15,21 +15,18 @@ namespace Enrich.UnitTests.Controllers
     public class AdminBundleControllerTests
     {
         private Mock<IBundleService> _bundleServiceMock = null!;
-        private Mock<ICategoryRepository> _categoryRepositoryMock = null!;
-        private Mock<IWordRepository> _wordRepositoryMock = null!;
+        private Mock<IWordService> _wordServiceMock = null!;
         private AdminBundleController _controller = null!;
 
         [SetUp]
         public void SetUp()
         {
             _bundleServiceMock = new Mock<IBundleService>();
-            _categoryRepositoryMock = new Mock<ICategoryRepository>();
-            _wordRepositoryMock = new Mock<IWordRepository>();
+            _wordServiceMock = new Mock<IWordService>();
 
             _controller = new AdminBundleController(
                 _bundleServiceMock.Object,
-                _categoryRepositoryMock.Object,
-                _wordRepositoryMock.Object)
+                _wordServiceMock.Object)
             {
                 TempData = new TempDataDictionary(
                     new DefaultHttpContext(),

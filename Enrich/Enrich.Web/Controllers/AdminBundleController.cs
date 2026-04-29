@@ -12,8 +12,7 @@ namespace Enrich.Web.Controllers
     [Route("Admin/Bundles")]
     public class AdminBundleController(
         IBundleService bundleService,
-        ICategoryRepository categoryRepository,
-        IWordRepository wordRepository) : Controller
+        IWordService wordService) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> Index(int page = 1, string search = "")
@@ -37,7 +36,7 @@ namespace Enrich.Web.Controllers
                 page,
                 pageSize);
 
-            model.Categories = await categoryRepository.GetAllCategoriesAsync();
+            model.Categories = await bundleService.GetAllCategoriesAsync();
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
@@ -84,28 +83,6 @@ namespace Enrich.Web.Controllers
             }
 
             TempData["SuccessMessage"] = "Collection created successfully!";
-            return RedirectToAction(nameof(Index));
-        }
-
-            var dto = new CreateBundleDTO
-            {
-                Title = model.Title,
-                Description = model.Description,
-                DifficultyLevels = model.DifficultyLevels?.ToArray() ?? [],
-                ImageUrl = model.ImageUrl,
-                CategoryIds = model.CategoryIds,
-                WordIds = model.WordIds
-            };
-
-            var result = await bundleService.CreateSystemBundleAsync(dto);
-            if (!result.IsSuccess)
-            {
-                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "������� ���������.");
-                await PopulateDropdowns(model);
-                return View(model);
-            }
-
-            TempData["SuccessMessage"] = "��������� ����� ������ ��������!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -185,28 +162,10 @@ namespace Enrich.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-            TempData["SuccessMessage"] = "��������� ����� ������ ��������!";
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost("Delete/{id}")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var bundle = await bundleService.GetBundleByIdAsync(id);
-            if (bundle != null && bundle.IsSystem)
-            {
-                await bundleService.DeleteBundleAsync(bundle.OwnerId ?? "SYSTEM", id);
-                TempData["SuccessMessage"] = "����� ��������.";
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
         private async Task PopulateDropdowns(CreateBundleViewModel model)
         {
-            var categories = await categoryRepository.GetAllCategoriesAsync();
-            var words = await wordRepository.GetAllWordsAsync();
+            var categories = await bundleService.GetAllCategoriesAsync();
+            var words = await wordService.GetAllWordsAsync();
             model.Categories = categories.Select(c => (c.Id, c.Name)).ToList();
             model.Words = words.Select(w => new WordItemViewModel { Id = w.Id, Term = w.Term, Translation = w.Translation }).ToList();
             model.AvailableLevels = ["A1", "A2", "B1", "B2", "C1", "C2"];
@@ -214,8 +173,8 @@ namespace Enrich.Web.Controllers
 
         private async Task PopulateDropdowns(EditBundleViewModel model)
         {
-            var categories = await categoryRepository.GetAllCategoriesAsync();
-            var words = await wordRepository.GetAllWordsAsync();
+            var categories = await bundleService.GetAllCategoriesAsync();
+            var words = await wordService.GetAllWordsAsync();
             model.Categories = categories.Select(c => (c.Id, c.Name)).ToList();
             model.Words = words.Select(w => new WordItemViewModel { Id = w.Id, Term = w.Term, Translation = w.Translation }).ToList();
             model.AvailableLevels = ["A1", "A2", "B1", "B2", "C1", "C2"];
