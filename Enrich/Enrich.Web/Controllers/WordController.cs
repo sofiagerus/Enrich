@@ -220,6 +220,30 @@ namespace Enrich.Web.Controllers
             return categoryIds;
         }
 
+        [HttpPost("Words/AddToMyWords")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddToMyWords([FromBody] SaveWordRequest request)
+        {
+            if (request == null || request.WordId <= 0)
+            {
+                logger.LogWarning("User {UserId} submitted an invalid save word request.", CurrentUserId);
+                return BadRequest(new { message = "Invalid word data." });
+            }
+
+            var result = await wordService.SaveWordToLibraryAsync(CurrentUserId, request.WordId);
+            if (!result.IsSuccess)
+            {
+                logger.LogWarning(
+                    "User {UserId} failed to save word {WordId} from study: {Error}.",
+                    CurrentUserId,
+                    request.WordId,
+                    result.ErrorMessage);
+                return BadRequest(new { message = result.ErrorMessage });
+            }
+
+            return Ok(new { message = "Word saved to your library." });
+        }
+
         [HttpPost]
         public async Task<IActionResult> SaveSystemWord(int id)
         {

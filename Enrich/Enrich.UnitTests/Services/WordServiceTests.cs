@@ -308,6 +308,45 @@ namespace Enrich.UnitTests.Services
         }
 
         [Test]
+        public async Task SaveWordToLibraryAsync_WhenWordExistsAndNotSaved_ReturnsSuccess()
+        {
+            // Arrange
+            var userId = "user-1";
+            var word = new Word { Id = 4, Term = "Practice" };
+
+            _wordRepositoryMock.Setup(r => r.GetWordAsync(word.Id)).ReturnsAsync(word);
+            _wordRepositoryMock.Setup(r => r.UserHasWordAsync(userId, word.Id)).ReturnsAsync(false);
+
+            // Act
+            var result = await _wordService.SaveWordToLibraryAsync(userId, word.Id);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.True);
+            _wordRepositoryMock.Verify(
+                r => r.SaveUserWordAsync(It.Is<UserWord>(uw => uw.UserId == userId && uw.WordId == word.Id)),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task SaveWordToLibraryAsync_WhenWordAlreadySaved_ReturnsFailure()
+        {
+            // Arrange
+            var userId = "user-1";
+            var word = new Word { Id = 7, Term = "Repeat" };
+
+            _wordRepositoryMock.Setup(r => r.GetWordAsync(word.Id)).ReturnsAsync(word);
+            _wordRepositoryMock.Setup(r => r.UserHasWordAsync(userId, word.Id)).ReturnsAsync(true);
+
+            // Act
+            var result = await _wordService.SaveWordToLibraryAsync(userId, word.Id);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("You have already saved this word."));
+            _wordRepositoryMock.Verify(r => r.SaveUserWordAsync(It.IsAny<UserWord>()), Times.Never);
+        }
+
+        [Test]
         public async Task GetPersonalWordForEditAsync_UserIsOwner_ReturnsWord()
         {
             // Arrange

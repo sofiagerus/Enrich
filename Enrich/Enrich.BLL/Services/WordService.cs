@@ -255,6 +255,42 @@ namespace Enrich.BLL.Services
             return true;
         }
 
+        public async Task<Result> SaveWordToLibraryAsync(string userId, int wordId)
+        {
+            if (wordId <= 0)
+            {
+                logger.LogWarning("User {UserId} submitted an invalid word id {WordId} for saving.", userId, wordId);
+                return "Word ID must be greater than zero.";
+            }
+
+            var word = await wordRepository.GetWordAsync(wordId);
+            if (word == null)
+            {
+                logger.LogWarning("User {UserId} attempted to save a missing word {WordId}.", userId, wordId);
+                return "Word not found.";
+            }
+
+            var alreadySaved = await wordRepository.UserHasWordAsync(userId, wordId);
+            if (alreadySaved)
+            {
+                logger.LogInformation("User {UserId} attempted to save a duplicate word {WordId}.", userId, wordId);
+                return "You have already saved this word.";
+            }
+
+            var userWord = new UserWord
+            {
+                UserId = userId,
+                WordId = wordId,
+                SavedAt = DateTime.UtcNow
+            };
+
+            await wordRepository.SaveUserWordAsync(userWord);
+
+            logger.LogInformation("User {UserId} saved word {WordId} to their library.", userId, wordId);
+
+            return true;
+        }
+
         public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
         {
             return await cache.GetOrCreateAsync(CacheKeys.AllCategories, async entry =>
