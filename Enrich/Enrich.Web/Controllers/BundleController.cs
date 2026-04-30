@@ -4,6 +4,7 @@ using Enrich.BLL.Interfaces;
 using Enrich.BLL.Settings;
 using Enrich.DAL.Entities.Enums;
 using Enrich.DAL.Interfaces;
+using Enrich.Web.Filters;
 using Enrich.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ namespace Enrich.Web.Controllers
         IOptions<PaginationSettings> paginationOptions) : BaseController
     {
         [HttpGet]
+        [RateLimit(10, 60)]
         public async Task<IActionResult> Index(
             string? search = null,
             string? categoryFilter = null,

@@ -1,5 +1,6 @@
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
+using Enrich.Web.Filters;
 using Enrich.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ namespace Enrich.Web.Controllers
         ILogger<CategoryController> logger) : BaseController
     {
         [HttpGet]
+        [RateLimit(20, 60)]
         public async Task<IActionResult> Index()
         {
             var categories = await categoryService.GetAllCategoriesAsync();

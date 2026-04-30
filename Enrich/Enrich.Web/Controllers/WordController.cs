@@ -1,6 +1,7 @@
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
 using Enrich.BLL.Settings;
+using Enrich.Web.Filters;
 using Enrich.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace Enrich.Web.Controllers
         IOptions<PaginationSettings> paginationOptions) : BaseController
     {
         [HttpGet]
+        [RateLimit(15, 60)] // Дозволяємо 15 запитів на хвилину
         public async Task<IActionResult> Index(SystemWordsIndexViewModel model, int page = 1, int pageSize = 0)
         {
             if (pageSize <= 0)
