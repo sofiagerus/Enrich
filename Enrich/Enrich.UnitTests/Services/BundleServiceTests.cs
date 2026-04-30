@@ -760,6 +760,9 @@ namespace Enrich.UnitTests.Services
 
             _bundleRepositoryMock.Verify(r => r.UpdateBundleAsync(communityBundle), Times.Once);
             _bundleRepositoryMock.Verify(r => r.SyncBundleRelationsAsync(bundleId, dto.WordIds, dto.CategoryIds), Times.Once);
+        }
+
+        [Test]
         public async Task DeleteSystemBundleAsync_PublishedBundle_DeletesSuccessfully()
         {
             // Arrange
