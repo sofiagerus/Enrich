@@ -1049,5 +1049,39 @@ namespace Enrich.BLL.Services
                 return "An error occurred while deleting the system bundle.";
             }
         }
+
+        public async Task<Result> DeleteCommunityBundleAsync(int bundleId)
+        {
+            var bundle = await bundleRepository.GetBundleByIdAsync(bundleId);
+
+            if (bundle == null)
+            {
+                logger.LogWarning("Attempted to delete non-existent bundle {BundleId}.", bundleId);
+                return "Collection not found.";
+            }
+
+            if (bundle.IsSystem || bundle.Status != BundleStatus.Published)
+            {
+                logger.LogWarning(
+                    "Attempted to delete invalid community bundle {BundleId} (IsSystem: {IsSystem}, Status: {Status}).",
+                    bundleId,
+                    bundle.IsSystem,
+                    bundle.Status);
+
+                return "Invalid community bundle.";
+            }
+
+            try
+            {
+                await bundleRepository.DeleteBundleAsync(bundleId);
+                logger.LogInformation("Community bundle {BundleId} ('{Title}') successfully deleted.", bundleId, bundle.Title);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error deleting community bundle {BundleId}.", bundleId);
+                return "An error occurred while deleting the community bundle.";
+            }
+        }
     }
 }
