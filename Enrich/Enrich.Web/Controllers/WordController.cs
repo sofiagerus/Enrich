@@ -13,6 +13,7 @@ namespace Enrich.Web.Controllers
     public class WordController(
         ILogger<WordController> logger,
         IWordService wordService,
+        IDictionaryApiClient dictionaryApiClient,
         IOptions<PaginationSettings> paginationOptions) : BaseController
     {
         [HttpGet]
@@ -123,6 +124,30 @@ namespace Enrich.Web.Controllers
             TempData["SuccessMessage"] = $"Word '{model.Term}' successfully added!";
 
             return RedirectToAction(nameof(MyWords));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LookupDefinition(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                return BadRequest("Term is required.");
+            }
+
+            var entry = await dictionaryApiClient.GetWordDetailsAsync(term);
+            if (entry == null)
+            {
+                return NotFound(new { message = "No definition found in the external dictionary." });
+            }
+
+            var transcriptionText = entry.Phonetics?.FirstOrDefault(p => !string.IsNullOrEmpty(p.Text))?.Text ?? entry.Phonetic;
+            var meaning = entry.Meanings?.FirstOrDefault()?.Definitions?.FirstOrDefault()?.Definition;
+
+            return Json(new
+            {
+                transcription = transcriptionText ?? string.Empty,
+                meaning = meaning ?? string.Empty
+            });
         }
 
         [HttpPost]
