@@ -16,7 +16,7 @@ namespace Enrich.UnitTests.Services
     public class BundleServiceTests
     {
         private const string TestUserId = "user-123";
-
+        private const Bundle? Value = null;
         private Mock<IBundleRepository> _bundleRepositoryMock = null!;
         private Mock<IWordRepository> _wordRepositoryMock = null!;
         private Mock<ICategoryRepository> _categoryRepositoryMock = null!;
@@ -816,6 +816,136 @@ namespace Enrich.UnitTests.Services
             // Assert
             Assert.That(result.IsSuccess, Is.False);
             Assert.That(result.ErrorMessage, Does.Contain("error occurred"));
+            _bundleRepositoryMock.Verify(r => r.DeleteBundleAsync(bundleId), Times.Once);
+        }
+
+        [Test]
+        public async Task DeleteCommunityBundleAsync_ValidPublishedCommunityBundle_DeletesSuccessfully()
+        {
+            // Arrange
+            int bundleId = 1;
+            var communityBundle = new Bundle
+            {
+                Id = bundleId,
+                Title = "Community Bundle",
+                IsSystem = false,
+                Status = BundleStatus.Published,
+                OwnerId = "user-456"
+            };
+
+            _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(communityBundle);
+
+            _bundleRepositoryMock.Setup(r => r.DeleteBundleAsync(bundleId))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _bundleService.DeleteCommunityBundleAsync(bundleId);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.True);
+            _bundleRepositoryMock.Verify(r => r.GetBundleByIdAsync(bundleId), Times.Once);
+            _bundleRepositoryMock.Verify(r => r.DeleteBundleAsync(bundleId), Times.Once);
+        }
+
+        [Test]
+        public async Task DeleteCommunityBundleAsync_NonExistentBundle_ReturnsNotFoundError()
+        {
+            // Arrange
+            int bundleId = 999;
+            _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(Value);
+
+            // Act
+            var result = await _bundleService.DeleteCommunityBundleAsync(bundleId);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("Collection not found."));
+            _bundleRepositoryMock.Verify(r => r.DeleteBundleAsync(It.IsAny<int>()), Times.Never);
+        }
+
+        [Test]
+        public async Task DeleteCommunityBundleAsync_SystemBundle_ReturnsError()
+        {
+            // Arrange
+            int bundleId = 1;
+            var systemBundle = new Bundle
+            {
+                Id = bundleId,
+                Title = "System Bundle",
+                IsSystem = true,
+                Status = BundleStatus.Published,
+                OwnerId = "SYSTEM"
+            };
+
+            _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(systemBundle);
+
+            // Act
+            var result = await _bundleService.DeleteCommunityBundleAsync(bundleId);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("Invalid community bundle."));
+            _bundleRepositoryMock.Verify(r => r.DeleteBundleAsync(It.IsAny<int>()), Times.Never);
+        }
+
+        [Test]
+        [TestCase(BundleStatus.Draft)]
+        [TestCase(BundleStatus.PendingReview)]
+        [TestCase(BundleStatus.Rejected)]
+        public async Task DeleteCommunityBundleAsync_UnpublishedBundle_ReturnsError(BundleStatus status)
+        {
+            // Arrange
+            int bundleId = 1;
+            var communityBundle = new Bundle
+            {
+                Id = bundleId,
+                Title = "Unpublished Bundle",
+                IsSystem = false,
+                Status = status,
+                OwnerId = "user-456"
+            };
+
+            _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(communityBundle);
+
+            // Act
+            var result = await _bundleService.DeleteCommunityBundleAsync(bundleId);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("Invalid community bundle."));
+            _bundleRepositoryMock.Verify(r => r.DeleteBundleAsync(It.IsAny<int>()), Times.Never);
+        }
+
+        [Test]
+        public async Task DeleteCommunityBundleAsync_RepositoryThrowsException_ReturnsError()
+        {
+            // Arrange
+            int bundleId = 1;
+            var communityBundle = new Bundle
+            {
+                Id = bundleId,
+                Title = "Community Bundle",
+                IsSystem = false,
+                Status = BundleStatus.Published,
+                OwnerId = "user-456"
+            };
+
+            _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId))
+                .ReturnsAsync(communityBundle);
+
+            _bundleRepositoryMock.Setup(r => r.DeleteBundleAsync(bundleId))
+                .ThrowsAsync(new InvalidOperationException("Database error"));
+
+            // Act
+            var result = await _bundleService.DeleteCommunityBundleAsync(bundleId);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("An error occurred while deleting the community bundle."));
             _bundleRepositoryMock.Verify(r => r.DeleteBundleAsync(bundleId), Times.Once);
         }
     }
