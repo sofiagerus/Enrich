@@ -1,3 +1,4 @@
+using Enrich.BLL.Clients;
 using Enrich.BLL.Interfaces;
 using Enrich.BLL.Services;
 using Enrich.BLL.Settings;
@@ -17,6 +18,12 @@ namespace Enrich.BLL
 
             services.Configure<CacheSettings>(
                 configuration.GetSection(CacheSettings.Section));
+
+            // Register Typed Client
+            services.AddHttpClient<IDictionaryApiClient, DictionaryApiClient>(client =>
+            {
+                client.BaseAddress = new Uri("https://api.dictionaryapi.dev/api/v2/entries/en/");
+            });
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();

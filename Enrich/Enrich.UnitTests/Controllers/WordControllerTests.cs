@@ -39,6 +39,7 @@ namespace Enrich.UnitTests.Controllers
             _controller = new WordController(
                 _loggerMock.Object,
                 _wordServiceMock.Object,
+                new Mock<IDictionaryApiClient>().Object,
                 _paginationOptionsMock.Object);
 
             var user = new ClaimsPrincipal(new ClaimsIdentity(

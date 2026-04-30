@@ -59,9 +59,15 @@
                 <label asp-for="Term" class="form-label fw-medium mb-1">
                     Word <span class="text-danger ms-1">*</span>
                 </label>
-                <input asp-for="Term"
-                       class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
-                       placeholder="e.g. Serendipity" />
+                <div class="input-group shadow-sm rounded-4">
+                    <input asp-for="Term"
+                           id="term-input"
+                           class="form-control border-1 py-2 custom-gray-bg"
+                           placeholder="e.g. Serendipity" />
+                    <button type="button" id="btn-lookup-word" class="btn btn-outline-primary fw-medium px-3 border-1 z-0">
+                        <i class="bi bi-search me-1"></i> Auto-fill
+                    </button>
+                </div>
                 <span asp-validation-for="Term" class="text-danger small d-block mt-1"></span>
             </div>
 
@@ -130,8 +136,9 @@
             <div class="mb-3">
                 <label asp-for="Transcription" class="form-label fw-medium mb-1">Transcription</label>
                 <input asp-for="Transcription"
+                       id="transcription-input"
                        class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
-                       placeholder="e.g. /ˌserənˈdɪpɪti/" />
+                       placeholder="e.g. /sɛrənˈdɪpɪti/" />
                 <span asp-validation-for="Transcription" class="text-danger small d-block mt-1"></span>
             </div>
 
@@ -139,6 +146,7 @@
             <div class="mb-3">
                 <label asp-for="Meaning" class="form-label fw-medium mb-1">Meaning</label>
                 <textarea asp-for="Meaning"
+                          id="meaning-input"
                           class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg"
                           rows="2"
                           placeholder="Short definition"></textarea>
@@ -285,6 +293,47 @@
             });
 
             document.addEventListener('DOMContentLoaded', fetchCategories);
+
+            // Fetch auto-fill
+            const lookupBtn = document.getElementById('btn-lookup-word');
+            const termInput = document.getElementById('term-input');
+            const transInput = document.getElementById('transcription-input');
+            const meanInput = document.getElementById('meaning-input');
+
+            lookupBtn.addEventListener('click', async () => {
+                const word = termInput.value.trim();
+                if (!word) {
+                    alert('Please enter a word first.');
+                    return;
+                }
+                
+                const originalText = lookupBtn.innerHTML;
+                lookupBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                lookupBtn.disabled = true;
+
+                try {
+                    const res = await fetch(`/Word/LookupDefinition?term=${encodeURIComponent(word)}`);
+                    if (!res.ok) {
+                        alert('Definition not found or error occurred.');
+                        return;
+                    }
+                    const data = await res.json();
+                    
+                    if (data.transcription && !transInput.value) {
+                        transInput.value = data.transcription;
+                    }
+                    if (data.meaning && !meanInput.value) {
+                        meanInput.value = data.meaning;
+                    }
+                } catch (e) {
+                    console.error('Lookup failed', e);
+                    alert('Failed to lookup word.');
+                } finally {
+                    lookupBtn.innerHTML = originalText;
+                    lookupBtn.disabled = false;
+                }
+            });
+
         })();
     </script>
 }

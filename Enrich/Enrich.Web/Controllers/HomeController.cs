@@ -17,6 +17,12 @@ namespace Enrich.Web.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult RateLimitExceeded()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error(int? id)
         {
