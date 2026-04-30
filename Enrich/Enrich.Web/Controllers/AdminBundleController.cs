@@ -1,7 +1,6 @@
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
 using Enrich.DAL.Entities.Enums;
-using Enrich.DAL.Interfaces;
 using Enrich.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -152,14 +151,44 @@ namespace Enrich.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var bundle = await bundleService.GetBundleByIdAsync(id);
-            if (bundle != null && bundle.IsSystem)
+            var result = await bundleService.DeleteSystemBundleAsync(id);
+
+            if (result.IsSuccess)
             {
-                await bundleService.DeleteBundleAsync(bundle.OwnerId ?? "SYSTEM", id);
                 TempData["SuccessMessage"] = "Collection deleted successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = result.ErrorMessage ?? "Failed to delete the collection.";
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost("Community/Delete/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteCommunity(int id)
+        {
+            try
+            {
+                var result = await bundleService.DeleteCommunityBundleAsync(id);
+
+                if (result.IsSuccess)
+                {
+                    return Json(new { success = true, message = "Collection deleted successfully." });
+                }
+
+                return Json(new
+                {
+                    success = false,
+                    message = result.ErrorMessage ?? "Failed to delete the collection."
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting bundle {id}: {ex.Message}");
+                return Json(new { success = false, message = "An internal error occurred while deleting." });
+            }
         }
 
         private async Task PopulateDropdowns(CreateBundleViewModel model)
