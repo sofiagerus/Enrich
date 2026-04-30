@@ -39,7 +39,7 @@ namespace Enrich.Web.Controllers
                 minWordCount, maxWordCount, page, pageSize);
 
             logger.LogInformation(
-                "Користувач {UserId} переглянув сторінку {Page} своїх бандлів.",
+                "User {UserId} viewed page {Page} of their bundles.",
                 CurrentUserId, page);
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -124,12 +124,12 @@ namespace Enrich.Web.Controllers
             var result = await bundleService.CreateBundleAsync(CurrentUserId, dto);
             if (!result.IsSuccess)
             {
-                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Помилка створення.");
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Creation error.");
                 await ReloadCreateViewModelData(model);
                 return View(model);
             }
 
-            TempData["SuccessMessage"] = $"Бандл '{model.Title}' успішно створено!";
+            TempData["SuccessMessage"] = $"Bundle '{model.Title}' successfully created!";
             return RedirectToAction("Index");
         }
 
@@ -191,12 +191,12 @@ namespace Enrich.Web.Controllers
             var result = await bundleService.UpdateBundleAsync(CurrentUserId, id, dto);
             if (!result.IsSuccess)
             {
-                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Помилка оновлення.");
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Update error.");
                 await ReloadEditViewModelData(model);
                 return View(model);
             }
 
-            TempData["SuccessMessage"] = "Бандл успішно оновлено!";
+            TempData["SuccessMessage"] = "Bundle successfully updated!";
             return RedirectToAction("Index");
         }
 
@@ -206,7 +206,7 @@ namespace Enrich.Web.Controllers
             var result = await studySessionService.StartStudySessionAsync(CurrentUserId, bundleId);
             if (!result.IsSuccess)
             {
-                TempData["ErrorMessage"] = result.ErrorMessage ?? "Не вдалося розпочати навчання.";
+                TempData["ErrorMessage"] = result.ErrorMessage ?? "Failed to start learning.";
                 return RedirectToAction("Index");
             }
 
@@ -347,7 +347,7 @@ namespace Enrich.Web.Controllers
                 return BadRequest(new { message = result.ErrorMessage });
             }
 
-            return Ok(new { message = "Бандл відправлено на модерацію." });
+            return Ok(new { message = "Bundle sent for moderation." });
         }
 
         [HttpPost]
@@ -361,7 +361,7 @@ namespace Enrich.Web.Controllers
             }
             else
             {
-                TempData["SuccessMessage"] = "Бандл видалено.";
+                TempData["SuccessMessage"] = "Bundle deleted.";
             }
 
             return RedirectToAction("Index");

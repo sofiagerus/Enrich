@@ -1,6 +1,7 @@
 using Enrich.BLL.Common;
 using Enrich.BLL.DTOs;
 using Enrich.DAL.Entities;
+using Enrich.DAL.Entities.Enums;
 
 namespace Enrich.BLL.Interfaces
 {
@@ -77,6 +78,8 @@ namespace Enrich.BLL.Interfaces
 
         Task<Result> UpdateSystemBundleAsync(int bundleId, CreateBundleDTO dto);
 
+        Task<Result> UpdateCommunityBundleAsync(int bundleId, CreateBundleDTO dto, BundleStatus newStatus);
+      
         Task<Result> DeleteSystemBundleAsync(int bundleId);
 
         Task<Result> DeleteCommunityBundleAsync(int bundleId);

@@ -67,7 +67,7 @@ namespace Enrich.Web.Seeders
                 new Word
                 {
                     Term = "Resilient",
-                    Translation = "Стійкий",
+                    Translation = "Sustainable",
                     Transcription = "rɪˈzɪliənt",
                     Meaning = "Able to withstand or recover quickly from difficult conditions.",
                     PartOfSpeech = "Adjective",
@@ -81,7 +81,7 @@ namespace Enrich.Web.Seeders
                 new Word
                 {
                     Term = "Algorithm",
-                    Translation = "Алгоритм",
+                    Translation = "Algorithm",
                     Transcription = "ˈælɡərɪðəm",
                     Meaning = "A process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.",
                     PartOfSpeech = "Noun",
@@ -95,7 +95,7 @@ namespace Enrich.Web.Seeders
                 new Word
                 {
                     Term = "Biodiversity",
-                    Translation = "Біорізноманіття",
+                    Translation = "Biodiversity",
                     Transcription = "ˌbaɪəʊdaɪˈvɜːsəti",
                     Meaning = "The variety of plant and animal life in the world or in a particular habitat.",
                     PartOfSpeech = "Noun",
@@ -109,7 +109,7 @@ namespace Enrich.Web.Seeders
                 new Word
                 {
                     Term = "Obsolete",
-                    Translation = "Застарілий",
+                    Translation = "Obsolete",
                     Transcription = "ˈɒbsəliːt",
                     Meaning = "No longer produced or used; out of date.",
                     PartOfSpeech = "Adjective",
@@ -123,7 +123,7 @@ namespace Enrich.Web.Seeders
                 new Word
                 {
                     Term = "Mitigate",
-                    Translation = "Пом'якшувати",
+                    Translation = "Mitigate",
                     Transcription = "ˈmɪtɪɡeɪt",
                     Meaning = "Make (something bad) less severe, serious, or painful.",
                     PartOfSpeech = "Verb",

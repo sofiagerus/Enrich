@@ -67,7 +67,7 @@ namespace Enrich.Web.Controllers
 
             var pageResult = await wordService.GetPersonalWordsAsync(CurrentUserId, searchTerm, category, partOfSpeech, difficultyLevel, page, pageSize);
 
-            logger.LogInformation("Користувач {UserId} отримав {WordCount} слів (загалом {Total}).", CurrentUserId, pageResult.Items.Count(), pageResult.TotalCount);
+            logger.LogInformation("User {UserId} retrieved {WordCount} words (total {Total}).", CurrentUserId, pageResult.Items.Count(), pageResult.TotalCount);
             return Json(pageResult);
         }
 
@@ -76,7 +76,7 @@ namespace Enrich.Web.Controllers
         {
             var vm = new CreateWordViewModel
             {
-                // Отримуємо категорії для datalist
+                // Retrieve categories for datalist
                 Categories = await wordService.GetAllCategoriesAsync() ?? new List<DAL.Entities.Category>()
             };
             return View(vm);
@@ -88,7 +88,7 @@ namespace Enrich.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                logger.LogWarning("Провалена валідація форми створення слова для {UserId}.", CurrentUserId);
+                logger.LogWarning("Create word form validation failed for {UserId}.", CurrentUserId);
                 model.Categories = await wordService.GetAllCategoriesAsync();
                 return View(model);
             }
@@ -111,13 +111,13 @@ namespace Enrich.Web.Controllers
 
             if (!result.IsSuccess)
             {
-                logger.LogWarning("Помилка створення слова '{Term}' для {UserId}: {Error}", model.Term, CurrentUserId, result.ErrorMessage);
+                logger.LogWarning("Error creating word '{Term}' for {UserId}: {Error}", model.Term, CurrentUserId, result.ErrorMessage);
                 ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Failed to create word.");
                 model.Categories = await wordService.GetAllCategoriesAsync();
                 return View(model);
             }
 
-            logger.LogInformation("Користувач {UserId} успішно створив слово '{Term}'.", CurrentUserId, model.Term);
+            logger.LogInformation("User {UserId} successfully created word '{Term}'.", CurrentUserId, model.Term);
             TempData["SuccessMessage"] = $"Word '{model.Term}' successfully added!";
 
             return RedirectToAction(nameof(MyWords));
@@ -130,7 +130,7 @@ namespace Enrich.Web.Controllers
 
             if (!result.IsSuccess)
             {
-                logger.LogWarning("Невдала спроба видалення слова {WordId} користувачем {UserId}: {Error}", id, CurrentUserId, result.ErrorMessage);
+                logger.LogWarning("Failed attempt to delete word {WordId} by user {UserId}: {Error}", id, CurrentUserId, result.ErrorMessage);
                 return BadRequest(new { message = result.ErrorMessage });
             }
 
@@ -144,7 +144,7 @@ namespace Enrich.Web.Controllers
 
             if (!result.IsSuccess)
             {
-                logger.LogWarning("Користувач {UserId} намагався отримати доступ до слова {WordId}: {Error}", CurrentUserId, id, result.ErrorMessage);
+                logger.LogWarning("User {UserId} attempted to access word {WordId}: {Error}", CurrentUserId, id, result.ErrorMessage);
                 return NotFound();
             }
 
@@ -183,12 +183,12 @@ namespace Enrich.Web.Controllers
 
             if (result.IsSuccess)
             {
-                logger.LogInformation("Користувач {UserId} успішно оновив слово {WordId}", CurrentUserId, model.WordId);
-                TempData["SuccessMessage"] = "Слово успішно оновлено!";
+                logger.LogInformation("User {UserId} successfully updated word {WordId}", CurrentUserId, model.WordId);
+                TempData["SuccessMessage"] = "Word successfully updated!";
                 return RedirectToAction(nameof(MyWords));
             }
 
-            logger.LogWarning("Невдала спроба оновлення слова {WordId} користувачем {UserId}: {Error}", model.WordId, CurrentUserId, result.ErrorMessage);
+            logger.LogWarning("Failed attempt to update word {WordId} by user {UserId}: {Error}", model.WordId, CurrentUserId, result.ErrorMessage);
             ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Failed to update word.");
             return View(model);
         }
@@ -251,7 +251,7 @@ namespace Enrich.Web.Controllers
 
             if (!result.IsSuccess)
             {
-                logger.LogWarning("Невдала спроба зберегти системне слово {WordId} користувачем {UserId}: {Error}", id, CurrentUserId, result.ErrorMessage);
+                logger.LogWarning("Failed attempt to save system word {WordId} by user {UserId}: {Error}", id, CurrentUserId, result.ErrorMessage);
                 return BadRequest(new { message = result.ErrorMessage });
             }
 

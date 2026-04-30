@@ -8,7 +8,7 @@ namespace Enrich.Web.Controllers
     {
         public IActionResult Index()
         {
-            logger.LogInformation("Відкрито головну сторінку");
+            logger.LogInformation("Home page opened");
             return View();
         }
 

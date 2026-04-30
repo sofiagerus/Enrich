@@ -89,7 +89,7 @@ namespace Enrich.Web.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var bundle = await bundleService.GetBundleByIdAsync(id);
-            if (bundle == null || !bundle.IsSystem)
+            if (bundle == null)
             {
                 return NotFound();
             }
@@ -97,6 +97,7 @@ namespace Enrich.Web.Controllers
             var viewModel = new EditBundleViewModel
             {
                 Id = bundle.Id,
+                IsSystem = bundle.IsSystem,
                 Title = bundle.Title,
                 Description = bundle.Description,
                 ImageUrl = bundle.ImageUrl,
@@ -135,7 +136,10 @@ namespace Enrich.Web.Controllers
                 WordIds = model.WordIds
             };
 
-            var result = await bundleService.UpdateSystemBundleAsync(id, dto);
+            var result = model.IsSystem
+                ? await bundleService.UpdateSystemBundleAsync(id, dto)
+                : await bundleService.UpdateCommunityBundleAsync(id, dto, model.Status);
+
             if (!result.IsSuccess)
             {
                 ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Failed to update collection.");
@@ -144,18 +148,23 @@ namespace Enrich.Web.Controllers
             }
 
             TempData["SuccessMessage"] = "Collection updated successfully!";
-            return RedirectToAction(nameof(Index));
+
+            return model.IsSystem ? RedirectToAction(nameof(Index)) : RedirectToAction(nameof(Community));
         }
 
         [HttpPost("Delete/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await bundleService.DeleteSystemBundleAsync(id);
-
-            if (result.IsSuccess)
+            var bundle = await bundleService.GetBundleByIdAsync(id);
+            if (bundle != null)
             {
                 TempData["SuccessMessage"] = "Collection deleted successfully.";
+
+                if (!bundle.IsSystem)
+                {
+                    return RedirectToAction(nameof(Community));
+                }
             }
             else
             {

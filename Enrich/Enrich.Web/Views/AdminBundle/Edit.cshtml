@@ -1,14 +1,15 @@
 @model Enrich.Web.ViewModels.EditBundleViewModel
 @{
-    ViewData["Title"] = "Edit System Collection";
+    ViewData["Title"] = Model.IsSystem ? "Edit System Bundle" : "Edit Community Bundle";
 }
 
-<div class="d-flex align-items-center mb-4 gap-3">
-    <a asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-3 d-flex align-items-center gap-1 text-decoration-none">
-        <i class="bi bi-arrow-left"></i> Back
-    </a>
-    <h1 class="fw-semibold fs-4 mb-0">Edit System Collection: @Model.Title</h1>
-</div>
+<div class="container mt-4">
+    <h2>Edit @(Model.IsSystem ? "System" : "Community") Bundle: @Model.Title</h2>
+    <hr />
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="IsSystem" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
 <div class="card border-0 shadow-sm rounded-4 mx-auto" style="max-width: 800px;">
     <div class="card-body p-4">
@@ -37,10 +38,25 @@
                 <span asp-validation-for="Description" class="text-danger small d-block mt-1"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="ImageUrl" class="form-label fw-medium mb-1">Image URL</label>
-                <input asp-for="ImageUrl" class="form-control border-1 shadow-sm rounded-4 py-2" placeholder="https://..." />
-                <span asp-validation-for="ImageUrl" class="text-danger small d-block mt-1"></span>
+                <div class="mb-3">
+                    <label asp-for="ImageUrl" class="form-label fw-bold"></label>
+                    <input asp-for="ImageUrl" class="form-control" />
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div>
+
+                <!-- ���� ���� ������� ����� ��� Community -->
+                @if (!Model.IsSystem)
+                {
+                    <div class="mb-3 p-3 border border-warning rounded-3 bg-light">
+                        <label asp-for="Status" class="form-label fw-bold text-warning-emphasis">
+                            <i class="bi bi-shield-check me-1"></i> Approval Status
+                        </label>
+                        <select asp-for="Status" class="form-select border-warning" asp-items="Html.GetEnumSelectList<Enrich.DAL.Entities.Enums.BundleStatus>()">
+                        </select>
+                        <div class="form-text">Change status to Publish or Reject this community collection.</div>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+                }
             </div>
 
             <div class="mb-3">
@@ -76,10 +92,18 @@
                 <span asp-validation-for="WordIds" class="text-danger small d-block mt-1"></span>
             </div>
 
-            <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary rounded-4 px-5 fw-medium shadow-sm">Save Changes</button>
-                <a asp-action="Index" class="btn btn-outline-secondary rounded-4 px-4 shadow-sm">Cancel</a>
-            </div>
-        </form>
-    </div>
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+            
+            
+            @if (Model.IsSystem)
+            {
+                <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
+            }
+            else
+            {
+                <a asp-action="Community" class="btn btn-secondary ms-2">Back to Community</a>
+            }
+        </div>
+    </form>
 </div>
