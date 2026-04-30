@@ -159,7 +159,6 @@ namespace Enrich.Web.Controllers
             var bundle = await bundleService.GetBundleByIdAsync(id);
             if (bundle != null)
             {
-                await bundleService.DeleteBundleAsync(bundle.OwnerId ?? "SYSTEM", id);
                 TempData["SuccessMessage"] = "Collection deleted successfully.";
 
                 if (!bundle.IsSystem)
@@ -167,8 +166,38 @@ namespace Enrich.Web.Controllers
                     return RedirectToAction(nameof(Community));
                 }
             }
+            else
+            {
+                TempData["ErrorMessage"] = result.ErrorMessage ?? "Failed to delete the collection.";
+            }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost("Community/Delete/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteCommunity(int id)
+        {
+            try
+            {
+                var result = await bundleService.DeleteCommunityBundleAsync(id);
+
+                if (result.IsSuccess)
+                {
+                    return Json(new { success = true, message = "Collection deleted successfully." });
+                }
+
+                return Json(new
+                {
+                    success = false,
+                    message = result.ErrorMessage ?? "Failed to delete the collection."
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting bundle {id}: {ex.Message}");
+                return Json(new { success = false, message = "An internal error occurred while deleting." });
+            }
         }
 
         private async Task PopulateDropdowns(CreateBundleViewModel model)

@@ -1,71 +1,84 @@
 @model Enrich.Web.ViewModels.CreateBundleViewModel
 @{
-    ViewData["Title"] = "Create System Bundle";
+    ViewData["Title"] = "Create System Collection";
 }
 
-<div class="container mt-4">
-    <h2>Create System Bundle</h2>
-    <hr />
-    <form asp-action="Create" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<div class="d-flex align-items-center mb-4 gap-3">
+    <a asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-3 d-flex align-items-center gap-1 text-decoration-none">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+    <h1 class="fw-semibold fs-4 mb-0">Create System Collection</h1>
+</div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label asp-for="Title" class="form-label fw-bold"></label>
-                    <input asp-for="Title" class="form-control" />
-                    <span asp-validation-for="Title" class="text-danger"></span>
-                </div>
+<div class="card border-0 shadow-sm rounded-4 mx-auto" style="max-width: 800px;">
+    <div class="card-body p-4">
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+        {
+            <div class="alert alert-danger rounded-3 small mb-4" role="alert">
+                <div asp-validation-summary="ModelOnly"></div>
+            </div>
+        }
 
-                <div class="mb-3">
-                    <label asp-for="Description" class="form-label fw-bold"></label>
-                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
 
-                <div class="mb-3">
-                    <label asp-for="ImageUrl" class="form-label fw-bold"></label>
-                    <input asp-for="ImageUrl" class="form-control" placeholder="https://..." />
-                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
-                </div>
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label fw-medium mb-1">
+                    Title <span class="text-danger ms-1">*</span>
+                </label>
+                <input asp-for="Title" class="form-control border-1 shadow-sm rounded-4 py-2" placeholder="Enter collection title" />
+                <span asp-validation-for="Title" class="text-danger small d-block mt-1"></span>
             </div>
 
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label asp-for="CategoryIds" class="form-label fw-bold"></label>
-                    <select asp-for="CategoryIds" class="form-select" multiple size="4">
-                        @foreach (var cat in Model.Categories)
-                        {
-                            <option value="@cat.Id">@cat.Name</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="DifficultyLevels" class="form-label fw-bold"></label>
-                    <select asp-for="DifficultyLevels" class="form-select" multiple size="4">
-                        @foreach (var level in Model.AvailableLevels)
-                        {
-                            <option value="@level">@level</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="WordIds" class="form-label fw-bold"></label>
-                    <select asp-for="WordIds" class="form-select" multiple size="5">
-                        @foreach (var word in Model.Words)
-                        {
-                            <option value="@word.Id">@word.Term - @word.Translation</option>
-                        }
-                    </select>
-                </div>
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label fw-medium mb-1">Description</label>
+                <textarea asp-for="Description" class="form-control border-1 shadow-sm rounded-4 py-2" rows="3" placeholder="Enter description"></textarea>
+                <span asp-validation-for="Description" class="text-danger small d-block mt-1"></span>
             </div>
-        </div>
 
-        <div class="mt-4">
-            <button type="submit" class="btn btn-success px-4">Create</button>
-            <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
-        </div>
-    </form>
+            <div class="mb-3">
+                <label asp-for="ImageUrl" class="form-label fw-medium mb-1">Image URL</label>
+                <input asp-for="ImageUrl" class="form-control border-1 shadow-sm rounded-4 py-2" placeholder="https://..." />
+                <span asp-validation-for="ImageUrl" class="text-danger small d-block mt-1"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DifficultyLevels" class="form-label fw-medium mb-1">Difficulty Levels</label>
+                <select asp-for="DifficultyLevels" class="form-select border-1 shadow-sm rounded-4 py-2" multiple size="3">
+                    @foreach (var level in Model.AvailableLevels)
+                    {
+                        <option value="@level">@level</option>
+                    }
+                </select>
+                <span asp-validation-for="DifficultyLevels" class="text-danger small d-block mt-1"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CategoryIds" class="form-label fw-medium mb-1">Categories</label>
+                <select asp-for="CategoryIds" class="form-select border-1 shadow-sm rounded-4 py-2" multiple size="4">
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <option value="@cat.Id">@cat.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="CategoryIds" class="text-danger small d-block mt-1"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="WordIds" class="form-label fw-medium mb-1">Words</label>
+                <select asp-for="WordIds" class="form-select border-1 shadow-sm rounded-4 py-2" multiple size="5">
+                    @foreach (var word in Model.Words)
+                    {
+                        <option value="@word.Id">@word.Term - @word.Translation</option>
+                    }
+                </select>
+                <span asp-validation-for="WordIds" class="text-danger small d-block mt-1"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success rounded-4 px-5 fw-medium shadow-sm">Create</button>
+                <a asp-action="Index" class="btn btn-outline-secondary rounded-4 px-4 shadow-sm">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
