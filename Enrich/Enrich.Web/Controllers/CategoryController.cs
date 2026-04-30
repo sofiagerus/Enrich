@@ -15,7 +15,7 @@ namespace Enrich.Web.Controllers
         public async Task<IActionResult> Index()
         {
             var categories = await categoryService.GetAllCategoriesAsync();
-            logger.LogInformation("Адміністратор {UserId} переглянув список категорій.", CurrentUserId);
+            logger.LogInformation("Administrator {UserId} viewed the list of categories.", CurrentUserId);
             return View(categories);
         }
 

@@ -6,7 +6,7 @@ namespace Enrich.Web.ViewModels
     {
         public int WordId { get; set; }
 
-        [Required(ErrorMessage = "Поле 'Термін' є обов'язковим")]
+        [Required(ErrorMessage = "'Term' field is required")]
         public string Term { get; set; } = null!;
 
         public string? Translation { get; set; }

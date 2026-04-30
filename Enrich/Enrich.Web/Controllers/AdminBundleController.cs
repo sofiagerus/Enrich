@@ -149,7 +149,6 @@ namespace Enrich.Web.Controllers
 
             TempData["SuccessMessage"] = "Collection updated successfully!";
 
-            // Повертаємо на правильну вкладку
             return model.IsSystem ? RedirectToAction(nameof(Index)) : RedirectToAction(nameof(Community));
         }
 
@@ -158,10 +157,15 @@ namespace Enrich.Web.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var bundle = await bundleService.GetBundleByIdAsync(id);
-            if (bundle != null && bundle.IsSystem)
+            if (bundle != null)
             {
                 await bundleService.DeleteBundleAsync(bundle.OwnerId ?? "SYSTEM", id);
                 TempData["SuccessMessage"] = "Collection deleted successfully.";
+
+                if (!bundle.IsSystem)
+                {
+                    return RedirectToAction(nameof(Community));
+                }
             }
 
             return RedirectToAction(nameof(Index));

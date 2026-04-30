@@ -28,7 +28,7 @@ namespace Enrich.Web.Controllers
             if (!ModelState.IsValid)
             {
                 logger.LogWarning(
-                    "Провалена валідація форми реєстрації для Username: {Username}, Email: {Email}.",
+                    "Registration form validation failed for Username: {Username}, Email: {Email}.",
                     model.Username,
                     model.Email);
 
@@ -47,7 +47,7 @@ namespace Enrich.Web.Controllers
             if (result.IsSuccess)
             {
                 logger.LogInformation(
-                    "Успішно зареєстровано нового користувача Username: {Username}, Email: {Email}",
+                    "Successfully registered new user Username: {Username}, Email: {Email}",
                     model.Username,
                     model.Email);
 
@@ -63,7 +63,7 @@ namespace Enrich.Web.Controllers
             }
 
             logger.LogWarning(
-                "Помилка при реєстрації Username: {Username}, Email: {Email}. Помилка: {Error}",
+                "Error registering Username: {Username}, Email: {Email}. Error: {Error}",
                 model.Username,
                 model.Email,
                 result.ErrorMessage);
@@ -90,7 +90,7 @@ namespace Enrich.Web.Controllers
             if (!ModelState.IsValid)
             {
                 logger.LogWarning(
-                    "Провалена валідація форми входу для Email: {Email}.",
+                    "Login form validation failed for Email: {Email}.",
                     model.Email);
 
                 return View(model);
@@ -107,11 +107,11 @@ namespace Enrich.Web.Controllers
 
             if (result.IsSuccess)
             {
-                logger.LogInformation("Користувач з Email: {Email} успішно увійшов.", model.Email);
+                logger.LogInformation("User with Email: {Email} successfully logged in.", model.Email);
                 return RedirectToAction("Settings", "Account");
             }
 
-            logger.LogWarning("Невдала спроба входу для Email: {Email}. Помилка: {Error}", model.Email, result.ErrorMessage);
+            logger.LogWarning("Failed login attempt for Email: {Email}. Error: {Error}", model.Email, result.ErrorMessage);
             ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Login failed.");
             return View(model);
         }
@@ -123,7 +123,7 @@ namespace Enrich.Web.Controllers
         {
             var userId = CurrentUserId;
             await authService.LogoutAsync();
-            logger.LogInformation("Користувач {UserId} вийшов з системи.", userId);
+            logger.LogInformation("User {UserId} logged out.", userId);
             return RedirectToAction("Login", "Account");
         }
 
@@ -135,8 +135,8 @@ namespace Enrich.Web.Controllers
 
             if (profileDto == null)
             {
-                logger.LogWarning("Спроба доступу до налаштувань неавторизованим користувачем.");
-                return NotFound("Користувача не знайдено.");
+                logger.LogWarning("Settings access attempt by unauthorized user.");
+                return NotFound("User not found.");
             }
 
             var model = new UpdateProfileViewModel
@@ -173,7 +173,7 @@ namespace Enrich.Web.Controllers
 
             if (result.IsSuccess)
             {
-                logger.LogInformation("Користувач {UserId} успішно оновив профіль.", profileDto.Id);
+                logger.LogInformation("User {UserId} successfully updated profile.", profileDto.Id);
                 TempData["SuccessMessage"] = "Your profile has been successfully updated.";
                 return RedirectToAction("Settings", new { tab });
             }

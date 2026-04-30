@@ -18,7 +18,7 @@ namespace Enrich.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Browse()
         {
-            logger.LogInformation("Адміністратор переглядає список усіх користувачів.");
+            logger.LogInformation("Administrator views the list of all users.");
 
             var usersDto = await userService.GetAllUsersAsync();
             var model = usersDto.Select(u => new UserListViewModel
@@ -63,8 +63,8 @@ namespace Enrich.Web.Controllers
 
             if (result.IsSuccess)
             {
-                logger.LogInformation("Адміністратор заблокував акаунт {UserId}", model.UserId);
-                TempData["SuccessMessage"] = $"Акаунт користувача {model.Username} успішно заблоковано.";
+                logger.LogInformation("Administrator blocked account {UserId}", model.UserId);
+                TempData["SuccessMessage"] = $"User account {model.Username} successfully blocked.";
                 return RedirectToAction("Browse");
             }
 
@@ -102,8 +102,8 @@ namespace Enrich.Web.Controllers
 
             if (result.IsSuccess)
             {
-                logger.LogInformation("Адміністратор розблокував акаунт {UserId}", model.UserId);
-                TempData["SuccessMessage"] = $"Акаунт користувача {model.Username} успішно розблоковано.";
+                logger.LogInformation("Administrator unblocked account {UserId}", model.UserId);
+                TempData["SuccessMessage"] = $"User account {model.Username} successfully unblocked.";
                 return RedirectToAction("Browse");
             }
 

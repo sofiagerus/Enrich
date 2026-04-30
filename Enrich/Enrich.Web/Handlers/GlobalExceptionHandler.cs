@@ -9,7 +9,7 @@ namespace Enrich.Web.Handlers
             Exception exception,
             CancellationToken cancellationToken)
         {
-            logger.LogError(exception, "Необроблена помилка під час обробки запиту {Method} {Path}",
+            logger.LogError(exception, "Unhandled error processing request {Method} {Path}",
                 httpContext.Request.Method, httpContext.Request.Path);
 
             httpContext.Response.StatusCode = 500;

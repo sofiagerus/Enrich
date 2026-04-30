@@ -7,20 +7,20 @@ namespace Enrich.Web.ViewModels
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Поле Term є обов'язковим.")]
-        [StringLength(100, ErrorMessage = "Термін має бути від 1 до 100 символів.", MinimumLength = 1)]
+        [Required(ErrorMessage = "Term field is required.")]
+        [StringLength(100, ErrorMessage = "Term must be between 1 and 100 characters.", MinimumLength = 1)]
         [Display(Name = "Term")]
         public string Term { get; set; } = null!;
 
-        [StringLength(100, ErrorMessage = "Переклад має бути до 100 символів.")]
+        [StringLength(100, ErrorMessage = "Translation must be up to 100 characters.")]
         [Display(Name = "Translation")]
         public string? Translation { get; set; }
 
-        [StringLength(100, ErrorMessage = "Транскрипція має бути до 100 символів.")]
+        [StringLength(100, ErrorMessage = "Transcription must be up to 100 characters.")]
         [Display(Name = "Transcription")]
         public string? Transcription { get; set; }
 
-        [StringLength(500, ErrorMessage = "Значення має бути до 500 символів.")]
+        [StringLength(500, ErrorMessage = "Value must be up to 500 characters.")]
         [Display(Name = "Meaning / Definition")]
         public string? Meaning { get; set; }
 
@@ -28,7 +28,7 @@ namespace Enrich.Web.ViewModels
         [Display(Name = "Part of Speech")]
         public string? PartOfSpeech { get; set; }
 
-        [StringLength(500, ErrorMessage = "Приклад має бути до 500 символів.")]
+        [StringLength(500, ErrorMessage = "Example must be up to 500 characters.")]
         [Display(Name = "Example Sentence")]
         public string? Example { get; set; }
 
