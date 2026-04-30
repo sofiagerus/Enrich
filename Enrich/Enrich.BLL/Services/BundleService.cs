@@ -1014,5 +1014,45 @@ namespace Enrich.BLL.Services
                 return "An error occurred while updating the system bundle.";
             }
         }
+
+        public async Task<Result> UpdateCommunityBundleAsync(int bundleId, CreateBundleDTO dto, BundleStatus newStatus)
+        {
+            var bundle = await bundleRepository.GetBundleByIdAsync(bundleId);
+
+            if (bundle == null)
+            {
+                logger.LogWarning("Attempted to edit non-existent bundle {BundleId}.", bundleId);
+                return "Collection not found.";
+            }
+
+            if (bundle.IsSystem)
+            {
+                logger.LogWarning("Attempted to edit system bundle {BundleId} via community endpoint.", bundleId);
+                return "Invalid community bundle.";
+            }
+
+            try
+            {
+                bundle.Title = dto.Title;
+                bundle.Description = dto.Description;
+                bundle.Status = newStatus; // Адмін змінює статус!
+
+                await bundleRepository.UpdateBundleAsync(bundle);
+
+                if (dto.WordIds != null && dto.CategoryIds != null)
+                {
+                    await bundleRepository.SyncBundleRelationsAsync(bundleId, dto.WordIds, dto.CategoryIds);
+                }
+
+                logger.LogInformation("Community bundle {BundleId} ('{Title}') successfully updated. New status: {Status}.", bundleId, bundle.Title, newStatus);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error updating community bundle {BundleId}.", bundleId);
+                return "An error occurred while updating the collection.";
+            }
+        }
     }
 }

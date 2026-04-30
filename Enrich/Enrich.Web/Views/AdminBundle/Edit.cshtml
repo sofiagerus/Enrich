@@ -1,13 +1,14 @@
 @model Enrich.Web.ViewModels.EditBundleViewModel
 @{
-    ViewData["Title"] = "Edit System Bundle";
+    ViewData["Title"] = Model.IsSystem ? "Edit System Bundle" : "Edit Community Bundle";
 }
 
 <div class="container mt-4">
-    <h2>Edit System Bundle: @Model.Title</h2>
+    <h2>Edit @(Model.IsSystem ? "System" : "Community") Bundle: @Model.Title</h2>
     <hr />
     <form asp-action="Edit" method="post">
         <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="IsSystem" />
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
         <div class="row">
@@ -29,6 +30,20 @@
                     <input asp-for="ImageUrl" class="form-control" />
                     <span asp-validation-for="ImageUrl" class="text-danger"></span>
                 </div>
+
+                <!-- Блок зміни статусу тільки для Community -->
+                @if (!Model.IsSystem)
+                {
+                    <div class="mb-3 p-3 border border-warning rounded-3 bg-light">
+                        <label asp-for="Status" class="form-label fw-bold text-warning-emphasis">
+                            <i class="bi bi-shield-check me-1"></i> Approval Status
+                        </label>
+                        <select asp-for="Status" class="form-select border-warning" asp-items="Html.GetEnumSelectList<Enrich.DAL.Entities.Enums.BundleStatus>()">
+                        </select>
+                        <div class="form-text">Change status to Publish or Reject this community collection.</div>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+                }
             </div>
 
             <div class="col-md-6">
@@ -66,7 +81,16 @@
 
         <div class="mt-4">
             <button type="submit" class="btn btn-primary px-4">Save Changes</button>
-            <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
+            
+            
+            @if (Model.IsSystem)
+            {
+                <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
+            }
+            else
+            {
+                <a asp-action="Community" class="btn btn-secondary ms-2">Back to Community</a>
+            }
         </div>
     </form>
 </div>

@@ -653,5 +653,67 @@ namespace Enrich.UnitTests.Services
             Assert.That(result.ErrorMessage, Is.EqualTo("System bundle not found."));
             _bundleRepositoryMock.Verify(r => r.UpdateBundleAsync(It.IsAny<Bundle>()), Times.Never);
         }
+
+        [Test]
+        public async Task UpdateCommunityBundleAsync_BundleNotFound_ReturnsError()
+        {
+            // Arrange
+            var bundleId = 99;
+            _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId)).ReturnsAsync((Bundle?)null);
+
+            // Act
+            var result = await _bundleService.UpdateCommunityBundleAsync(bundleId, new CreateBundleDTO(), BundleStatus.Published);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("Collection not found."));
+            _bundleRepositoryMock.Verify(r => r.UpdateBundleAsync(It.IsAny<Bundle>()), Times.Never);
+        }
+
+        [Test]
+        public async Task UpdateCommunityBundleAsync_BundleIsSystem_ReturnsError()
+        {
+            // Arrange
+            var bundleId = 1;
+            var systemBundle = new Bundle { Id = bundleId, IsSystem = true };
+            _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId)).ReturnsAsync(systemBundle);
+
+            // Act
+            var result = await _bundleService.UpdateCommunityBundleAsync(bundleId, new CreateBundleDTO(), BundleStatus.Published);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("Invalid community bundle."));
+            _bundleRepositoryMock.Verify(r => r.UpdateBundleAsync(It.IsAny<Bundle>()), Times.Never);
+        }
+
+        [Test]
+        public async Task UpdateCommunityBundleAsync_ValidCommunityBundle_UpdatesAndSyncs()
+        {
+            // Arrange
+            var bundleId = 1;
+            var communityBundle = new Bundle { Id = bundleId, IsSystem = false, Title = "Old Title", Status = BundleStatus.PendingReview };
+            var dto = new CreateBundleDTO
+            {
+                Title = "New Title",
+                Description = "New Desc",
+                WordIds = new List<int> { 1, 2 },
+                CategoryIds = new List<int> { 3 }
+            };
+
+            _bundleRepositoryMock.Setup(r => r.GetBundleByIdAsync(bundleId)).ReturnsAsync(communityBundle);
+
+            // Act
+            var result = await _bundleService.UpdateCommunityBundleAsync(bundleId, dto, BundleStatus.Published);
+
+            // Assert
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(communityBundle.Title, Is.EqualTo("New Title"));
+            Assert.That(communityBundle.Description, Is.EqualTo("New Desc"));
+            Assert.That(communityBundle.Status, Is.EqualTo(BundleStatus.Published)); // Перевіряємо статус
+
+            _bundleRepositoryMock.Verify(r => r.UpdateBundleAsync(communityBundle), Times.Once);
+            _bundleRepositoryMock.Verify(r => r.SyncBundleRelationsAsync(bundleId, dto.WordIds, dto.CategoryIds), Times.Once);
+        }
     }
 }

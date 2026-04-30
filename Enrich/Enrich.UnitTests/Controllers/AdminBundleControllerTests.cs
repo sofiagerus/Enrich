@@ -1,6 +1,7 @@
-﻿using Enrich.BLL.DTOs;
+﻿using Enrich.BLL.Common;
+using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
-using Enrich.DAL.Interfaces;
+using Enrich.DAL.Entities.Enums;
 using Enrich.Web.Controllers;
 using Enrich.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
@@ -28,6 +29,7 @@ namespace Enrich.UnitTests.Controllers
                 _bundleServiceMock.Object,
                 _wordServiceMock.Object)
             {
+                // Тут TempData вже ініціалізована правильно для всіх тестів у цьому класі
                 TempData = new TempDataDictionary(
                     new DefaultHttpContext(),
                     Mock.Of<ITempDataProvider>())
@@ -54,13 +56,7 @@ namespace Enrich.UnitTests.Controllers
             };
 
             _bundleServiceMock.Setup(s => s.GetSystemBundlesAsync(
-                It.IsAny<string>(),
-                null,
-                null,
-                null,
-                null,
-                1,
-                20))
+                It.IsAny<string>(), null, null, null, null, 1, 20))
                 .ReturnsAsync(pagedResult);
 
             // Act
@@ -70,9 +66,7 @@ namespace Enrich.UnitTests.Controllers
             Assert.That(result, Is.TypeOf<ViewResult>());
             var viewResult = (ViewResult)result;
 
-            Assert.That(
-                viewResult.ViewData.Model,
-                Is.InstanceOf<PagedResult<SystemBundleDTO>>());
+            Assert.That(viewResult.ViewData.Model, Is.InstanceOf<PagedResult<SystemBundleDTO>>());
 
             var model = (PagedResult<SystemBundleDTO>)viewResult.ViewData.Model!;
             Assert.That(model.Items.Count(), Is.EqualTo(1));
@@ -88,7 +82,7 @@ namespace Enrich.UnitTests.Controllers
             };
 
             _bundleServiceMock.Setup(s => s.CreateSystemBundleAsync(It.IsAny<CreateBundleDTO>()))
-                .ReturnsAsync(true);
+                .ReturnsAsync(Result.Success());
 
             // Act
             var result = await _controller.Create(model);
@@ -98,6 +92,59 @@ namespace Enrich.UnitTests.Controllers
             var redirectResult = (RedirectToActionResult)result;
 
             Assert.That(redirectResult.ActionName, Is.EqualTo("Index"));
+        }
+
+        [Test]
+        public async Task Edit_Post_IdMismatch_ReturnsBadRequest()
+        {
+            // Arrange
+            var model = new EditBundleViewModel { Id = 2 };
+
+            // Act
+            var result = await _controller.Edit(1, model);
+
+            // Assert
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        public async Task Edit_Post_SystemBundle_CallsUpdateSystemAndRedirectsToIndex()
+        {
+            // Arrange
+            var model = new EditBundleViewModel { Id = 1, IsSystem = true, Title = "Sys" };
+
+            _bundleServiceMock.Setup(s => s.UpdateSystemBundleAsync(1, It.IsAny<CreateBundleDTO>()))
+                .ReturnsAsync(Result.Success());
+
+            // Act
+            var result = await _controller.Edit(1, model);
+
+            // Assert
+            _bundleServiceMock.Verify(s => s.UpdateSystemBundleAsync(1, It.IsAny<CreateBundleDTO>()), Times.Once);
+
+            Assert.That(result, Is.TypeOf<RedirectToActionResult>());
+            var redirectResult = (RedirectToActionResult)result;
+            Assert.That(redirectResult.ActionName, Is.EqualTo("Index"));
+        }
+
+        [Test]
+        public async Task Edit_Post_CommunityBundle_CallsUpdateCommunityAndRedirectsToCommunity()
+        {
+            // Arrange
+            var model = new EditBundleViewModel { Id = 1, IsSystem = false, Title = "Comm", Status = BundleStatus.Published };
+
+            _bundleServiceMock.Setup(s => s.UpdateCommunityBundleAsync(1, It.IsAny<CreateBundleDTO>(), BundleStatus.Published))
+                .ReturnsAsync(Result.Success());
+
+            // Act
+            var result = await _controller.Edit(1, model);
+
+            // Assert
+            _bundleServiceMock.Verify(s => s.UpdateCommunityBundleAsync(1, It.IsAny<CreateBundleDTO>(), BundleStatus.Published), Times.Once);
+
+            Assert.That(result, Is.TypeOf<RedirectToActionResult>());
+            var redirectResult = (RedirectToActionResult)result;
+            Assert.That(redirectResult.ActionName, Is.EqualTo("Community"));
         }
     }
 }

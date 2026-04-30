@@ -1,7 +1,6 @@
 using Enrich.BLL.DTOs;
 using Enrich.BLL.Interfaces;
 using Enrich.DAL.Entities.Enums;
-using Enrich.DAL.Interfaces;
 using Enrich.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -90,7 +89,7 @@ namespace Enrich.Web.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var bundle = await bundleService.GetBundleByIdAsync(id);
-            if (bundle == null || !bundle.IsSystem)
+            if (bundle == null)
             {
                 return NotFound();
             }
@@ -98,6 +97,7 @@ namespace Enrich.Web.Controllers
             var viewModel = new EditBundleViewModel
             {
                 Id = bundle.Id,
+                IsSystem = bundle.IsSystem,
                 Title = bundle.Title,
                 Description = bundle.Description,
                 ImageUrl = bundle.ImageUrl,
@@ -136,7 +136,10 @@ namespace Enrich.Web.Controllers
                 WordIds = model.WordIds
             };
 
-            var result = await bundleService.UpdateSystemBundleAsync(id, dto);
+            var result = model.IsSystem
+                ? await bundleService.UpdateSystemBundleAsync(id, dto)
+                : await bundleService.UpdateCommunityBundleAsync(id, dto, model.Status);
+
             if (!result.IsSuccess)
             {
                 ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Failed to update collection.");
@@ -145,7 +148,9 @@ namespace Enrich.Web.Controllers
             }
 
             TempData["SuccessMessage"] = "Collection updated successfully!";
-            return RedirectToAction(nameof(Index));
+
+            // Повертаємо на правильну вкладку
+            return model.IsSystem ? RedirectToAction(nameof(Index)) : RedirectToAction(nameof(Community));
         }
 
         [HttpPost("Delete/{id}")]

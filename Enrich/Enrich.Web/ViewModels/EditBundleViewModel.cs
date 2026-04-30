@@ -9,6 +9,9 @@ namespace Enrich.Web.ViewModels
         [Display(Name = "ID")]
         public int Id { get; set; }
 
+        [Display(Name = "Is System Collection")]
+        public bool IsSystem { get; set; }
+
         [Required(ErrorMessage = BundleConstants.TitleRequired)]
         [MaxLength(BundleConstants.TitleMaxLength, ErrorMessage = BundleConstants.TitleMaxLengthMessage)]
         [Display(Name = "Collection Title")]
