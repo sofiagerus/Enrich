@@ -1,0 +1,24 @@
+[
+  {
+    "outputFileName": "wwwroot/css/collections.min.css",
+    "inputFiles": [
+      "wwwroot/css/collections.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/js/my-collections.min.js",
+    "inputFiles": [
+      "wwwroot/js/my-collections.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  }
+]

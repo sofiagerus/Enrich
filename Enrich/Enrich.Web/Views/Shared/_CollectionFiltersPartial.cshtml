@@ -1,0 +1,47 @@
+@model IEnumerable<Enrich.DAL.Entities.Category>
+
+<div class="sidebar-panel" style="margin-top: 0;">
+    <h6 class="fw-bold mb-2" style="font-size:0.9rem;">Categories</h6>
+    <div class="border rounded-3 bg-white mb-2" style="height:200px; display:flex; flex-direction:column;">
+        <div class="p-2 border-bottom">
+            <input type="text" id="categorySearch" class="form-control border-0 bg-transparent"
+                   placeholder="Search categories..." style="font-size:0.85rem;">
+        </div>
+        <div class="p-2 overflow-y-scroll flex-grow-1">
+            <ul class="list-unstyled mb-0" id="category-filters">
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var cat in Model)
+                    {
+                        <li class="checkbox-item">
+                            <input type="checkbox" class="form-check-input me-2 category-checkbox" id="cat-@cat.Id" value="@cat.Name" onchange="onFilterChange()">
+                            <label class="form-check-label" for="cat-@cat.Id">@cat.Name</label>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <h6 class="fw-bold mb-2" style="font-size:0.9rem;">Difficulty Level</h6>
+    <ul class="list-unstyled mb-0" id="level-filters">
+        @foreach (var level in new[] { "C2", "C1", "B2", "B1", "A2", "A1" })
+        {
+            <li class="checkbox-item">
+                <input type="checkbox" class="form-check-input me-2 level-checkbox" id="level-@level" value="@level" onchange="onFilterChange()">
+                <label class="form-check-label" for="level-@level">@level</label>
+            </li>
+        }
+    </ul>
+
+    <div class="sidebar-divider"></div>
+
+    <h6 class="fw-bold mb-2" style="font-size:0.9rem;">Words Count</h6>
+    <div class="d-flex align-items-center justify-content-between">
+        <input type="number" id="minWordCount" class="word-count-input" placeholder="Min" min="0" onchange="onFilterChange()">
+        <span style="color: #adb5bd; font-size: 1.2rem; font-weight: 300;">—</span>
+        <input type="number" id="maxWordCount" class="word-count-input" placeholder="Max" min="0" onchange="onFilterChange()">
+    </div>
+</div>
