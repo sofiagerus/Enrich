@@ -1,35 +1,21 @@
 <h4 class="mb-4 fw-normal fs-4 text-dark">Interface Settings</h4>
 
-<form>
+<form class="settings-form">
     <div class="mb-4">
         <label class="form-label mb-1">Language</label>
-        <div class="dropdown">
-            <button class="btn text-dark border-1 rounded-4 py-2 w-100 text-start d-flex justify-content-between align-items-center shadow-sm bg-white"
-                    type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-color: #dee2e6;">
-                <span>English</span>
-                <i class="bi bi-chevron-down small text-muted"></i>
-            </button>
-            <ul class="dropdown-menu w-100 shadow border-0 mt-1 rounded-4">
-                <li><a class="dropdown-item active bg-success text-white rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#">English</a></li>
-                <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#">Українська</a></li>
-            </ul>
-        </div>
+        <select class="form-select py-2" aria-label="Select language">
+            <option value="en" selected>English</option>
+            <option value="uk">Українська</option>
+        </select>
     </div>
 
     <div class="mb-5">
         <label class="form-label mb-1">Theme</label>
-        <div class="dropdown">
-            <button class="btn text-dark border-1 rounded-4 py-2 w-100 text-start d-flex justify-content-between align-items-center shadow-sm bg-white"
-                    type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-color: #dee2e6;">
-                <span>Light</span>
-                <i class="bi bi-chevron-down small text-muted"></i>
-            </button>
-            <ul class="dropdown-menu w-100 shadow border-0 mt-1 rounded-4">
-                <li><a class="dropdown-item active bg-success text-white rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#">Light</a></li>
-                <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#">Dark</a></li>
-            </ul>
-        </div>
+        <select class="form-select py-2" aria-label="Select theme">
+            <option value="light" selected>Light</option>
+            <option value="dark">Dark</option>
+        </select>
     </div>
 
-    <button type="button" class="btn btn-success rounded-4 py-2 px-4 custom-btn">Save changes</button>
+    <button type="button" class="btn btn-action-success">Save changes</button>
 </form>

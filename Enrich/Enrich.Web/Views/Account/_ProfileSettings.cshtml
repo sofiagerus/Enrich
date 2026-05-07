@@ -11,36 +11,34 @@
 }
 
 <div class="mb-4">
-    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center shadow-sm"
-         style="width: 72px; height: 72px;">
+    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center settings-avatar">
         <i class="bi bi-person-fill text-white fs-3"></i>
     </div>
 </div>
 
-<form asp-action="Settings" asp-controller="Account" asp-route-tab="profile" method="post">
+<form asp-action="Settings" asp-controller="Account" asp-route-tab="profile" method="post" class="settings-form">
     <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
 
     <div class="mb-3">
         <label asp-for="Username" class="form-label mb-1">Username</label>
-        <input asp-for="Username" class="form-control shadow-sm border-1 rounded-4 py-2 custom-gray-bg" placeholder="Username" />
+        <input asp-for="Username" class="form-control py-2" placeholder="Username" />
         <span asp-validation-for="Username" class="text-danger small d-block mt-1"></span>
     </div>
 
     <div class="mb-3">
         <label asp-for="Email" class="form-label mb-1">
-            Email <i class="bi bi-lock-fill ms-1 text-muted" style="font-size: 0.75rem;" title="Email cannot be changed"></i>
+            Email <i class="bi bi-lock-fill ms-1 text-muted small" title="Email cannot be changed"></i>
         </label>
         <input asp-for="Email"
-               class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg text-muted"
-               style="cursor: not-allowed;"
+               class="form-control py-2 bg-light text-muted"
                readonly />
     </div>
 
     <div class="mb-4">
         <label asp-for="Bio" class="form-label mb-1">Bio</label>
-        <textarea asp-for="Bio" class="form-control  shadow-sm border-1 rounded-4 py-2 custom-gray-bg" rows="3" placeholder="Tell something about yourself..."></textarea>
+        <textarea asp-for="Bio" class="form-control py-2" rows="3" placeholder="Tell something about yourself..."></textarea>
         <span asp-validation-for="Bio" class="text-danger small d-block mt-1"></span>
     </div>
 
-    <button type="submit" class="btn btn-success rounded-4 py-2 px-4 custom-btn">Save changes</button>
+    <button type="submit" class="btn btn-action-success">Save changes</button>
 </form>
