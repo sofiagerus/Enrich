@@ -6,88 +6,33 @@
     var partsOfSpeech = ViewBag.PartsOfSpeech as IEnumerable<string> ?? new List<string>();
 }
 
-<style>
-    .setup-page {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 80vh;
-        font-family: 'Open Sans', sans-serif;
-    }
+@section Styles {
+    <link rel="stylesheet" href="~/css/quiz-setup.min.css" asp-append-version="true" />
+}
 
-    .setup-title {
-        font-size: 3.5rem;
-        font-weight: 800;
-        margin-bottom: 40px;
-        color: #212529;
-    }
+<div class="d-flex align-items-center mb-4 gap-3">
+    <a asp-action="Index" asp-controller="Home" class="text-dark text-decoration-none fs-5">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h1 class="fw-semibold fs-4 mb-0">Quiz Setup</h1>
+</div>
 
-    .setup-card {
-        background: white;
-        border-radius: 24px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        width: 100%;
-        max-width: 600px;
-        padding: 40px;
-    }
+<div class="card border border-light-subtle rounded-4 mb-4" style="max-width: 640px;">
+    <div class="card-body p-4 p-md-5">
 
-    .form-label {
-        font-weight: 700;
-        font-size: 0.9rem;
-        color: #495057;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 12px;
-    }
-
-    .custom-select, .custom-input {
-        background-color: #F8F9FA !important;
-        border: 1px solid #E9ECEF !important;
-        border-radius: 12px !important;
-        padding: 12px 16px !important;
-        font-size: 1rem !important;
-        font-weight: 500 !important;
-        color: #212529 !important;
-    }
-
-    .btn-start {
-        background-color: #198754;
-        color: white;
-        border-radius: 12px;
-        padding: 16px;
-        font-weight: 700;
-        font-size: 1.1rem;
-        border: none;
-        transition: all 0.2s;
-        margin-top: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-    }
-
-    .btn-start:hover {
-        background-color: #157347;
-        transform: translateY(-1px);
-    }
-</style>
-
-<div class="setup-page">
-    <h1 class="setup-title">Quiz Setup</h1>
-    
-    <div class="setup-card">
         @if (TempData["Error"] != null)
         {
-            <div class="alert alert-danger rounded-3 border-0 mb-4" style="background-color: #fff5f5; color: #dc3545;">
+            <div class="alert alert-danger rounded-4 small mb-4 border-0" style="background-color: #fff5f5; color: #dc3545;" role="alert">
                 <i class="bi bi-exclamation-circle me-2"></i> @TempData["Error"]
             </div>
         }
 
         <form asp-action="Start" method="post">
+            
+            @* Category *@
             <div class="mb-4">
-                <label class="form-label">Category</label>
-                <select asp-for="Category" class="form-select custom-select">
+                <label asp-for="Category" class="form-label fw-medium text-dark small mb-2">Category</label>
+                <select asp-for="Category" class="form-select rounded-4 py-2 border-light-subtle" style="box-shadow: none;">
                     <option value="Any">Any Category</option>
                     @foreach (var cat in categories)
                     {
@@ -96,9 +41,10 @@
                 </select>
             </div>
 
+            @* Part of Speech *@
             <div class="mb-4">
-                <label class="form-label">Part of Speech</label>
-                <select asp-for="PartOfSpeech" class="form-select custom-select">
+                <label asp-for="PartOfSpeech" class="form-label fw-medium text-dark small mb-2">Part of Speech</label>
+                <select asp-for="PartOfSpeech" class="form-select rounded-4 py-2 border-light-subtle" style="box-shadow: none;">
                     <option value="Any">Any Part of Speech</option>
                     @foreach (var pos in partsOfSpeech)
                     {
@@ -107,10 +53,11 @@
                 </select>
             </div>
 
-            <div class="row mb-4">
-                <div class="col">
-                    <label class="form-label">Difficulty (Min)</label>
-                    <select asp-for="MinDifficulty" class="form-select custom-select">
+            @* Difficulty Levels *@
+            <div class="row mb-4 g-4">
+                <div class="col-md-6">
+                    <label asp-for="MinDifficulty" class="form-label fw-medium text-dark small mb-2">Difficulty (Min)</label>
+                    <select asp-for="MinDifficulty" class="form-select rounded-4 py-2 border-light-subtle" style="box-shadow: none;">
                         <option value="0">A1</option>
                         <option value="1">A2</option>
                         <option value="2">B1</option>
@@ -119,9 +66,9 @@
                         <option value="5">C2</option>
                     </select>
                 </div>
-                <div class="col">
-                    <label class="form-label">Difficulty (Max)</label>
-                    <select asp-for="MaxDifficulty" class="form-select custom-select">
+                <div class="col-md-6">
+                    <label asp-for="MaxDifficulty" class="form-label fw-medium text-dark small mb-2">Difficulty (Max)</label>
+                    <select asp-for="MaxDifficulty" class="form-select rounded-4 py-2 border-light-subtle" style="box-shadow: none;">
                         <option value="0">A1</option>
                         <option value="1">A2</option>
                         <option value="2">B1</option>
@@ -132,14 +79,27 @@
                 </div>
             </div>
 
-            <div class="mb-4">
-                <label class="form-label">Number of Words</label>
-                <input type="number" asp-for="WordCount" class="form-control custom-input" min="1" max="50" value="10" />
+            @* Number of Words *@
+            <div class="mb-5">
+                <label asp-for="WordCount" class="form-label fw-medium text-dark small mb-2">Number of Words</label>
+                <input type="number" asp-for="WordCount" class="form-control rounded-4 py-2 border-light-subtle" min="1" max="50" value="10" style="box-shadow: none;" />
+                <span asp-validation-for="WordCount" class="text-danger small d-block mt-1"></span>
             </div>
 
-            <button type="submit" class="btn-start w-100">
-                <i class="bi bi-play-fill fs-4"></i> Start Quiz Session
-            </button>
+            @* Êíîïêè ôîðìè (ÂÍÈÇÓ) *@
+            <div class="d-flex gap-3 justify-content-start">
+                <button type="submit" class="btn btn-success btn-action-success rounded-pill px-4 py-2 fw-medium d-flex align-items-center gap-2" style="background-color: #1a7b54; border-color: #1a7b54; transition: all 0.2s;">
+                    <i class="bi bi-play-fill fs-5"></i> Start Quiz Session
+                </button>
+                <a asp-action="Index" asp-controller="Home" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-medium">
+                    Cancel
+                </a>
+            </div>
+
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
