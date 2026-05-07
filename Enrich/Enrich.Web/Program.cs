@@ -2,7 +2,9 @@ using Enrich.BLL;
 using Enrich.DAL;
 using Enrich.DAL.Data;
 using Enrich.DAL.Entities;
+using Enrich.Web.BackgroundServices;
 using Enrich.Web.Handlers;
+using Enrich.Web.Hubs;
 using Enrich.Web.Middlewares;
 using Enrich.Web.Seeders;
 using Enrich.Web.Settings;
@@ -34,6 +36,9 @@ try
 
     builder.Services.Configure<LocalizationSettings>(
         builder.Configuration.GetSection(LocalizationSettings.Section));
+
+    builder.Services.Configure<NotificationSettings>(
+        builder.Configuration.GetSection(NotificationSettings.Section));
 
     var identitySettings = builder.Configuration
         .GetSection(IdentitySettings.Section)
@@ -81,6 +86,9 @@ try
         options.HeaderName = "X-CSRF-TOKEN";
     });
 
+    builder.Services.AddSignalR();
+    builder.Services.AddHostedService<NotificationBackgroundService>();
+
     WebApplication app = builder.Build();
 
     await DataSeeder.SeedRolesAndAdminAsync(app.Services);
@@ -120,6 +128,8 @@ try
     app.UseRouting();
     app.UseAntiforgery();
     app.UseAuthorization();
+
+    app.MapHub<NotificationHub>("/hubs/notifications");
 
     if (app.Environment.IsDevelopment())
     {

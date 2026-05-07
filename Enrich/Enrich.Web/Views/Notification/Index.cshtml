@@ -1,0 +1,98 @@
+@model IReadOnlyList<Enrich.DAL.Entities.Notification>
+@{
+    ViewData["Title"] = "Notifications";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/notifications.min.css" asp-append-version="true" />
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h4 mb-1 fw-bold">Notifications</h1>
+        <p class="text-muted mb-0" style="font-size:0.9rem;">Stay updated on your learning progress.</p>
+    </div>
+    @if (Model.Any(n => !n.IsRead))
+    {
+        <form asp-action="MarkAllRead" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-action-outline-success rounded-4 shadow-sm">
+                <i class="bi bi-check2-all me-1"></i> Mark all as read
+            </button>
+        </form>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card border rounded-4">
+        <div class="empty-state">
+            <i class="bi bi-bell-slash fs-1 text-muted mb-3 d-block"></i>
+            <p class="fw-semibold mb-1">No notifications yet</p>
+            <p style="font-size:0.88rem;">You'll be notified when you learn words, build streaks, or your collections get approved.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card border rounded-4 overflow-hidden">
+        <ul class="list-group list-group-flush p-1 gap-1">
+            @foreach (var notification in Model)
+            {
+                var iconClass = notification.Type switch
+                {
+                    "WordLearned"    => "icon-WordLearned bi-trophy-fill",
+                    "TrainingStreak" => "icon-TrainingStreak bi-fire",
+                    "BundleApproved" => "icon-BundleApproved bi-patch-check-fill",
+                    _                => "bg-secondary text-white bi-bell-fill"
+                };
+
+                var displayMessage = notification.Type switch
+                {
+                    "WordLearned"    => notification.Message.Contains("|")
+                        ? "You have mastered the word!"
+                        : notification.Message,
+                    "TrainingStreak" => notification.Message,
+                    "BundleApproved" => notification.Message.All(char.IsDigit)
+                        ? "Your collection has been approved and published!"
+                        : notification.Message,
+                    _                => notification.Message
+                };
+
+                var timeSpan = DateTime.UtcNow - notification.CreatedAt;
+                string displayTime;
+                if (timeSpan.TotalMinutes < 1) displayTime = "now";
+                else if (timeSpan.TotalHours < 1) displayTime = $"{(int)timeSpan.TotalMinutes}m";
+                else if (timeSpan.TotalDays < 1) displayTime = $"{(int)timeSpan.TotalHours}h";
+                else displayTime = $"{(int)timeSpan.TotalDays}d";
+
+                <li class="list-group-item border-0 py-3 px-4 rounded-4 notification-item @(notification.IsRead ? "" : "unread")"
+                    data-id="@notification.Id">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="notification-icon rounded-3 @iconClass.Split(' ')[0]">
+                            <i class="bi @iconClass.Split(' ')[1]"></i>
+                        </div>
+                        <div class="flex-grow-1 min-w-0">
+                            <p class="mb-1 @(notification.IsRead ? "text-muted" : "fw-semibold")"
+                               style="font-size:0.93rem; line-height:1.45;">
+                                @displayMessage
+                            </p>
+                            <span class="text-muted" style="font-size:0.8rem;">
+                                @displayTime
+                            </span>
+                        </div>
+                        @if (!notification.IsRead)
+                        {
+                            <span class="badge bg-success rounded-pill align-self-center" style="font-size:0.7rem;">New</span>
+                        }
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/notifications.js" asp-append-version="true"></script>
+}

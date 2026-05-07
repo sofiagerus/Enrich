@@ -32,6 +32,7 @@ namespace Enrich.BLL
             services.AddScoped<IStudySessionService, StudySessionService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IQuizService, QuizService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             return services;
         }
