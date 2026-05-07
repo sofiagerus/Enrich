@@ -97,5 +97,16 @@
       "renameLocals": true
     },
     "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/js/quiz-setup.min.js",
+    "inputFiles": [
+      "wwwroot/js/quiz-setup.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
   }
 ]

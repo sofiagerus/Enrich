@@ -9,150 +9,155 @@
     <link rel="stylesheet" href="~/css/word-create.min.css" asp-append-version="true" />
 }
 
-<div class="d-flex align-items-center mb-4 gap-3">
-    <a asp-controller="Word" asp-action="MyWords" class="text-dark text-decoration-none fs-5">
-        <i class="bi bi-arrow-left"></i>
-    </a>
-    <h1 class="fw-semibold fs-4 mb-0">Add new Word</h1>
-</div>
+<div class="container d-flex justify-content-start py-4">
+    <div class="w-100" style="max-width: 640px;">
+        
+        <div class="d-flex align-items-center mb-4 gap-3">
+            <a asp-controller="Word" asp-action="MyWords" class="text-dark text-decoration-none fs-5">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1 class="fw-semibold fs-4 mb-0">Add new Word</h1>
+        </div>
 
-<div class="card border border-light-subtle rounded-4 mb-4" style="max-width: 640px;">
-    <div class="card-body p-4 p-md-5">
+        <div class="card border border-light-subtle rounded-4 mb-4">
+            <div class="card-body p-4 p-md-5">
 
-        @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
-        {
-            <div class="alert alert-danger rounded-4 small mb-4 border-0" style="background-color: #fff5f5; color: #dc3545;" role="alert">
-                <div asp-validation-summary="ModelOnly"></div>
+                @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+                {
+                    <div class="alert alert-danger rounded-4 small mb-4 border-0" style="background-color: #fff5f5; color: #dc3545;" role="alert">
+                        <div asp-validation-summary="ModelOnly"></div>
+                    </div>
+                }
+
+                <form asp-action="Create" asp-controller="Word" method="post" id="create-word-form">
+                    @Html.AntiForgeryToken()
+
+                    @* Term (Word) *@
+                    <div class="mb-4">
+                        <label asp-for="Term" class="form-label fw-medium text-dark small mb-2">
+                            Word <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="Term"
+                                   id="term-input"
+                                   class="form-control py-2 border-light-subtle border-end-0 custom-focus"
+                                   placeholder="e.g. Serendipity"
+                                   style="border-top-left-radius: 0.75rem; border-bottom-left-radius: 0.75rem; box-shadow: none;" />
+                            <button type="button" id="btn-lookup-word" class="btn border border-light-subtle bg-light text-primary d-flex align-items-center gap-1 px-4 fw-medium hover-bg-light z-0" style="border-top-right-radius: 0.75rem; border-bottom-right-radius: 0.75rem;">
+                                <i class="bi bi-search"></i> Auto-fill
+                            </button>
+                        </div>
+                        <span asp-validation-for="Term" class="text-danger small d-block mt-1"></span>
+                    </div>
+
+                    @* Category *@
+                    <div class="mb-4 position-relative" id="category-wrapper">
+                        <label asp-for="NewCategory" class="form-label fw-medium text-dark small mb-2">
+                            Category <span class="text-danger">*</span>
+                        </label>
+
+                        <div class="category-combo position-relative">
+                            <input asp-for="NewCategory"
+                                   id="category-input"
+                                   class="form-control rounded-4 py-2 border-light-subtle pe-5 custom-focus"
+                                   placeholder="Select or type a new category..."
+                                   autocomplete="off"
+                                   style="box-shadow: none;"
+                                   required />
+                            <button type="button" id="category-toggle"
+                                    class="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent p-0 text-muted"
+                                    tabindex="-1" aria-label="Toggle list">
+                                <i class="bi bi-chevron-down" id="category-chevron" style="transition: transform .2s;"></i>
+                            </button>
+                        </div>
+
+                        <ul id="category-dropdown"
+                            class="list-unstyled mb-0 mt-1 border border-light-subtle rounded-4 bg-white position-absolute w-100 overflow-auto shadow-sm"
+                            style="display:none; max-height:200px; z-index:1050;">
+                        </ul>
+
+                        <span asp-validation-for="NewCategory" class="text-danger small d-block mt-1"></span>
+                    </div>
+
+                    @* Difficulty Level & Part of Speech *@
+                    <div class="row mb-4 g-4">
+                        <div class="col-md-6">
+                            <label asp-for="DifficultyLevel" class="form-label fw-medium text-dark small mb-2">Difficulty Level</label>
+                            <input asp-for="DifficultyLevel"
+                                   class="form-control rounded-4 py-2 border-light-subtle custom-focus"
+                                   style="box-shadow: none;"
+                                   placeholder="e.g. B2" />
+                            <span asp-validation-for="DifficultyLevel" class="text-danger small d-block mt-1"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PartOfSpeech" class="form-label fw-medium text-dark small mb-2">Part of Speech</label>
+                            <input asp-for="PartOfSpeech"
+                                   class="form-control rounded-4 py-2 border-light-subtle custom-focus"
+                                   style="box-shadow: none;"
+                                   placeholder="e.g. noun" />
+                            <span asp-validation-for="PartOfSpeech" class="text-danger small d-block mt-1"></span>
+                        </div>
+                    </div>
+
+                    @* Translation *@
+                    <div class="mb-4">
+                        <label asp-for="Translation" class="form-label fw-medium text-dark small mb-2">Translation</label>
+                        <input asp-for="Translation"
+                               class="form-control rounded-4 py-2 border-light-subtle custom-focus"
+                               style="box-shadow: none;"
+                               placeholder="e.g. Щасливий випадок" />
+                        <span asp-validation-for="Translation" class="text-danger small d-block mt-1"></span>
+                    </div>
+
+                    @* Transcription *@
+                    <div class="mb-4">
+                        <label asp-for="Transcription" class="form-label fw-medium text-dark small mb-2">Transcription</label>
+                        <input asp-for="Transcription"
+                               id="transcription-input"
+                               class="form-control rounded-4 py-2 border-light-subtle custom-focus"
+                               style="box-shadow: none;"
+                               placeholder="e.g. /sɛrənˈdɪpɪti/" />
+                        <span asp-validation-for="Transcription" class="text-danger small d-block mt-1"></span>
+                    </div>
+
+                    @* Meaning *@
+                    <div class="mb-4">
+                        <label asp-for="Meaning" class="form-label fw-medium text-dark small mb-2">Meaning</label>
+                        <textarea asp-for="Meaning"
+                                  id="meaning-input"
+                                  class="form-control rounded-4 py-2 border-light-subtle custom-focus"
+                                  style="box-shadow: none;"
+                                  rows="2"
+                                  placeholder="Short definition"></textarea>
+                        <span asp-validation-for="Meaning" class="text-danger small d-block mt-1"></span>
+                    </div>
+
+                    @* Example *@
+                    <div class="mb-4">
+                        <label asp-for="Example" class="form-label fw-medium text-dark small mb-2">Example</label>
+                        <textarea asp-for="Example"
+                                  class="form-control rounded-4 py-2 border-light-subtle custom-focus"
+                                  style="box-shadow: none;"
+                                  rows="2"
+                                  placeholder="Sentence using the word"></textarea>
+                        <span asp-validation-for="Example" class="text-danger small d-block mt-1"></span>
+                    </div>
+
+                    <hr class="mt-5 mb-4 border-light-subtle" />
+
+                    @* Кнопки форми *@
+                    <div class="d-flex gap-3 justify-content-center">
+                        <button type="submit" class="btn btn-success btn-action-success rounded-pill px-5 py-2 fw-medium d-flex align-items-center gap-2" style="background-color: #1a7b54; border-color: #1a7b54; transition: all 0.2s;">
+                            <i class="bi bi-plus-circle"></i> Add Word
+                        </button>
+                        <a asp-controller="Word" asp-action="MyWords" class="btn btn-outline-secondary rounded-pill px-5 py-2 fw-medium">
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
             </div>
-        }
-
-        <form asp-action="Create" asp-controller="Word" method="post" id="create-word-form">
-            @Html.AntiForgeryToken()
-
-            @* Term (Word) *@
-            <div class="mb-4">
-                <label asp-for="Term" class="form-label fw-medium text-dark small mb-2">
-                    Word <span class="text-danger">*</span>
-                </label>
-                <div class="input-group">
-                    <input asp-for="Term"
-                           id="term-input"
-                           class="form-control py-2 border-light-subtle border-end-0"
-                           placeholder="e.g. Serendipity"
-                           style="border-top-left-radius: 0.75rem; border-bottom-left-radius: 0.75rem; box-shadow: none;" />
-                    <button type="button" id="btn-lookup-word" class="btn border border-light-subtle bg-light text-primary d-flex align-items-center gap-1 px-4 fw-medium hover-bg-light z-0" style="border-top-right-radius: 0.75rem; border-bottom-right-radius: 0.75rem;">
-                        <i class="bi bi-search"></i> Auto-fill
-                    </button>
-                </div>
-                <span asp-validation-for="Term" class="text-danger small d-block mt-1"></span>
-            </div>
-
-            @* Category *@
-            <div class="mb-4 position-relative" id="category-wrapper">
-                <label asp-for="NewCategory" class="form-label fw-medium text-dark small mb-2">
-                    Category <span class="text-danger">*</span>
-                </label>
-
-                <div class="category-combo position-relative">
-                    <input asp-for="NewCategory"
-                           id="category-input"
-                           class="form-control rounded-4 py-2 border-light-subtle pe-5"
-                           placeholder="Select or type a new category..."
-                           autocomplete="off"
-                           style="box-shadow: none;"
-                           required />
-                    <button type="button" id="category-toggle"
-                            class="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent p-0 text-muted"
-                            tabindex="-1" aria-label="Toggle list">
-                        <i class="bi bi-chevron-down" id="category-chevron" style="transition: transform .2s;"></i>
-                    </button>
-                </div>
-
-                <ul id="category-dropdown"
-                    class="list-unstyled mb-0 mt-1 border border-light-subtle rounded-4 bg-white position-absolute w-100 overflow-auto shadow-sm"
-                    style="display:none; max-height:200px; z-index:1050;">
-                </ul>
-
-                <span asp-validation-for="NewCategory" class="text-danger small d-block mt-1"></span>
-            </div>
-
-            @* Difficulty Level & Part of Speech *@
-            <div class="row mb-4 g-4">
-                <div class="col-md-6">
-                    <label asp-for="DifficultyLevel" class="form-label fw-medium text-dark small mb-2">Difficulty Level</label>
-                    <input asp-for="DifficultyLevel"
-                           class="form-control rounded-4 py-2 border-light-subtle"
-                           style="box-shadow: none;"
-                           placeholder="e.g. B2" />
-                    <span asp-validation-for="DifficultyLevel" class="text-danger small d-block mt-1"></span>
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="PartOfSpeech" class="form-label fw-medium text-dark small mb-2">Part of Speech</label>
-                    <input asp-for="PartOfSpeech"
-                           class="form-control rounded-4 py-2 border-light-subtle"
-                           style="box-shadow: none;"
-                           placeholder="e.g. noun" />
-                    <span asp-validation-for="PartOfSpeech" class="text-danger small d-block mt-1"></span>
-                </div>
-            </div>
-
-            @* Translation *@
-            <div class="mb-4">
-                <label asp-for="Translation" class="form-label fw-medium text-dark small mb-2">Translation</label>
-                <input asp-for="Translation"
-                       class="form-control rounded-4 py-2 border-light-subtle"
-                       style="box-shadow: none;"
-                       placeholder="e.g. Щасливий випадок" />
-                <span asp-validation-for="Translation" class="text-danger small d-block mt-1"></span>
-            </div>
-
-            @* Transcription *@
-            <div class="mb-4">
-                <label asp-for="Transcription" class="form-label fw-medium text-dark small mb-2">Transcription</label>
-                <input asp-for="Transcription"
-                       id="transcription-input"
-                       class="form-control rounded-4 py-2 border-light-subtle"
-                       style="box-shadow: none;"
-                       placeholder="e.g. /sɛrənˈdɪpɪti/" />
-                <span asp-validation-for="Transcription" class="text-danger small d-block mt-1"></span>
-            </div>
-
-            @* Meaning *@
-            <div class="mb-4">
-                <label asp-for="Meaning" class="form-label fw-medium text-dark small mb-2">Meaning</label>
-                <textarea asp-for="Meaning"
-                          id="meaning-input"
-                          class="form-control rounded-4 py-2 border-light-subtle"
-                          style="box-shadow: none;"
-                          rows="2"
-                          placeholder="Short definition"></textarea>
-                <span asp-validation-for="Meaning" class="text-danger small d-block mt-1"></span>
-            </div>
-
-            @* Example *@
-            <div class="mb-4">
-                <label asp-for="Example" class="form-label fw-medium text-dark small mb-2">Example</label>
-                <textarea asp-for="Example"
-                          class="form-control rounded-4 py-2 border-light-subtle"
-                          style="box-shadow: none;"
-                          rows="2"
-                          placeholder="Sentence using the word"></textarea>
-                <span asp-validation-for="Example" class="text-danger small d-block mt-1"></span>
-            </div>
-
-            <hr class="mt-5 mb-4 border-light-subtle" />
-
-            @* Кнопки форми (ВНИЗУ) *@
-            <div class="d-flex gap-3 justify-content-start">
-                <button type="submit" class="btn btn-success btn-action-success rounded-pill px-4 py-2 fw-medium d-flex align-items-center gap-2" style="background-color: #1a7b54; border-color: #1a7b54; transition: all 0.2s;">
-                    <i class="bi bi-plus-circle"></i> Add Word
-                </button>
-                <a asp-controller="Word" asp-action="MyWords" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-medium">
-                    Cancel
-                </a>
-            </div>
-
-        </form>
+        </div>
     </div>
 </div>
 
