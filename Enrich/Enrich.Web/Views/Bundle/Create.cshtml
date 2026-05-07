@@ -1,743 +1,137 @@
 @model Enrich.Web.ViewModels.CreateBundleViewModel
-
 @{
     ViewData["Title"] = "Add new Collection";
-    Layout = "~/Views/Shared/_AppLayout.cshtml";
 }
 
 @section Styles {
-    <style>
-        .form-container {
-            max-width: 1000px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-
-        .form-container h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 2rem;
-            text-align: center;
-            letter-spacing: -0.5px;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 3rem;
-            margin-bottom: 2rem;
-        }
-
-        .form-column {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .form-column.right {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-        }
-
-        .form-label {
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-            color: #2c3e50;
-            display: block;
-            font-size: 0.95rem;
-        }
-
-        .mb-3 {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-control {
-            border: 1px solid #d4d9de;
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
-            background-color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            color: #2c3e50;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        .form-control:focus {
-            border-color: #198754;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.08);
-            background-color: #fff;
-        }
-
-        .form-control::placeholder {
-            color: #9da3af;
-        }
-
-        textarea.form-control {
-            resize: vertical;
-            font-family: inherit;
-        }
-
-        .text-muted {
-            color: #6b7280 !important;
-            font-size: 0.85rem;
-        }
-
-        .category-combo {
-            position: relative;
-        }
-
-        .category-combo input {
-            padding-right: 2.5rem;
-        }
-
-        /* Container styling for checkboxes */
-        #categories-container,
-        #words-container,
-        #levels-container {
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        #categories-container:empty,
-        #words-container:empty,
-        #levels-container:empty {
-            display: none !important;
-            padding: 0;
-            border: none;
-        }
-
-        /* Seamless connection between input and container */
-        .mb-3 .input-group.mb-2 {
-            margin-bottom: 0 !important;
-        }
-
-        #category-search-input,
-        #word-search-input {
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-
-        #categories-container,
-        #words-container {
-            border-top-left-radius: 0;
-            border-top-right-radius: 0;
-            border-top: none;
-        }
-
-        #categories-container .col-md-6,
-        #words-container .col-md-6,
-        #levels-container .col-md-3 {
-            padding: 0.25rem;
-        }
-
-        .form-check-input {
-            width: 1.1rem;
-            height: 1.1rem;
-            margin-top: 0.15rem;
-            border: 1px solid #d4d9de;
-            border-radius: 0.25rem;
-            cursor: pointer;
-            accent-color: #198754;
-        }
-
-        .form-check-input:focus {
-            border-color: #198754;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.08);
-        }
-
-        .form-check-input:checked {
-            background-color: #198754;
-            border-color: #198754;
-        }
-
-        .form-check-label {
-            color: #2c3e50;
-            font-size: 0.95rem;
-            user-select: none;
-            cursor: pointer;
-            margin-bottom: 0;
-        }
-
-        .d-flex {
-            display: flex;
-        }
-
-        .align-items-center {
-            align-items: center;
-        }
-
-        .me-2 {
-            margin-right: 0.5rem;
-        }
-
-        .cursor-pointer {
-            cursor: pointer;
-        }
-
-        /* Image upload styling */
-        .image-upload-box {
-            border: 2px dashed #d4d9de;
-            border-radius: 0.75rem;
-            padding: 2.5rem 2rem;
-            text-align: center;
-            background-color: #f9fafb;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 220px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .image-upload-box:hover {
-            border-color: #198754;
-            background-color: rgba(25, 135, 84, 0.03);
-        }
-
-        .image-upload-box i {
-            font-size: 2.5rem;
-            color: #9da3af;
-            margin-bottom: 1rem;
-        }
-
-        .image-upload-btn {
-            background-color: #198754;
-            color: white;
-            padding: 0.6rem 1.5rem;
-            border-radius: 0.5rem;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-            font-size: 0.95rem;
-        }
-
-        .image-upload-btn:hover {
-            background-color: #157347;
-        }
-
-        .image-preview {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 2.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .btn {
-            padding: 0.6rem 1.75rem;
-            border-radius: 1rem;
-            border: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 0.95rem;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-success {
-            background-color: #198754;
-            color: white !important;
-        }
-
-        .btn-success:hover {
-            background-color: #157347;
-            box-shadow: 0 4px 12px rgba(25, 135, 84, 0.2);
-            transform: translateY(-1px);
-        }
-
-        .btn-outline-secondary {
-            background-color: #fff;
-            color: #4b5563;
-            border: 1.5px solid #d1d5db;
-        }
-
-        .btn-outline-secondary:hover {
-            background-color: #f9fafb;
-            color: #111827;
-            border-color: #9ca3af;
-            transform: translateY(-1px);
-        }
-
-
-        .alert {
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1.5rem;
-            border: none;
-            font-size: 0.9rem;
-        }
-
-        .alert-danger {
-            background-color: transparent;
-            color: #dc3545;
-        }
-        .text-danger {
-            color: #dc3545;
-            font-size: 0.85rem;
-            margin-top: 0.35rem;
-            display: block;
-        }
-
-        /* Essential common classes if not in global CSS */
-        .custom-gray-bg {
-            background-color: #f8f9fa !important;
-        }
-
-        .rounded-4 {
-            border-radius: 1rem !important;
-        }
-
-        .fw-medium {
-            font-weight: 500 !important;
-        }
-
-        .form-control.shadow-sm:focus {
-            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.1) !important;
-        }
-        /* Scrollbar styling */
-        #categories-container::-webkit-scrollbar,
-        #words-container::-webkit-scrollbar,
-        #levels-container::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        #categories-container::-webkit-scrollbar-track,
-        #words-container::-webkit-scrollbar-track,
-        #levels-container::-webkit-scrollbar-track {
-            background-color: #f0f0f0;
-            border-radius: 10px;
-        }
-
-        #categories-container::-webkit-scrollbar-thumb,
-        #words-container::-webkit-scrollbar-thumb,
-        #levels-container::-webkit-scrollbar-thumb {
-            background-color: #d4d9de;
-            border-radius: 10px;
-        }
-
-        #categories-container::-webkit-scrollbar-thumb:hover,
-        #words-container::-webkit-scrollbar-thumb:hover,
-        #levels-container::-webkit-scrollbar-thumb:hover {
-            background-color: #198754;
-        }
-
-        /* Responsive design */
-        @@media (max-width: 768px) {
-            .form-row {
-                flex-direction: column;
-                gap: 1.5rem;
-            }
-
-            .form-container {
-                margin: 1rem auto;
-            }
-
-            .form-container h1 {
-                font-size: 2rem;
-                margin-bottom: 1.5rem;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-
-            #categories-container .col-md-6,
-            #words-container .col-md-6,
-            #levels-container .col-md-3 {
-                flex: 0 0 100%;
-                max-width: 100%;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/bundle-create.css" asp-append-version="true" />
 }
 
-<div class="d-flex align-items-center mb-4 gap-3">
-    <a asp-action="Index" asp-controller="Bundle"
-       class="btn-sm btn-outline-secondary rounded-3 d-flex align-items-center gap-1"
-       style="padding: 0.4rem 0.8rem; text-decoration: none; font-size: 0.875rem;">
-        <i class="bi bi-arrow-left"></i>
-        Back
-    </a>
-    <h1 class="fw-semibold fs-4 mb-0">Add new Collection</h1>
-</div>
+<div class="container py-4">
+    <div class="d-flex align-items-center mb-4">
+        <a href="@Url.Action("Index")" class="btn btn-light rounded-circle me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h1 class="h3 mb-0 fw-bold">Add new Collection</h1>
+    </div>
 
-<div class="card border-0 shadow-sm rounded-4" style="max-width: 1000px; margin: 0 auto;">
-    <div class="card-body p-4">
+    <div class="card card-panel shadow-sm border-0 rounded-4">
+        <form method="post" class="bundle-create-form" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
 
-    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
-    {
-        <div class="alert alert-danger" role="alert">
-            <div asp-validation-summary="ModelOnly"></div>
-        </div>
-    }
-
-    <form method="post" class="bundle-create-form" enctype="multipart/form-data">
-        @Html.AntiForgeryToken()
-
-        <div class="form-row">
-            <!-- Left Column -->
-            <div class="form-column">
-                <!-- Title Field -->
-                <div class="mb-3">
-                    <label asp-for="Title" class="form-label fw-medium mb-1"></label>
-                    <input asp-for="Title" class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg" placeholder="Your collection title">
-                    <span asp-validation-for="Title" class="text-danger small"></span>
-                </div>
-
-                <!-- Description Field -->
-                <div class="mb-3">
-                    <label asp-for="Description" class="form-label fw-medium mb-1"></label>
-                    <textarea asp-for="Description" 
-                              class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg" 
-                              rows="4" 
-                              placeholder="Describe the content and purpose of your collection"></textarea>
-                    <span asp-validation-for="Description" class="text-danger small"></span>
-                    <small class="text-muted d-block mt-1">
-                        <span id="description-count">0</span> / @Enrich.BLL.Constants.BundleConstants.DescriptionMaxLength characters
-                    </small>
-                </div>
-
-                <!-- Categories Field -->
-                <div class="mb-3">
-                    <label class="form-label fw-medium mb-1">Categories</label>
-                    <div class="input-group mb-2">
-                        <input type="text" id="category-search-input" class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg" placeholder="Search or type a new category..." />
+            <div class="row g-4">
+                <!-- Left Column: Title, Description, Dropdowns -->
+                <div class="col-lg-7">
+                    <!-- Title Field -->
+                    <div class="mb-4">
+                        <label asp-for="Title" class="form-label">Collection Title</label>
+                        <input asp-for="Title" class="form-control w-100 rounded-4" placeholder="Your collection title">
                     </div>
-                    <div id="categories-container" class="row g-2"></div>
-                    <div id="category-ids-container"></div>
-                </div>
 
-                <!-- Words Search & Selection -->
-                <div class="mb-3">
-                    <label class="form-label fw-medium mb-1">Words</label>
-                    <div class="input-group mb-2">
-                        <input type="text" id="word-search-input" class="form-control border-1 shadow-sm rounded-4 py-2 custom-gray-bg" placeholder="Search words by term or translation..." />
+                    <!-- Description Field -->
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label">Description</label>
+                        <textarea asp-for="Description" class="form-control w-100 rounded-4" placeholder="Describe the content and purpose of your collection"></textarea>
+                        <div class="mt-1">
+                            <small class="text-muted" style="font-size: 0.75rem;">
+                                <span id="description-count">0</span> / 1000 characters
+                            </small>
+                        </div>
                     </div>
-                    <div id="words-container" class="row g-2"></div>
-                    <div id="word-ids-container"></div>
+
+                    <!-- Categories -->
+                    <div class="mb-4">
+                        <label class="form-label">Categories</label>
+                        <div class="dropdown custom-dropdown-container" id="categories-dropdown-container">
+                            <button class="btn-dropdown rounded-4" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                <span class="selected-items-display text-muted">Select categories...</span>
+                                <i class="bi bi-chevron-down opacity-50 small"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-custom shadow rounded-4">
+                                <div class="dropdown-list-items" style="max-height: 300px; overflow-y: auto;">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                        <div id="category-ids-hidden"></div>
+                    </div>
+
+                    <!-- Words -->
+                    <div class="mb-4">
+                        <label class="form-label">Words</label>
+                        <div class="dropdown custom-dropdown-container" id="words-dropdown-container">
+                            <button class="btn-dropdown rounded-4" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                <span class="selected-items-display text-muted">Select words...</span>
+                                <i class="bi bi-chevron-down opacity-50 small"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-custom shadow rounded-4">
+                                <div class="dropdown-list-items" style="max-height: 300px; overflow-y: auto;">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                        <div id="word-ids-hidden"></div>
+                    </div>
+
+                    <!-- Levels -->
+                    <div class="mb-0">
+                        <label class="form-label">Difficulty Levels</label>
+                        <div class="dropdown custom-dropdown-container" id="levels-dropdown-container">
+                            <button class="btn-dropdown rounded-4" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                <span class="selected-items-display text-muted">Select levels...</span>
+                                <i class="bi bi-chevron-down opacity-50 small"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-custom shadow rounded-4">
+                                <div class="dropdown-list-items" style="max-height: 250px; overflow-y: auto;">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                        <div id="level-ids-hidden"></div>
+                    </div>
                 </div>
 
-                <!-- Difficulty Levels Field -->
-                <div class="mb-3">
-                    <label class="form-label fw-medium mb-1">Difficulty Levels</label>
-                    <div id="levels-container" class="row g-2"></div>
-                    <div id="difficulty-levels-container"></div>
+                <!-- Right Column: Image -->
+                <div class="col-lg-5">
+                    <label class="form-label">Cover Image</label>
+                    <div class="image-upload-box w-100 rounded-4" id="image-upload-box" onclick="document.getElementById('file-input').click()">
+                        <div id="upload-placeholder">
+                            <i class="bi bi-folder"></i>
+                            <p class="text-muted mb-3 fw-medium">Click to upload cover image</p>
+                            <button type="button" class="image-upload-btn rounded-4">Upload Image</button>
+                        </div>
+                        <div id="image-preview-container" style="display: none; width: 100%; height: 100%;">
+                            <img id="image-preview" class="image-preview rounded-4" alt="Preview">
+                        </div>
+                    </div>
+                    <input type="file" id="file-input" style="display:none;" accept="image/*">
+                    <input type="hidden" asp-for="ImageUrl" id="ImageUrl">
                 </div>
             </div>
 
-            <!-- Right Column - Image Upload -->
-            <div class="form-column right">
-                <label class="form-label fw-medium mb-1">Cover Image</label>
-                <div class="image-upload-box" id="image-upload-box" onclick="document.getElementById('file-input').click()">
-                    <div id="upload-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-                        <i class="bi bi-folder" style="font-size: 3rem; margin-bottom: 1rem; color: #999;"></i>
-                        <button type="button" class="image-upload-btn">Upload Image</button>
-                    </div>
-                    <div id="image-preview-container" style="display: none; position: relative; width: 100%; height: 100%;">
-                        <img id="image-preview" class="image-preview" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem;">
-                    </div>
-                </div>
-                <div id="change-image-btn-container" style="display: none; margin-top: 1rem;">
-                    <button type="button" class="btn btn-outline-secondary rounded-4" onclick="document.getElementById('file-input').click()" style="width: 100%;">
-                        <i class="bi bi-pencil"></i> Change Image
-                    </button>
-                </div>
-                <input type="file" id="file-input" style="display:none;" accept="image/*">
-                <input type="hidden" id="imageInput" asp-for="ImageUrl">
+            <div class="d-flex gap-3 justify-content-center mt-5 pt-4 border-top">
+                <button type="submit" class="btn-action-success rounded-4">
+                    <i class="bi bi-plus-lg me-2"></i> Create Collection
+                </button>
+                <a href="@Url.Action("Index")" class="btn-action-outline-success rounded-4">
+                    Cancel
+                </a>
             </div>
-        </div>
-
-        <!-- Buttons -->
-        <div class="button-group border-0 pt-0">
-            <button type="submit" class="btn btn-success rounded-4 py-2 px-5 fw-medium shadow-sm">
-                <i class="bi bi-plus-circle me-2"></i> Create Collection
-            </button>
-            <a asp-action="Index" asp-controller="Bundle" class="btn btn-outline-secondary rounded-4 py-2 px-4 shadow-sm">
-                Cancel
-            </a>
-        </div>
-    </form>
-</div>
+        </form>
+    </div>
 </div>
 
 @section Scripts {
+    <script src="~/js/bundle-create.js" asp-append-version="true"></script>
     <script>
-        // Categories multi-select logic with state preservation
-        (() => {
-            const container = document.getElementById('categories-container');
-            const searchInput = document.getElementById('category-search-input');
-            let allCategories = [];
-            let selectedIds = []; // Master list of all selected items
-
-            async function loadCategories() {
-                try {
-                    const res = await fetch('/Word/GetCategories');
-                    if (res.ok) {
-                        allCategories = await res.json();
-                        renderCategories(allCategories);
-                    }
-                } catch (e) {
-                    console.error('Error loading categories:', e);
-                }
-            }
-
-            function renderCategories(categoriesToShow) {
-                container.innerHTML = '';
-                categoriesToShow.forEach(cat => {
-                    const div = document.createElement('div');
-                    div.className = 'col-md-6';
-                    
-                    const label = document.createElement('label');
-                    label.className = 'd-flex align-items-center cursor-pointer';
-                    label.style.cursor = 'pointer';
-                    
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.value = cat.id;
-                    checkbox.className = 'form-check-input me-2';
-                    checkbox.dataset.categoryId = cat.id;
-                    checkbox.checked = selectedIds.includes(cat.id); // Check against global selection
-                    checkbox.addEventListener('change', (e) => {
-                        const id = parseInt(e.target.dataset.categoryId);
-                        if (e.target.checked) {
-                            if (!selectedIds.includes(id)) {
-                                selectedIds.push(id);
-                            }
-                        } else {
-                            selectedIds = selectedIds.filter(x => x !== id);
-                        }
-                        updateHiddenInput();
-                    });
-                    
-                    const span = document.createElement('span');
-                    span.textContent = cat.name.split('(')[0].trim();
-                    span.className = 'form-check-label';
-                    
-                    label.appendChild(checkbox);
-                    label.appendChild(span);
-                    div.appendChild(label);
-                    container.appendChild(div);
-                });
-            }
-
-            function searchCategories() {
-                const query = searchInput.value.trim().toLowerCase();
-                if (!query) {
-                    renderCategories(allCategories);
-                } else {
-                    const filtered = allCategories.filter(c =>
-                        c.name.toLowerCase().includes(query)
-                    );
-                    renderCategories(filtered);
-                }
-            }
-
-            function updateHiddenInput() {
-                const containerHidden = document.getElementById('category-ids-container');
-                containerHidden.innerHTML = '';
-                // Use master selectedIds array
-                selectedIds.forEach((id) => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'CategoryIds';
-                    input.value = id;
-                    containerHidden.appendChild(input);
-                });
-            }
-
-            searchInput.addEventListener('input', searchCategories);
-            loadCategories().then(() => updateHiddenInput());
-        })();
-
-        // Words multi-select with search and state preservation
-        (() => {
-            const container = document.getElementById('words-container');
-            const searchInput = document.getElementById('word-search-input');
-            let allWords = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model?.Words ?? new List<Enrich.Web.ViewModels.WordItemViewModel>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
-            let selectedIds = []; // Master list of all selected items
-
-            function renderWords(wordsToShow) {
-                container.innerHTML = '';
-                wordsToShow.forEach(word => {
-                    const col = document.createElement('div');
-                    col.className = 'col-md-6';
-                    
-                    const label = document.createElement('label');
-                    label.className = 'd-flex align-items-center cursor-pointer';
-                    label.style.cursor = 'pointer';
-                    
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.value = word.id;
-                    checkbox.className = 'form-check-input me-2';
-                    checkbox.dataset.wordId = word.id;
-                    checkbox.checked = selectedIds.includes(word.id); // Check against global selection
-                    checkbox.addEventListener('change', (e) => {
-                        const id = parseInt(e.target.dataset.wordId);
-                        if (e.target.checked) {
-                            if (!selectedIds.includes(id)) {
-                                selectedIds.push(id);
-                            }
-                        } else {
-                            selectedIds = selectedIds.filter(x => x !== id);
-                        }
-                        updateHiddenInput();
-                    });
-                    
-                    const span = document.createElement('span');
-                    span.textContent = word.term.split('(')[0].trim();
-                    span.className = 'form-check-label';
-                    
-                    label.appendChild(checkbox);
-                    label.appendChild(span);
-                    col.appendChild(label);
-                    container.appendChild(col);
-                });
-            }
-
-            function searchWords() {
-                const query = searchInput.value.trim().toLowerCase();
-                if (!query) {
-                    renderWords(allWords);
-                } else {
-                    const filtered = allWords.filter(w =>
-                        w.term.toLowerCase().includes(query) ||
-                        (w.translation && w.translation.toLowerCase().includes(query))
-                    );
-                    renderWords(filtered);
-                }
-            }
-
-            function updateHiddenInput() {
-                const container = document.getElementById('word-ids-container');
-                container.innerHTML = '';
-                // Use master selectedIds array
-                selectedIds.forEach((id) => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'WordIds';
-                    input.value = id;
-                    container.appendChild(input);
-                });
-            }
-
-            searchInput.addEventListener('input', searchWords);
-            renderWords(allWords);
-            updateHiddenInput();
-        })();
-
-        // Character counter for description
-        const descriptionInput = document.querySelector('textarea[name="Description"]');
-        const descriptionCount = document.getElementById('description-count');
-
-        descriptionInput?.addEventListener('input', function() {
-            descriptionCount.textContent = this.value.length;
+        document.addEventListener('DOMContentLoaded', () => {
+            BundleCreate.init({
+                selectedCategoryIds: @Html.Raw(Json.Serialize(Model.CategoryIds)),
+                selectedWordIds: @Html.Raw(Json.Serialize(Model.WordIds)),
+                selectedLevels: @Html.Raw(Json.Serialize(Model.DifficultyLevels)),
+                allWords: @Html.Raw(Json.Serialize(Model.Words)),
+                availableLevels: @Html.Raw(Json.Serialize(Model.AvailableLevels))
+            });
         });
-
-        if (descriptionInput) {
-            descriptionCount.textContent = descriptionInput.value.length;
-        }
-
-        // Handle image upload
-        const fileInput = document.getElementById('file-input');
-        const hiddenImageInput = document.getElementById('imageInput');
-        const previewContainer = document.getElementById('image-preview-container');
-        const uploadPlaceholder = document.getElementById('upload-placeholder');
-        const changeImageBtn = document.getElementById('change-image-btn-container');
-        const previewImage = document.getElementById('image-preview');
-
-        fileInput?.addEventListener('change', function(e) {
-            const file = e.target.files?.[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    previewImage.src = event.target.result;
-                    previewContainer.style.display = 'block';
-                    uploadPlaceholder.style.display = 'none';
-                    changeImageBtn.style.display = 'block';
-                    // Store the base64 data in the hidden input
-                    hiddenImageInput.value = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Difficulty levels multi-select logic
-        (() => {
-            const container = document.getElementById('levels-container');
-            const availableLevels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model?.AvailableLevels ?? new List<string>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
-            let selectedLevels = [];
-
-            function renderLevels(levels) {
-                container.innerHTML = '';
-                levels.forEach(level => {
-                    const col = document.createElement('div');
-                    col.className = 'col-md-3 col-sm-4';
-
-                    const label = document.createElement('label');
-                    label.className = 'd-flex align-items-center cursor-pointer';
-                    label.style.cursor = 'pointer';
-
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.value = level;
-                    checkbox.className = 'form-check-input me-2';
-                    checkbox.dataset.levelValue = level;
-                    checkbox.addEventListener('change', updateHiddenInput);
-
-                    const span = document.createElement('span');
-                    span.textContent = level;
-                    span.className = 'form-check-label';
-
-                    label.appendChild(checkbox);
-                    label.appendChild(span);
-                    col.appendChild(label);
-                    container.appendChild(col);
-                });
-            }
-
-            function updateHiddenInput() {
-                const container = document.getElementById('difficulty-levels-container');
-                container.innerHTML = '';
-                // Update from DOM checkboxes
-                const selectedLevelsFromDOM = Array.from(document.querySelectorAll('#levels-container input[type="checkbox"]:checked'))
-                    .map(cb => cb.dataset.levelValue);
-                selectedLevelsFromDOM.forEach((level) => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'DifficultyLevels';
-                    input.value = level;
-                    container.appendChild(input);
-                });
-            }
-
-            renderLevels(availableLevels);
-            updateHiddenInput();
-        })();
     </script>
 }
