@@ -6,163 +6,14 @@
     Layout = "~/Views/Shared/_AppLayout.cshtml";
 }
 
-<style>
-    :root {
-        --active-green: #198754;
-        --bg-gray: #F1F3F5;
-        --border-color: #E9ECEF;
-        --text-dark: #212529;
-        --danger-red: #dc3545;
-    }
-
-    .sidebar-panel {
-        background-color: #FFFFFF;
-        border-radius: 20px;
-        padding: 20px;
-        position: relative;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-        overflow: hidden;
-    }
-
-    .sidebar-divider {
-        height: 1px;
-        background-color: #E9ECEF;
-        margin: 16px 0;
-    }
-
-    .word-card {
-        background: #FFFFFF !important;
-        border-radius: 16px !important;
-        border: 1px solid var(--border-color) !important;
-        padding: 16px 20px;
-        transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column;
-    }
-
-        .word-card:hover {
-            border-color: #ced4da !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important;
-        }
-
-    .word-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
-
-    .term-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--text-dark);
-        margin: 0;
-        line-height: 1.3;
-    }
-
-    .badge-level {
-        background: #E9ECEF;
-        color: #6c757d;
-        font-weight: 700;
-        font-size: 0.75rem;
-        padding: 3px 10px;
-        border-radius: 5px;
-        margin-left: 5px;
-        vertical-align: middle;
-    }
-
-    .pos-label {
-        color: var(--active-green);
-        font-weight: 500;
-        font-size: 0.82rem;
-        margin-top: 2px;
-        display: block;
-    }
-
-    .translation-title {
-        font-size: 0.92rem;
-        font-weight: 600;
-        color: #555;
-        white-space: nowrap;
-        margin-left: 8px;
-    }
-
-    .transcription {
-        color: #888;
-        font-size: 0.82rem;
-        margin-top: 6px;
-    }
-
-    .section-label {
-        font-weight: 700;
-        font-size: 0.78rem;
-        color: #333;
-        margin-bottom: 2px;
-        text-transform: uppercase;
-        letter-spacing: 0.02em;
-    }
-
-    .section-text {
-        color: #666;
-        font-size: 0.82rem;
-        line-height: 1.4;
-    }
-
-    .btn-action {
-        background-color: transparent;
-        color: var(--text-dark);
-        border-radius: 20px;
-        padding: 7px 18px;
-        border: 1px solid #CCC;
-        font-weight: 500;
-        font-size: 0.9rem;
-        transition: 0.2s;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-    }
-
-        .btn-action.primary {
-            background-color: var(--active-green);
-            color: white;
-            border-color: var(--active-green);
-        }
-
-    .search-box {
-        background-color: #E9ECEF !important;
-        border-radius: 14px !important;
-        border: none !important;
-    }
-
-    .checkbox-item {
-        display: flex;
-        align-items: center;
-        padding: 6px 4px;
-        font-size: 0.9rem;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: #aaa;
-    }
-
-    .pagination .page-link {
-        color: var(--active-green);
-        border-radius: 8px;
-        margin: 0 3px;
-    }
-
-    .pagination .page-item.active .page-link {
-        background-color: var(--active-green);
-        border-color: var(--active-green);
-        color: white !important;
-    }
-</style>
+@section Styles {
+    <link rel="stylesheet" href="~/css/mywords.css" asp-append-version="true" />
+}
 
 <div class="container-fluid py-4">
-    <div class="row">
+    <div class="row align-items-start">
         <div class="col-lg-9">
-            <div class="d-flex flex-wrap gap-3 mb-4 align-items-center">
+            <div class="d-flex flex-wrap gap-3 mb-3 align-items-center">
                 <div class="input-group flex-grow-1 search-box overflow-hidden" style="max-width: 600px;">
                     <span class="input-group-text border-0 bg-transparent ps-3">
                         <i class="bi bi-search text-muted"></i>
@@ -181,9 +32,9 @@
         </div>
 
         <div class="col-lg-3 ps-lg-4">
-            <div class="sidebar-panel sticky-top" style="top: 20px;">
+            <div class="sidebar-panel" style="margin-top: 0;">
                 <h6 class="fw-bold mb-2" style="font-size:0.9rem;">Categories</h6>
-                <div class="border rounded-3 bg-white mb-2" style="height:260px; display:flex; flex-direction:column;">
+                <div class="border rounded-3 bg-white mb-2" style="height:200px; display:flex; flex-direction:column;">
                     <div class="p-2 border-bottom">
                         <input type="text" id="categorySearch" class="form-control border-0 bg-transparent"
                                placeholder="Search categories..." style="font-size:0.85rem;">
@@ -232,111 +83,5 @@
 </div>
 
 @section Scripts {
-    <script>
-        let currentPage = 1;
-
-        function getFilters() {
-            const searchTerm = document.getElementById('searchTerm').value;
-            const category = Array.from(document.querySelectorAll('.category-checkbox:checked')).map(c => c.value).join(',');
-            const level = Array.from(document.querySelectorAll('.level-checkbox:checked')).map(c => c.value).join(',');
-            const pos = Array.from(document.querySelectorAll('.pos-checkbox:checked')).map(c => c.value).join(',');
-
-            return { searchTerm, categoryFilter: category, levelFilter: level, posFilter: pos };
-        }
-
-        async function loadWords(page = 1) {
-            currentPage = page;
-            const filters = getFilters();
-            const params = new URLSearchParams({
-                ...filters,
-                page: page,
-                pageSize: parseInt(document.getElementById('words-list-container').dataset.pageSize, 10) || 20
-            });
-
-            try {
-                const response = await fetch(`/Word/Index?${params.toString()}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-
-                if (response.ok) {
-                    const html = await response.text();
-                    document.getElementById('words-list-container').innerHTML = html;
-                }
-            } catch (err) {
-                console.error("Failed to load words", err);
-            }
-        }
-
-        function onFilterChange() {
-            loadWords(1);
-        }
-
-        function changePage(page) {
-            loadWords(page);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        document.getElementById('searchTerm').addEventListener('input', debounce(() => {
-            onFilterChange();
-        }, 500));
-
-        function debounce(func, timeout = 300) {
-            let timer;
-            return (...args) => {
-                clearTimeout(timer);
-                timer = setTimeout(() => { func.apply(this, args); }, timeout);
-            };
-        }
-
-        // Category search
-        document.getElementById('categorySearch').addEventListener('input', (e) => {
-            const q = e.target.value.trim().toLowerCase();
-            document.querySelectorAll('#category-filters li').forEach(li => {
-                const text = li.innerText.trim().toLowerCase();
-                li.style.display = q === '' || text.includes(q) ? '' : 'none';
-            });
-        });
-
-        async function toggleSaveWord(wordId, btnElement) {
-            try {
-                
-                const response = await fetch(`/Word/SaveSystemWord?id=${wordId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
-                    
-                    if (btnElement) {
-                        const icon = btnElement.querySelector('i');
-                        
-                     
-                        icon.classList.remove('bi-star');
-                        icon.classList.add('bi-star-fill');
-                        
-                        
-                        btnElement.classList.remove('text-secondary');
-                        btnElement.classList.add('text-warning'); 
-                        
-                        
-                        btnElement.title = "Saved";
-                        btnElement.disabled = true;
-                        btnElement.style.opacity = '1'; 
-                    }
-                } else {
-                    const error = await response.json();
-                    alert(error.message || 'Error saving the word.');
-                }
-            } catch (err) {
-                console.error("Failed to save word", err);
-                alert('A network error occurred.');
-            }
-        }
-
-    </script>
+    <script src="~/js/words-index.js" asp-append-version="true"></script>
 }

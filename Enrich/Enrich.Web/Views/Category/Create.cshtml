@@ -4,15 +4,6 @@
     Layout = "~/Views/Shared/_AppLayout.cshtml";
 }
 
-@section Styles {
-    <environment include="Development">
-        <link rel="stylesheet" href="~/css/manage-categories.css" asp-append-version="true" />
-    </environment>
-    <environment exclude="Development">
-        <link rel="stylesheet" href="~/css/manage-categories.min.css" asp-append-version="true" />
-    </environment>
-}
-
 <div class="d-flex align-items-center mb-4 gap-3">
     <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-3 d-flex align-items-center gap-1 text-decoration-none">
         <i class="bi bi-arrow-left"></i> Back
@@ -20,18 +11,18 @@
     <h1 class="fw-semibold fs-4 mb-0">Add Category</h1>
 </div>
 
-<div class="card manage-categories-card manage-categories-form-card mx-auto">
-    <div class="card-body manage-categories-card-body">
+<div class="card border shadow-none rounded-4 mx-auto" style="max-width: 600px;">
+    <div class="card-body p-4">
         <form asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
             <div class="mb-4">
-                <label asp-for="Name" class="form-label fw-medium mb-1"></label>
-                <input asp-for="Name" class="form-control py-2" placeholder="Enter category name" />
+                <label asp-for="Name" class="form-label mb-1"></label>
+                <input asp-for="Name" class="form-control rounded-4 py-2 shadow-sm" placeholder="Enter category name" />
                 <span asp-validation-for="Name" class="text-danger small"></span>
             </div>
             <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-action-success">Create</button>
-                <a asp-action="Index" class="btn btn-action-outline-success text-decoration-none">Cancel</a>
+                <button type="submit" class="btn btn-action-success rounded-4">Create</button>
+                <a asp-action="Index" class="btn btn-action-outline-success rounded-4 text-decoration-none">Cancel</a>
             </div>
         </form>
     </div>

@@ -11,20 +11,16 @@
             <div class="sidebar-panel mb-4">
                 <h6 class="mb-4 text-dark" style="font-weight: 500; font-size: 1.1rem;">Bundle Information</h6>
                 
-                <div class="mb-4">
-                    <label class="small fw-medium text-dark mb-2 ps-1">Title</label>
-                    <div class="search-box">
-                        <input type="text" id="bundleTitle" class="form-control border-0 bg-transparent px-3" 
-                               placeholder="Auto-generated collection" value="@Model.Title">
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label mb-1" for="bundleTitle">Title</label>
+                    <input type="text" id="bundleTitle" class="form-control rounded-4 py-2 shadow-sm" 
+                           placeholder="Auto-generated collection" value="@Model.Title">
                 </div>
 
-                <div class="mb-2">
-                    <label class="small fw-medium text-dark mb-2 ps-1">Description</label>
-                    <div class="search-box">
-                        <textarea id="bundleDescription" class="form-control border-0 bg-transparent px-3" 
-                                  rows="3" placeholder="Describe your collection...">@Model.Description</textarea>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label mb-1" for="bundleDescription">Description</label>
+                    <textarea id="bundleDescription" class="form-control rounded-4 py-2 shadow-sm" 
+                              rows="3" placeholder="Describe your collection...">@Model.Description</textarea>
                 </div>
 
                 <div class="sidebar-divider"></div>
@@ -32,78 +28,78 @@
                 <h6 class="mb-4 text-dark" style="font-weight: 500; font-size: 1.1rem;">Add Generation Rules</h6>
 
                 <!-- Category Dropdown -->
-                <div class="mb-4">
-                    <label class="small fw-medium text-dark mb-2 ps-1">Category</label>
+                <div class="mb-3">
+                    <label class="form-label mb-1">Category</label>
                     <div class="dropdown custom-dropdown" id="categoryDropdownContainer">
-                        <button class="btn btn-dropdown w-100 text-start d-flex justify-content-between align-items-center" 
-                                type="button" data-bs-toggle="dropdown" aria-expanded="false" id="categoryBtn">
+                        <button class="btn btn-outline-secondary rounded-4 py-2 w-100 text-start d-flex justify-content-between align-items-center bg-white text-dark shadow-sm btn-dropdown" 
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false" id="categoryBtn" style="border-color: #dee2e6;">
                             <span class="selected-text">Any</span>
-                            <i class="bi bi-chevron-down small opacity-50"></i>
+                            <i class="bi bi-chevron-down small text-muted"></i>
                         </button>
                         <input type="hidden" id="categorySelect" value="">
-                        <ul class="dropdown-menu w-100 shadow border-0 mt-1">
-                            <li><a class="dropdown-item active" href="#" data-value="">Any</a></li>
+                        <ul class="dropdown-menu w-100 shadow border-0 mt-1 rounded-4">
+                            <li><a class="dropdown-item active bg-success text-white rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="">Any</a></li>
                             @foreach (var cat in Model.Categories)
                             {
-                                <li><a class="dropdown-item" href="#" data-value="@cat.Id">@cat.Name</a></li>
+                                <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="@cat.Id">@cat.Name</a></li>
                             }
                         </ul>
                     </div>
                 </div>
 
                 <!-- Part of Speech Dropdown -->
-                <div class="mb-4">
-                    <label class="small fw-medium text-dark mb-2 ps-1">Part of Speech</label>
+                <div class="mb-3">
+                    <label class="form-label mb-1">Part of Speech</label>
                     <div class="dropdown custom-dropdown" id="posDropdownContainer">
-                        <button class="btn btn-dropdown w-100 text-start d-flex justify-content-between align-items-center" 
-                                type="button" data-bs-toggle="dropdown" aria-expanded="false" id="posBtn">
+                        <button class="btn btn-outline-secondary rounded-4 py-2 w-100 text-start d-flex justify-content-between align-items-center bg-white text-dark shadow-sm btn-dropdown" 
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false" id="posBtn" style="border-color: #dee2e6;">
                             <span class="selected-text">@(Model.PartsOfSpeech.FirstOrDefault() ?? "Any")</span>
-                            <i class="bi bi-chevron-down small opacity-50"></i>
+                            <i class="bi bi-chevron-down small text-muted"></i>
                         </button>
                         <input type="hidden" id="posSelect" value="@Model.PartsOfSpeech.FirstOrDefault()">
-                        <ul class="dropdown-menu w-100 shadow border-0 mt-1">
+                        <ul class="dropdown-menu w-100 shadow border-0 mt-1 rounded-4">
                             @foreach (var pos in Model.PartsOfSpeech)
                             {
-                                <li><a class="dropdown-item @(pos == Model.PartsOfSpeech.FirstOrDefault() ? "active" : "")" href="#" data-value="@pos">@pos</a></li>
+                                <li><a class="dropdown-item @(pos == Model.PartsOfSpeech.FirstOrDefault() ? "active bg-success text-white" : "") rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="@pos">@pos</a></li>
                             }
                         </ul>
                     </div>
                 </div>
 
                 <!-- Difficulty Level Dropdowns -->
-                <div class="mb-4">
-                    <label class="small fw-medium text-dark mb-2 ps-1">Difficulty Level</label>
+                <div class="mb-3">
+                    <label class="form-label mb-1">Difficulty Level</label>
                     <div class="d-flex gap-3">
                         <div class="flex-grow-1">
                             <div class="dropdown custom-dropdown" id="minDifficultyContainer">
-                                <button class="btn btn-dropdown w-100 text-start d-flex justify-content-between align-items-center" 
-                                        type="button" data-bs-toggle="dropdown" aria-expanded="false" id="minDifficultyBtn">
+                                <button class="btn btn-outline-secondary rounded-4 py-2 w-100 text-start d-flex justify-content-between align-items-center bg-white text-dark shadow-sm btn-dropdown" 
+                                        type="button" data-bs-toggle="dropdown" aria-expanded="false" id="minDifficultyBtn" style="border-color: #dee2e6;">
                                     <span class="selected-text">Min</span>
-                                    <i class="bi bi-chevron-down small opacity-50"></i>
+                                    <i class="bi bi-chevron-down small text-muted"></i>
                                 </button>
                                 <input type="hidden" id="minDifficulty" value="">
-                                <ul class="dropdown-menu w-100 shadow border-0 mt-1">
-                                    <li><a class="dropdown-item active" href="#" data-value="">Min</a></li>
+                                <ul class="dropdown-menu w-100 shadow border-0 mt-1 rounded-4">
+                                    <li><a class="dropdown-item active bg-success text-white rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="">Min</a></li>
                                     @foreach (var level in Model.DifficultyLevels)
                                     {
-                                        <li><a class="dropdown-item" href="#" data-value="@level">@level</a></li>
+                                        <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="@level">@level</a></li>
                                     }
                                 </ul>
                             </div>
                         </div>
                         <div class="flex-grow-1">
                             <div class="dropdown custom-dropdown" id="maxDifficultyContainer">
-                                <button class="btn btn-dropdown w-100 text-start d-flex justify-content-between align-items-center" 
-                                        type="button" data-bs-toggle="dropdown" aria-expanded="false" id="maxDifficultyBtn">
+                                <button class="btn btn-outline-secondary rounded-4 py-2 w-100 text-start d-flex justify-content-between align-items-center bg-white text-dark shadow-sm btn-dropdown" 
+                                        type="button" data-bs-toggle="dropdown" aria-expanded="false" id="maxDifficultyBtn" style="border-color: #dee2e6;">
                                     <span class="selected-text">Max</span>
-                                    <i class="bi bi-chevron-down small opacity-50"></i>
+                                    <i class="bi bi-chevron-down small text-muted"></i>
                                 </button>
                                 <input type="hidden" id="maxDifficulty" value="">
-                                <ul class="dropdown-menu w-100 shadow border-0 mt-1">
-                                    <li><a class="dropdown-item active" href="#" data-value="">Max</a></li>
+                                <ul class="dropdown-menu w-100 shadow border-0 mt-1 rounded-4">
+                                    <li><a class="dropdown-item active bg-success text-white rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="">Max</a></li>
                                     @foreach (var level in Model.DifficultyLevels)
                                     {
-                                        <li><a class="dropdown-item" href="#" data-value="@level">@level</a></li>
+                                        <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="@level">@level</a></li>
                                     }
                                 </ul>
                             </div>
@@ -112,18 +108,16 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="small fw-medium text-dark mb-2 ps-1">Words Count</label>
-                    <div class="search-box">
-                        <input type="number" id="wordCount" class="form-control border-0 bg-transparent px-3" 
-                               value="5" min="1" max="50">
-                    </div>
+                    <label class="form-label mb-1" for="wordCount">Words Count</label>
+                    <input type="number" id="wordCount" class="form-control rounded-4 py-2 shadow-sm" 
+                           value="5" min="1" max="50">
                 </div>
 
                 <div class="d-grid gap-3 pt-2">
-                    <button type="button" id="btnAddRule" class="btn btn-action-outline-success">
+                    <button type="button" id="btnAddRule" class="btn btn-action-outline-success shadow-sm">
                         <i class="bi bi-plus-lg me-2"></i>Add Rule
                     </button>
-                    <button type="button" id="btnGenerate" class="btn btn-action-success">
+                    <button type="button" id="btnGenerate" class="btn btn-action-success shadow-sm">
                         <i class="bi bi-stars me-2"></i>Generate Bundle
                     </button>
                 </div>
@@ -166,11 +160,11 @@
                     <input type="hidden" id="previewTitle" name="Title" />
                     <input type="hidden" id="previewDescription" name="Description" />
                     <input type="hidden" id="previewWordsJson" name="WordsJson" />
-                    <button type="submit" id="btnPreviewFull" class="btn btn-action-success">
+                    <button type="submit" id="btnPreviewFull" class="btn btn-action-success shadow-sm">
                         <i class="bi bi-eye me-2"></i>Full Preview
                     </button>
                 </form>
-                <button class="btn btn-action-outline-success" onclick="document.getElementById('resultContainer').style.display='none'">
+                <button class="btn btn-action-outline-success shadow-sm" onclick="document.getElementById('resultContainer').style.display='none'">
                     <i class="bi bi-x-lg me-2"></i>Close
                 </button>
             </div>
