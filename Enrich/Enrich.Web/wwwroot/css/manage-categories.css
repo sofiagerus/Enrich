@@ -1,0 +1,29 @@
+/* Manage Categories Page Styles */
+:root {
+    --manage-categories-border: #dee2e6;
+    --manage-categories-green: #198754;
+}
+
+.manage-categories-card {
+    border: 1px solid var(--manage-categories-border);
+    border-radius: 12px;
+    background-color: #ffffff;
+}
+
+.manage-categories-form-card {
+    max-width: 600px;
+}
+
+.manage-categories-card-body {
+    padding: 20px;
+}
+
+.manage-categories-form-card .form-control {
+    border-radius: 12px;
+    border-color: var(--manage-categories-border);
+}
+
+.manage-categories-form-card .form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: none;
+}
