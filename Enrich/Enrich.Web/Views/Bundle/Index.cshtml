@@ -7,7 +7,12 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/collections.css" asp-append-version="true" />
+    <environment include="Development">
+        <link rel="stylesheet" href="~/css/collections.css" asp-append-version="true" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/css/collections.min.css" asp-append-version="true" />
+    </environment>
 }
 
 <div class="container-fluid py-4">
@@ -22,14 +27,14 @@
                            placeholder="Search collections..." value="" onkeyup="debounceSearch()">
                 </div>
 
-                <button class="btn btn-action shadow-sm ms-auto">
+                <button class="btn btn-action ms-auto">
                     <i class="bi bi-sort-down me-2"></i> Sort by
                 </button>
             </div>
 
             <div class="mb-4 text-start">
-                <a asp-action="Create" asp-controller="Bundle" class="btn btn-action shadow-sm">
-                    <i class="bi bi-plus-circle-fill me-2"></i> Add new collection
+                <a asp-action="Create" asp-controller="Bundle" class="btn btn-success rounded-4 py-2 px-4 custom-btn">
+                    <i class="bi bi-plus-lg me-1"></i> Add new collection
                 </a>
             </div>
 
@@ -39,157 +44,16 @@
         </div>
 
         <div class="col-lg-3 ps-lg-4">
-            <div class="sidebar-panel" style="margin-top: 0;">
-                <h6 class="fw-bold mb-2" style="font-size:0.9rem;">Categories</h6>
-                <div class="border rounded-3 bg-white mb-2" style="height:200px; display:flex; flex-direction:column;">
-                    <div class="p-2 border-bottom">
-                        <input type="text" id="categorySearch" class="form-control border-0 bg-transparent"
-                               placeholder="Search categories..." style="font-size:0.85rem;">
-                    </div>
-                    <div class="p-2 overflow-y-scroll flex-grow-1">
-                        <ul class="list-unstyled mb-0" id="category-filters">
-                            @if (Model.Categories.Any())
-                            {
-                                @foreach (var cat in Model.Categories)
-                                {
-                                    <li class="checkbox-item mb-2">
-                                        <input type="checkbox" class="form-check-input me-2 category-checkbox" id="cat-@cat.Id" value="@cat.Name" onchange="onFilterChange()">
-                                        <label class="form-check-label small" for="cat-@cat.Id">@cat.Name</label>
-                                    </li>
-                                }
-                            }
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="sidebar-divider my-3"></div>
-
-                <h6 class="fw-bold mb-2" style="font-size:0.9rem;">Difficulty Level</h6>
-                <ul class="list-unstyled mb-0">
-                    @foreach (var level in new[] { "C2", "C1", "B2", "B1", "A2", "A1" })
-                    {
-                        <li class="checkbox-item mb-2">
-                            <input type="checkbox" class="form-check-input me-2 level-checkbox" id="level-@level" value="@level" onchange="onFilterChange()">
-                            <label class="form-check-label small" for="level-@level">@level</label>
-                        </li>
-                    }
-                </ul>
-
-                <div class="sidebar-divider my-3"></div>
-
-                <h6 class="fw-bold mb-2" style="font-size:0.9rem;">Words Count</h6>
-                <div class="d-flex align-items-center justify-content-between">
-                    <input type="number" id="minWords" class="word-count-input" placeholder="Min" onchange="onFilterChange()">
-                    <span class="mx-2 text-muted">—</span>
-                    <input type="number" id="maxWords" class="word-count-input" placeholder="Max" onchange="onFilterChange()">
-                </div>
-            </div>
+            <partial name="_CollectionFiltersPartial" model="Model.Categories" />
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script>
-        let searchTimeout;
-
-        function getFilters() {
-            return {
-                searchTerm: document.getElementById('searchTerm').value,
-                categories: Array.from(document.querySelectorAll('.category-checkbox:checked')).map(c => c.value).join(','),
-                levels: Array.from(document.querySelectorAll('.level-checkbox:checked')).map(c => c.value).join(','),
-                minWords: document.getElementById('minWords').value,
-                maxWords: document.getElementById('maxWords').value
-            };
-        }
-
-        async function loadBundles(page = 1) {
-            const f = getFilters();
-            const params = new URLSearchParams({
-                page: page,
-                pageSize: parseInt(document.getElementById('bundles-list-container').dataset.pageSize, 10) || 6,
-                search: f.searchTerm,
-                categoryFilter: f.categories,
-                levelFilter: f.levels,
-                minWordCount: f.minWords,
-                maxWordCount: f.maxWords
-            });
-
-            try {
-                const response = await fetch(`/Bundle/Index?${params.toString()}`, {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                });
-                if (response.ok) {
-                    const html = await response.text();
-                    document.getElementById('bundles-list-container').innerHTML = html;
-                }
-            } catch (err) { console.error(err); }
-        }
-
-        function onFilterChange() { loadBundles(1); }
-        function debounceSearch() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => onFilterChange(), 500);
-        }
-        function changePage(page) {
-            loadBundles(page);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Category search functionality
-        document.getElementById('categorySearch').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase().trim();
-            const categoryItems = document.querySelectorAll('#category-filters .checkbox-item');
-
-            categoryItems.forEach(item => {
-                const label = item.querySelector('label');
-                const categoryName = label.textContent.toLowerCase();
-
-                if (searchTerm === '' || categoryName.includes(searchTerm)) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-
-        function submitForReview(bundleId, bundleTitle = 'this collection') {
-            if (confirm(`Are you sure? After sending for review you will not be able to edit the collection "${bundleTitle}" until the admin approves it.`)) {
-                submitBundle(bundleId);
-            }
-        }
-
-        async function submitBundle(bundleId) {
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-            if (!token) {
-                 console.error("Verification token not found");
-                 return;
-            }
-
-            try {
-                const response = await fetch(`/Bundle/SubmitForReview/${bundleId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': token,
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-
-                if (response.ok) {
-                    const result = await response.json();
-                    showToast(result.message);
-                    loadBundles(); // Refresh the list
-                } else {
-                    let errorMessage = 'Error submitting collection.';
-                    try {
-                        const error = await response.json();
-                        errorMessage = error.message || errorMessage;
-                    } catch(e) {}
-                    showToast(errorMessage, 'danger');
-                }
-            } catch (err) {
-                console.error(err);
-                showToast('An unexpected error occurred.', 'danger');
-            }
-        }
-    </script>
+    <environment include="Development">
+        <script src="~/js/my-collections.js" asp-append-version="true"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/my-collections.min.js" asp-append-version="true"></script>
+    </environment>
 }
