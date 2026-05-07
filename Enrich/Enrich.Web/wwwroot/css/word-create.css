@@ -1,0 +1,20 @@
+.category-item {
+    cursor: pointer;
+    transition: background .12s;
+    border-radius: .5rem;
+    margin: 2px 4px;
+}
+
+    .category-item:hover,
+    .category-item:focus {
+        background: #f0f4ff;
+        outline: none;
+    }
+
+.new-item {
+    color: #198754;
+}
+
+#category-toggle:focus {
+    box-shadow: none;
+}

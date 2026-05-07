@@ -20,5 +20,38 @@
       "renameLocals": true
     },
     "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/css/word-create.min.css",
+    "inputFiles": [
+      "wwwroot/css/word-create.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/js/word-create.min.js",
+    "inputFiles": [
+      "wwwroot/js/word-create.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/css/quiz-setup.min.css",
+    "inputFiles": [
+      "wwwroot/css/quiz-setup.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
   }
 ]
