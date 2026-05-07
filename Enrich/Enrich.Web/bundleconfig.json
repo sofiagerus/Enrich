@@ -22,6 +22,50 @@
     "sourceMap": false
   },
   {
+    "outputFileName": "wwwroot/css/manage-categories.min.css",
+    "inputFiles": [
+      "wwwroot/css/manage-categories.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/css/account-settings.min.css",
+    "inputFiles": [
+      "wwwroot/css/account-settings.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/js/manage-categories.min.js",
+    "inputFiles": [
+      "wwwroot/js/manage-categories.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/js/account-settings.min.js",
+    "inputFiles": [
+      "wwwroot/js/account-settings.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
     "outputFileName": "wwwroot/css/word-create.min.css",
     "inputFiles": [
       "wwwroot/css/word-create.css"
