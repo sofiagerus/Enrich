@@ -27,7 +27,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
 
     <style>
         .sidebar-container i.bi {
@@ -151,9 +153,14 @@
                 <div class="text-secondary mb-2 px-3" style="font-size: 0.85rem; font-weight: 600;">Account</div>
 
                 <div class="d-flex align-items-center px-3 py-2 text-dark">
-                    <div class="bg-secondary text-white rounded-circle me-3 d-flex justify-content-center align-items-center flex-shrink-0" style="width: 40px; height: 40px; opacity: 0.8;">
-                        <i class="bi bi-person-fill fs-5"></i>
-                    </div>
+                    <a asp-controller="Notification" asp-action="Index" class="position-relative text-decoration-none">
+                        <div class="bg-secondary text-white rounded-circle me-3 d-flex justify-content-center align-items-center flex-shrink-0" style="width: 40px; height: 40px; opacity: 0.8;">
+                            <i class="bi bi-person-fill fs-5"></i>
+                        </div>
+                        <span id="notifBadge"
+                              class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-danger"
+                              style="font-size: 0.6rem; display: none;"></span>
+                    </a>
 
                     <div class="lh-1 overflow-hidden">
                         <a asp-controller="Account" asp-action="Settings" asp-route-tab="profile"
@@ -207,6 +214,51 @@
             toast.show();
         }
     </script>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <script>
+            // ── SignalR real-time notification client ──────────────────────────
+            (function () {
+                const badge = document.getElementById('notifBadge');
+
+                // Fetch current unread count on page load
+                fetch('/Notification/UnreadCount')
+                    .then(r => r.json())
+                    .then(data => updateBadge(data.count))
+                    .catch(() => { });
+
+                function updateBadge(count) {
+                    if (!badge) return;
+                    if (count > 0) {
+                        badge.textContent = count > 99 ? '99+' : count;
+                        badge.style.display = '';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+
+                // Connect to SignalR hub
+                const connection = new signalR.HubConnectionBuilder()
+                    .withUrl('/hubs/notifications')
+                    .withAutomaticReconnect()
+                    .build();
+
+                connection.on('ReceiveNotification', function (notification) {
+                    // Show toast
+                    showToast(notification.message, 'success');
+
+                    // Increment badge
+                    const currentCount = parseInt(badge?.textContent) || 0;
+                    updateBadge(currentCount + 1);
+                });
+
+                connection.start()
+                    .catch(err => console.warn('SignalR connection error:', err));
+            })();
+        </script>
+    }
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

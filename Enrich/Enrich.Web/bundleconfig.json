@@ -11,17 +11,6 @@
     "sourceMap": false
   },
   {
-    "outputFileName": "wwwroot/js/my-collections.min.js",
-    "inputFiles": [
-      "wwwroot/js/my-collections.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    },
-    "sourceMap": false
-  },
-  {
     "outputFileName": "wwwroot/css/manage-categories.min.css",
     "inputFiles": [
       "wwwroot/css/manage-categories.css"
@@ -36,6 +25,105 @@
     "outputFileName": "wwwroot/css/account-settings.min.css",
     "inputFiles": [
       "wwwroot/css/account-settings.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/css/word-create.min.css",
+    "inputFiles": [
+      "wwwroot/css/word-create.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/css/quiz-setup.min.css",
+    "inputFiles": [
+      "wwwroot/css/quiz-setup.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/css/mywords.min.css",
+    "inputFiles": [
+      "wwwroot/css/mywords.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/css/bundle-create.min.css",
+    "inputFiles": [
+      "wwwroot/css/bundle-create.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/css/generator.min.css",
+    "inputFiles": [
+      "wwwroot/css/generator.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/css/study.min.css",
+    "inputFiles": [
+      "wwwroot/css/study.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/css/notifications.min.css",
+    "inputFiles": [
+      "wwwroot/css/notifications.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/css/site.min.css",
+    "inputFiles": [
+      "wwwroot/css/site.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/js/my-collections.min.js",
+    "inputFiles": [
+      "wwwroot/js/my-collections.js"
     ],
     "minify": {
       "enabled": true,
@@ -66,17 +154,6 @@
     "sourceMap": false
   },
   {
-    "outputFileName": "wwwroot/css/word-create.min.css",
-    "inputFiles": [
-      "wwwroot/css/word-create.css"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    },
-    "sourceMap": false
-  },
-  {
     "outputFileName": "wwwroot/js/word-create.min.js",
     "inputFiles": [
       "wwwroot/js/word-create.js"
@@ -88,9 +165,20 @@
     "sourceMap": false
   },
   {
-    "outputFileName": "wwwroot/css/quiz-setup.min.css",
+    "outputFileName": "wwwroot/js/site.min.js",
     "inputFiles": [
-      "wwwroot/css/quiz-setup.css"
+      "wwwroot/js/site.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/js/theme.min.js",
+    "inputFiles": [
+      "wwwroot/js/theme.js"
     ],
     "minify": {
       "enabled": true,

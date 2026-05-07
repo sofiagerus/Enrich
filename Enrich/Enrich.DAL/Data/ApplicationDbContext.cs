@@ -27,6 +27,8 @@ namespace Enrich.DAL.Data
 
         public DbSet<SessionResult> SessionResults { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             var entries = ChangeTracker
