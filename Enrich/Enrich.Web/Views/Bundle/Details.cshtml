@@ -5,63 +5,126 @@
     Layout = "~/Views/Shared/_AppLayout.cshtml";
 }
 
-<div class="container-fluid py-4">
-    <div class="d-flex align-items-center mb-4 gap-3">
-        <a asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-3">
-            <i class="bi bi-arrow-left"></i> Back
-        </a>
-        <h1 class="fw-semibold fs-4 mb-0">@Model.Title</h1>
+@section Styles {
+    <link rel="stylesheet" href="~/css/collections.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/bundle-details.css" asp-append-version="true" />
+}
+
+<div class="container-fluid py-4 h-100 d-flex flex-column">
+    <div class="d-flex flex-column mb-4">
+        <div class="mb-2">
+            <a href="@Url.Action("Index", "Bundle")" class="text-decoration-none text-muted d-inline-flex align-items-center fw-medium" style="font-size: 0.95rem; transition: color 0.2s;" onmouseover="this.className='text-decoration-none text-dark d-inline-flex align-items-center fw-medium'" onmouseout="this.className='text-decoration-none text-muted d-inline-flex align-items-center fw-medium'">
+                <i class="bi bi-arrow-left me-2"></i> Back
+            </a>
+        </div>
+        <h1 class="fw-bold fs-4 mb-0 text-dark">@Model.Title</h1>
     </div>
 
-    <div class="row">
-        <div class="col-lg-4 mb-4">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                {
-                    <img src="@Model.ImageUrl" class="card-img-top" style="height: 200px; object-fit: cover;" alt="@Model.Title">
-                }
-                <div class="card-body">
-                    <p class="text-muted small mb-2">@Model.Description</p>
-                    <div class="d-flex flex-wrap gap-1 mb-3">
-                        @foreach (var level in Model.DifficultyLevels)
+    <div class="row flex-grow-1 overflow-hidden">
+        <div class="col-lg-5 col-md-12 mb-4">
+            <div class="bundle-card p-4 d-flex flex-column" style="height: auto; min-height: auto; cursor: default !important;">
+                <div class="d-flex gap-3 mb-4">
+                    <div class="flex-shrink-0" style="width: 120px;">
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
                         {
-                            <span class="badge bg-light text-dark border">@level</span>
+                            <img src="@Model.ImageUrl" class="img-fluid rounded-3 mb-2" style="width: 120px; height: 120px; object-fit: cover;" alt="@Model.Title">
                         }
+                        else
+                        {
+                            <div class="bundle-image-horizontal mb-2">
+                                <i class="bi bi-collection"></i>
+                            </div>
+                        }
+                        
+                        <div class="difficulty-container">
+                            @foreach (var level in Model.DifficultyLevels)
+                            {
+                                <span class="badge-level">@level</span>
+                            }
+                        </div>
                     </div>
-                    <div class="text-muted small">
-                        <i class="bi bi-layers"></i> Words count: @Model.WordCount
+
+                    <div class="flex-grow-1 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="bundle-title mb-0 text-dark">@Model.Title</h5>
+                        </div>
+                        <div class="bundle-wordcount">Words: @Model.WordCount</div>
+
+                        <div class="bundle-description" style="-webkit-line-clamp: 10;">
+                            <strong>Description</strong><br />
+                            @(string.IsNullOrWhiteSpace(Model.Description) ? "No description provided." : Model.Description)
+                        </div>
                     </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-auto flex-column flex-sm-row">
+                    <a href="@Url.Action("Edit", "Bundle", new { id = Model.Id })" class="btn btn-action-success rounded-4 w-100 justify-content-center text-decoration-none">
+                        <i class="bi bi-pencil me-2"></i> Edit Collection
+                    </a>
+                    <a href="@Url.Action("Study", "Bundle", new { bundleId = Model.Id })" class="btn btn-action-outline-success rounded-4 w-100 justify-content-center text-decoration-none">
+                        <i class="bi bi-controller me-2"></i> Start a Quiz
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-8">
-            <h5 class="fw-bold mb-3">Words in this collection</h5>
-            <div class="row g-3">
+        <div class="col-lg-7 col-md-12 h-100" style="overflow-y: auto; max-height: calc(100vh - 140px);">
+            <div class="row g-3 pe-2 pb-5">
                 @if (Model.Words != null && Model.Words.Any())
                 {
                     @foreach (var word in Model.Words)
                     {
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm rounded-4 p-3 h-100" style="background: rgba(255,255,255,0.7);">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <h6 class="fw-bold mb-1">@word.Term</h6>
-                                    <span class="text-success small fw-medium">@word.PartOfSpeech</span>
+                        <div class="col-md-12">
+                            <div class="word-card-preview">
+                                <div class="word-header">
+                                    <div>
+                                        <h5 class="term-title">
+                                            @word.Term
+                                            @if (!string.IsNullOrEmpty(word.DifficultyLevel))
+                                            {
+                                                <span class="badge-level-word">@word.DifficultyLevel</span>
+                                            }
+                                        </h5>
+                                        <span class="pos-label">@(word.PartOfSpeech ?? "unknown")</span>
+                                    </div>
+                                    <div class="translation-title">@word.Translation</div>
                                 </div>
-                                <div class="text-muted small">@word.Translation</div>
-                                @if (!string.IsNullOrEmpty(word.Example))
+
+                                @if (!string.IsNullOrEmpty(word.Transcription))
                                 {
-                                    <div class="mt-2 small fst-italic text-secondary">"@word.Example"</div>
+                                    <div class="transcription">[@word.Transcription]</div>
                                 }
+                                else
+                                {
+                                    <div class="transcription">[...]</div>
+                                }
+
+                                <div class="mt-2">
+                                    <div class="section-label">Category</div>
+                                    <span class="badge-category-word">@(string.IsNullOrEmpty(word.CategoryName) ? "General" : word.CategoryName)</span>
+                                </div>
+
+                                <div class="mt-2">
+                                    <div class="section-label">Meaning</div>
+                                    <div class="section-text">@(string.IsNullOrEmpty(word.Meaning) ? "..." : word.Meaning)</div>
+                                </div>
+
+                                <div class="mt-2">
+                                    <div class="section-label">Example</div>
+                                    <div class="section-text fst-italic">@(string.IsNullOrEmpty(word.Example) ? "..." : word.Example)</div>
+                                </div>
                             </div>
                         </div>
                     }
                 }
                 else
                 {
-                    <div class="col-12 text-center py-5 text-muted">
-                        <i class="bi bi-chat-left-dots fs-1"></i>
-                        <p class="mt-2">This collection is currently empty.</p>
+                    <div class="col-12">
+                        <div class="text-center py-5 text-muted" style="background: #FFFFFF; border-radius: 16px; border: 1px solid #E9ECEF;">
+                            <i class="bi bi-chat-left-dots fs-1 mb-2 d-block"></i>
+                            <p class="fw-medium text-dark mb-0">No words found</p>
+                            <p class="small">This collection is currently empty.</p>
+                        </div>
                     </div>
                 }
             </div>
