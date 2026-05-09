@@ -10,96 +10,139 @@
     <link rel="stylesheet" href="~/css/quiz-setup.min.css" asp-append-version="true" />
 }
 
-<div class="d-flex align-items-center mb-4 gap-3">
-    <a asp-action="Index" asp-controller="Home" class="text-dark text-decoration-none fs-5">
-        <i class="bi bi-arrow-left"></i>
-    </a>
-    <h1 class="fw-semibold fs-4 mb-0">Quiz Setup</h1>
-</div>
+<div class="container d-flex justify-content-center py-4">
+    <div class="w-100" style="max-width: 640px;">
 
-<div class="card border border-light-subtle rounded-4 mb-4" style="max-width: 640px;">
-    <div class="card-body p-4 p-md-5">
+        <div class="d-flex align-items-center mb-4 gap-3">
+            <a asp-controller="Word" asp-action="MyWords" class="text-dark text-decoration-none fs-5">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1 class="fw-semibold fs-4 mb-0">Quiz Setup</h1>
+        </div>
 
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger rounded-4 small mb-4 border-0" style="background-color: #fff5f5; color: #dc3545;" role="alert">
-                <i class="bi bi-exclamation-circle me-2"></i> @TempData["Error"]
+        <div class="card border border-light-subtle rounded-4 mb-4 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger rounded-4 small mb-4 border-0" style="background-color: #fff5f5; color: #dc3545;" role="alert">
+                        <i class="bi bi-exclamation-circle me-2"></i> @TempData["Error"]
+                    </div>
+                }
+
+                <form asp-action="Start" method="post">
+                    
+                    @* Category *@
+                    <div class="mb-4">
+                        <label asp-for="Category" class="form-label fw-medium text-dark small mb-2">Category</label>
+                        <div class="dropdown custom-dropdown">
+                            <button class="btn btn-outline-secondary rounded-4 py-2 w-100 text-start d-flex justify-content-between align-items-center bg-white text-dark btn-dropdown custom-focus" 
+                                    type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-color: #dee2e6;">
+                                <span class="selected-text">Any Category</span>
+                                <i class="bi bi-chevron-down small text-muted"></i>
+                            </button>
+                            <input type="hidden" asp-for="Category" value="Any" class="dropdown-hidden-input">
+                            
+                            <ul class="dropdown-menu w-100 shadow border-0 mt-1 rounded-4" style="max-height: 250px; overflow-y: auto;">
+                                <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="Any">Any Category</a></li>
+                                @foreach (var cat in categories)
+                                {
+                                    <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="@cat">@cat</a></li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+
+                    @* Part of Speech *@
+                    <div class="mb-4">
+                        <label asp-for="PartOfSpeech" class="form-label fw-medium text-dark small mb-2">Part of Speech</label>
+                        <div class="dropdown custom-dropdown">
+                            <button class="btn btn-outline-secondary rounded-4 py-2 w-100 text-start d-flex justify-content-between align-items-center bg-white text-dark btn-dropdown custom-focus" 
+                                    type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-color: #dee2e6;">
+                                <span class="selected-text">Any Part of Speech</span>
+                                <i class="bi bi-chevron-down small text-muted"></i>
+                            </button>
+                            <input type="hidden" asp-for="PartOfSpeech" value="Any" class="dropdown-hidden-input">
+                            
+                            <ul class="dropdown-menu w-100 shadow border-0 mt-1 rounded-4">
+                                <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="Any">Any Part of Speech</a></li>
+                                @foreach (var pos in partsOfSpeech)
+                                {
+                                    <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="@pos">@pos</a></li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+
+                    @* Difficulty Levels *@
+                    <div class="row mb-4 g-4">
+                        <div class="col-md-6">
+                            <label asp-for="MinDifficulty" class="form-label fw-medium text-dark small mb-2">Difficulty (Min)</label>
+                            <div class="dropdown custom-dropdown">
+                                <button class="btn btn-outline-secondary rounded-4 py-2 w-100 text-start d-flex justify-content-between align-items-center bg-white text-dark btn-dropdown custom-focus" 
+                                        type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-color: #dee2e6;">
+                                    <span class="selected-text">A1</span>
+                                    <i class="bi bi-chevron-down small text-muted"></i>
+                                </button>
+                                <input type="hidden" asp-for="MinDifficulty" value="0" class="dropdown-hidden-input">
+                                
+                                <ul class="dropdown-menu w-100 shadow border-0 mt-1 rounded-4">
+                                    <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="0">A1</a></li>
+                                    <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="1">A2</a></li>
+                                    <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="2">B1</a></li>
+                                    <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="3">B2</a></li>
+                                    <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="4">C1</a></li>
+                                    <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="5">C2</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label asp-for="MaxDifficulty" class="form-label fw-medium text-dark small mb-2">Difficulty (Max)</label>
+                            <div class="dropdown custom-dropdown">
+                                <button class="btn btn-outline-secondary rounded-4 py-2 w-100 text-start d-flex justify-content-between align-items-center bg-white text-dark btn-dropdown custom-focus" 
+                                        type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-color: #dee2e6;">
+                                    <span class="selected-text">C2</span>
+                                    <i class="bi bi-chevron-down small text-muted"></i>
+                                </button>
+                                <input type="hidden" asp-for="MaxDifficulty" value="5" class="dropdown-hidden-input">
+                                
+                                <ul class="dropdown-menu w-100 shadow border-0 mt-1 rounded-4">
+                                    <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="0">A1</a></li>
+                                    <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="1">A2</a></li>
+                                    <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="2">B1</a></li>
+                                    <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="3">B2</a></li>
+                                    <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="4">C1</a></li>
+                                    <li><a class="dropdown-item rounded-4 mx-1 px-3 py-2" style="width: auto;" href="#" data-value="5">C2</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Number of Words *@
+                    <div class="mb-5">
+                        <label asp-for="WordCount" class="form-label fw-medium text-dark small mb-2">Number of Words</label>
+                        <input type="number" asp-for="WordCount" class="form-control rounded-4 py-2 border-light-subtle custom-focus" min="1" max="50" value="10" style="box-shadow: none;" />
+                        <span asp-validation-for="WordCount" class="text-danger small d-block mt-1"></span>
+                    </div>
+
+                    @* ÃŠÃ­Ã®Ã¯ÃªÃ¨ Ã´Ã®Ã°Ã¬Ã¨ *@
+                    <div class="d-flex gap-3 justify-content-center">
+                        <button type="submit" class="btn btn-success btn-action-success rounded-pill px-5 py-2 fw-medium d-flex align-items-center gap-2">
+                            <i class="bi bi-play-fill fs-5"></i> Start Quiz Session
+                        </button>
+                        <a asp-controller="Word" asp-action="MyWords" class="btn btn-outline-secondary rounded-pill px-5 py-2 fw-medium">
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
             </div>
-        }
-
-        <form asp-action="Start" method="post">
-            
-            @* Category *@
-            <div class="mb-4">
-                <label asp-for="Category" class="form-label fw-medium text-dark small mb-2">Category</label>
-                <select asp-for="Category" class="form-select rounded-4 py-2 border-light-subtle" style="box-shadow: none;">
-                    <option value="Any">Any Category</option>
-                    @foreach (var cat in categories)
-                    {
-                        <option value="@cat">@cat</option>
-                    }
-                </select>
-            </div>
-
-            @* Part of Speech *@
-            <div class="mb-4">
-                <label asp-for="PartOfSpeech" class="form-label fw-medium text-dark small mb-2">Part of Speech</label>
-                <select asp-for="PartOfSpeech" class="form-select rounded-4 py-2 border-light-subtle" style="box-shadow: none;">
-                    <option value="Any">Any Part of Speech</option>
-                    @foreach (var pos in partsOfSpeech)
-                    {
-                        <option value="@pos">@pos</option>
-                    }
-                </select>
-            </div>
-
-            @* Difficulty Levels *@
-            <div class="row mb-4 g-4">
-                <div class="col-md-6">
-                    <label asp-for="MinDifficulty" class="form-label fw-medium text-dark small mb-2">Difficulty (Min)</label>
-                    <select asp-for="MinDifficulty" class="form-select rounded-4 py-2 border-light-subtle" style="box-shadow: none;">
-                        <option value="0">A1</option>
-                        <option value="1">A2</option>
-                        <option value="2">B1</option>
-                        <option value="3">B2</option>
-                        <option value="4">C1</option>
-                        <option value="5">C2</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="MaxDifficulty" class="form-label fw-medium text-dark small mb-2">Difficulty (Max)</label>
-                    <select asp-for="MaxDifficulty" class="form-select rounded-4 py-2 border-light-subtle" style="box-shadow: none;">
-                        <option value="0">A1</option>
-                        <option value="1">A2</option>
-                        <option value="2">B1</option>
-                        <option value="3">B2</option>
-                        <option value="4">C1</option>
-                        <option value="5" selected>C2</option>
-                    </select>
-                </div>
-            </div>
-
-            @* Number of Words *@
-            <div class="mb-5">
-                <label asp-for="WordCount" class="form-label fw-medium text-dark small mb-2">Number of Words</label>
-                <input type="number" asp-for="WordCount" class="form-control rounded-4 py-2 border-light-subtle" min="1" max="50" value="10" style="box-shadow: none;" />
-                <span asp-validation-for="WordCount" class="text-danger small d-block mt-1"></span>
-            </div>
-
-            @* Êíîïêè ôîðìè (ÂÍÈÇÓ) *@
-            <div class="d-flex gap-3 justify-content-start">
-                <button type="submit" class="btn btn-success btn-action-success rounded-4 px-4 py-2 fw-medium d-flex align-items-center gap-2" style="background-color: #1a7b54; border-color: #1a7b54; transition: all 0.2s;">
-                    <i class="bi bi-play-fill fs-5"></i> Start Quiz Session
-                </button>
-                <a asp-action="Index" asp-controller="Home" class="btn btn-outline-secondary rounded-4 px-4 py-2 fw-medium">
-                    Cancel
-                </a>
-            </div>
-
-        </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/quiz-setup.min.js" asp-append-version="true"></script>
 }
