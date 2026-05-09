@@ -611,7 +611,11 @@ namespace Enrich.BLL.Services
                     Term = w.Term,
                     Translation = w.Translation,
                     PartOfSpeech = w.PartOfSpeech,
-                    Example = w.Example
+                    Example = w.Example,
+                    Transcription = w.Transcription,
+                    Meaning = w.Meaning,
+                    DifficultyLevel = w.DifficultyLevel,
+                    CategoryName = w.Categories?.FirstOrDefault()?.Name ?? "General"
                 }).ToList() ?? []
             };
         }

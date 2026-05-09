@@ -3,99 +3,125 @@
     ViewData["Title"] = "Edit System Word";
 }
 
-<div class="d-flex align-items-center mb-4 gap-3">
-    <a asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-3 d-flex align-items-center gap-1 text-decoration-none">
-        <i class="bi bi-arrow-left"></i> Back
-    </a>
-    <h1 class="fw-semibold fs-4 mb-0">Edit System Word</h1>
-</div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-word-edit.css" asp-append-version="true" />
+}
 
-<div class="card border-0 shadow-sm rounded-4 mx-auto" style="max-width: 800px;">
-    <div class="card-body p-4">
+<div class="container py-4">
+    <div class="d-flex align-items-center mb-4">
+        <a asp-action="Index"
+           class="btn btn-light rounded-circle me-3 d-flex align-items-center justify-content-center text-decoration-none"
+           style="width: 40px; height: 40px;">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h1 class="h3 mb-0 fw-bold">Edit System Word</h1>
+    </div>
+
+    <div class="card admin-card mx-auto" style="max-width: 800px;">
         <form method="post" asp-action="Edit">
             <input type="hidden" asp-for="Id" />
             <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
 
-            <div class="row mb-3">
+            <div class="row g-4 mb-4">
                 <div class="col-md-6">
-                    <label asp-for="Term" class="form-label fw-medium mb-1"></label>
-                    <input asp-for="Term" class="form-control border-1 shadow-sm rounded-4 py-2" placeholder="Enter word" />
-                    <span asp-validation-for="Term" class="text-danger small"></span>
+                    <label asp-for="Term" class="form-label"></label>
+                    <input asp-for="Term" class="form-control form-control-custom w-100" placeholder="Enter word" />
+                    <span asp-validation-for="Term" class="text-danger small mt-1 d-block"></span>
                 </div>
                 <div class="col-md-6">
-                    <label asp-for="Translation" class="form-label fw-medium mb-1"></label>
-                    <input asp-for="Translation" class="form-control border-1 shadow-sm rounded-4 py-2" placeholder="Enter translation" />
-                    <span asp-validation-for="Translation" class="text-danger small"></span>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label asp-for="Transcription" class="form-label fw-medium mb-1"></label>
-                    <input asp-for="Transcription" class="form-control border-1 shadow-sm rounded-4 py-2" placeholder="e.g. /həˈləʊ/" />
-                    <span asp-validation-for="Transcription" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="PartOfSpeech" class="form-label fw-medium mb-1"></label>
-                    <select asp-for="PartOfSpeech" class="form-select border-1 shadow-sm rounded-4 py-2">
-                        <option value="">Select POS...</option>
-                        <option value="noun">Noun</option>
-                        <option value="verb">Verb</option>
-                        <option value="adjective">Adjective</option>
-                        <option value="adverb">Adverb</option>
-                        <option value="pronoun">Pronoun</option>
-                        <option value="preposition">Preposition</option>
-                        <option value="conjunction">Conjunction</option>
-                        <option value="interjection">Interjection</option>
-                    </select>
+                    <label asp-for="Translation" class="form-label"></label>
+                    <input asp-for="Translation" class="form-control form-control-custom w-100" placeholder="Enter translation" />
+                    <span asp-validation-for="Translation" class="text-danger small mt-1 d-block"></span>
                 </div>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Meaning" class="form-label fw-medium mb-1"></label>
-                <textarea asp-for="Meaning" class="form-control border-1 shadow-sm rounded-4 py-2" rows="2" placeholder="Definition or meaning"></textarea>
-                <span asp-validation-for="Meaning" class="text-danger small"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Example" class="form-label fw-medium mb-1"></label>
-                <textarea asp-for="Example" class="form-control border-1 shadow-sm rounded-4 py-2" rows="2" placeholder="Example sentence"></textarea>
-                <span asp-validation-for="Example" class="text-danger small"></span>
-            </div>
-
-            <div class="row mb-4">
+            <div class="row g-4 mb-4">
                 <div class="col-md-6">
-                    <label asp-for="DifficultyLevel" class="form-label fw-medium mb-1"></label>
-                    <select asp-for="DifficultyLevel" class="form-select border-1 shadow-sm rounded-4 py-2">
-                        <option value="">Select Level...</option>
-                        <option value="A1">A1 - Beginner</option>
-                        <option value="A2">A2 - Elementary</option>
-                        <option value="B1">B1 - Intermediate</option>
-                        <option value="B2">B2 - Upper Intermediate</option>
-                        <option value="C1">C1 - Advanced</option>
-                        <option value="C2">C2 - Proficient</option>
-                    </select>
+                    <label asp-for="Transcription" class="form-label"></label>
+                    <input asp-for="Transcription" class="form-control form-control-custom w-100" placeholder="e.g. /həˈləʊ/" />
+                    <span asp-validation-for="Transcription" class="text-danger small mt-1 d-block"></span>
                 </div>
                 <div class="col-md-6">
-                    <label asp-for="NewCategory" class="form-label fw-medium mb-1"></label>
-                    <input type="text" asp-for="NewCategory" list="categoriesList" class="form-control border-1 shadow-sm rounded-4 py-2" placeholder="Type or select Category">
-                    <datalist id="categoriesList">
-                        @if (Model.Categories != null)
-                        {
-                            foreach (var c in Model.Categories)
+                    <label class="form-label">Part of Speech</label>
+                    <div class="dropdown custom-dropdown-container" id="pos-dropdown">
+                        <button class="btn-dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="selected-items-display">Select POS...</span>
+                            <i class="bi bi-chevron-down opacity-50 small"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-custom">
+                            <div class="dropdown-item-custom" data-value="">Select POS...</div>
+                            <div class="dropdown-item-custom" data-value="noun">Noun</div>
+                            <div class="dropdown-item-custom" data-value="verb">Verb</div>
+                            <div class="dropdown-item-custom" data-value="adjective">Adjective</div>
+                            <div class="dropdown-item-custom" data-value="adverb">Adverb</div>
+                            <div class="dropdown-item-custom" data-value="pronoun">Pronoun</div>
+                            <div class="dropdown-item-custom" data-value="preposition">Preposition</div>
+                            <div class="dropdown-item-custom" data-value="conjunction">Conjunction</div>
+                            <div class="dropdown-item-custom" data-value="interjection">Interjection</div>
+                        </div>
+                    </div>
+                    <input type="hidden" asp-for="PartOfSpeech" id="PartOfSpeech" />
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Meaning" class="form-label"></label>
+                <textarea asp-for="Meaning" class="form-control form-control-custom w-100" rows="2" placeholder="Definition or meaning"></textarea>
+                <span asp-validation-for="Meaning" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Example" class="form-label"></label>
+                <textarea asp-for="Example" class="form-control form-control-custom w-100" rows="2" placeholder="Example sentence"></textarea>
+                <span asp-validation-for="Example" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <div class="row g-4 mb-5">
+                <div class="col-md-6">
+                    <label class="form-label">Difficulty Level</label>
+                    <div class="dropdown custom-dropdown-container" id="level-dropdown">
+                        <button class="btn-dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="selected-items-display">Select Level...</span>
+                            <i class="bi bi-chevron-down opacity-50 small"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-custom">
+                            <div class="dropdown-item-custom" data-value="">Select Level...</div>
+                            <div class="dropdown-item-custom" data-value="A1">A1 - Beginner</div>
+                            <div class="dropdown-item-custom" data-value="A2">A2 - Elementary</div>
+                            <div class="dropdown-item-custom" data-value="B1">B1 - Intermediate</div>
+                            <div class="dropdown-item-custom" data-value="B2">B2 - Upper Intermediate</div>
+                            <div class="dropdown-item-custom" data-value="C1">C1 - Advanced</div>
+                            <div class="dropdown-item-custom" data-value="C2">C2 - Proficient</div>
+                        </div>
+                    </div>
+                    <input type="hidden" asp-for="DifficultyLevel" id="DifficultyLevel" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="NewCategory" class="form-label"></label>
+                    <div class="dropdown custom-dropdown-container position-relative" id="category-combobox">
+                        <input type="text" asp-for="NewCategory" class="form-control form-control-custom w-100 pe-5" placeholder="Type or select Category" data-bs-toggle="dropdown" aria-expanded="false" autocomplete="off" id="NewCategory">
+                        <i class="bi bi-chevron-down opacity-50 small position-absolute" style="right: 1.25rem; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                        <div class="dropdown-menu dropdown-menu-custom w-100">
+                            @if (Model.Categories != null)
                             {
-                                <option value="@c.Name" />
+                                foreach (var c in Model.Categories)
+                                {
+                                    <div class="dropdown-item-custom" data-value="@c.Name">@c.Name</div>
+                                }
                             }
-                        }
-                    </datalist>
+                        </div>
+                    </div>
+                    <span asp-validation-for="NewCategory" class="text-danger small mt-1 d-block"></span>
                 </div>
             </div>
 
-            <div class="d-flex justify-content-end gap-2">
-                <button type="submit" class="btn btn-success rounded-4 px-5 fw-medium shadow-sm">
-                    <i class="bi bi-check2"></i> Save Changes
+            <div class="d-flex gap-3 justify-content-center pt-4 border-top">
+                <button type="submit" class="btn-action-success">
+                    <i class="bi bi-check2 me-2"></i> Save Changes
                 </button>
-                <a asp-action="Index" class="btn btn-outline-secondary rounded-4 px-4 shadow-sm">Cancel</a>
+                <a asp-action="Index" class="btn-action-outline-success">
+                    Cancel
+                </a>
             </div>
         </form>
     </div>
@@ -103,4 +129,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/admin-word-edit.js" asp-append-version="true"></script>
 }

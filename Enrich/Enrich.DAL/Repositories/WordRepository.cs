@@ -191,7 +191,9 @@ namespace Enrich.DAL.Repositories
 
         public async Task<Word?> GetWordAsync(int wordId)
         {
-            return await dbContext.Words.FindAsync(wordId);
+            return await dbContext.Words
+                .Include(w => w.Categories)
+                .FirstOrDefaultAsync(w => w.Id == wordId);
         }
 
         public async Task<bool> UserHasWordAsync(string userId, int wordId)
