@@ -159,7 +159,16 @@ namespace Enrich.Web.Controllers
             var bundle = await bundleService.GetBundleByIdAsync(id);
             if (bundle != null)
             {
-                await bundleService.DeleteBundleAsync(bundle.OwnerId ?? "SYSTEM", id);
+                var result = bundle.IsSystem
+                    ? await bundleService.DeleteSystemBundleAsync(id)
+                    : await bundleService.DeleteBundleAsync(bundle.OwnerId ?? string.Empty, id);
+
+                if (!result.IsSuccess)
+                {
+                    TempData["ErrorMessage"] = result.ErrorMessage ?? "Failed to delete the collection.";
+                    return bundle.IsSystem ? RedirectToAction(nameof(Index)) : RedirectToAction(nameof(Community));
+                }
+
                 TempData["SuccessMessage"] = "Collection deleted successfully.";
 
                 if (!bundle.IsSystem)

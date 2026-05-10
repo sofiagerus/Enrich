@@ -1,0 +1,91 @@
+/* Styles scoped to the Manage System Collections page */
+.admin-bundles-page .card {
+  box-shadow: none !important;
+  border: 1px solid #e9ecef;
+}
+
+.admin-bundles-page .admin-alert {
+  box-shadow: none !important;
+  border: 1px solid #e9ecef;
+}
+
+.admin-bundles-page .form-control {
+  box-shadow: none !important;
+  border: 1px solid #e0e0e0;
+}
+
+.admin-bundles-page .form-control:focus {
+  box-shadow: none !important;
+  border-color: #7aa7ff;
+}
+
+.admin-bundles-page .btn {
+  box-shadow: none !important;
+}
+
+/* mimic generator button styles */
+.admin-bundles-page .btn-action-success,
+.btn-action-success {
+  background-color: #198754;
+  color: white;
+  border-radius: 20px;
+  padding: 10px 24px;
+  border: 1px solid #198754;
+  font-weight: 500;
+}
+
+.admin-bundles-page .btn-action-outline-success,
+.btn-action-outline-success {
+  background-color: transparent;
+  color: #198754;
+  border-radius: 20px;
+  padding: 10px 18px;
+  border: 1px solid #198754;
+  font-weight: 500;
+}
+
+.admin-bundles-page .btn-action-outline-success:hover {
+  background-color: #198754;
+  color: white;
+}
+
+.admin-bundles-page .admin-action-btn {
+  min-width: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 0.5rem;
+  background: #f1f3f5;
+  border-radius: 8px;
+  border: none;
+  color: #495057;
+}
+.admin-bundles-page .admin-action-btn:hover {
+  transform: scale(1.03);
+  background: #eef6ef;
+}
+
+.admin-bundles-page .table thead th {
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.admin-bundles-page .table tbody tr td {
+  vertical-align: middle;
+}
+
+/* Make rows feel lighter and more structured */
+.admin-bundles-page .table tbody tr {
+  transition: background-color .12s ease-in-out;
+}
+.admin-bundles-page .table tbody tr:hover {
+  background-color: #fbfcfd;
+}
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+  .admin-bundles-page .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: .75rem;
+    align-items: stretch;
+  }
+}
