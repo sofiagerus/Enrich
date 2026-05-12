@@ -5,282 +5,195 @@
 }
 
 @section Styles {
-    <style>
-        .word-form-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(4px);
-        }
-
-        .category-item {
-            cursor: pointer;
-            transition: background .12s;
-            border-radius: .5rem;
-            margin: 2px 4px;
-        }
-
-            .category-item:hover,
-            .category-item:focus {
-                background: #f0f4ff;
-                outline: none;
-            }
-
-        .new-item {
-            color: #198754;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/admin-word-create.css" asp-append-version="true" />
 }
 
-<div class="d-flex align-items-center mb-4 gap-3">
-    <a asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-3 d-flex align-items-center gap-1 text-decoration-none">
-        <i class="bi bi-arrow-left"></i> Back
-    </a>
-    <h1 class="fw-semibold fs-4 mb-0">Create System Word</h1>
-</div>
+<div class="container py-4">
+    <div class="d-flex align-items-center mb-4">
+        <a asp-action="Index" class="btn btn-light rounded-circle me-3 back-button" aria-label="Back">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h1 class="h3 mb-0 fw-bold">Create System Word</h1>
+    </div>
 
-<div class="card border-0 shadow-sm rounded-4 word-form-card mx-auto" style="max-width: 640px;">
-    <div class="card-body p-4">
-        @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
-        {
-            <div class="alert alert-danger rounded-3 small mb-4" role="alert">
-                <div asp-validation-summary="ModelOnly"></div>
-            </div>
-        }
+    <div class="card card-panel shadow-sm border-0 rounded-4 word-create-card">
+        <div class="card-body p-4">
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="alert alert-danger" role="alert">
+                    <div asp-validation-summary="ModelOnly"></div>
+                </div>
+            }
 
-        <form method="post" asp-action="Create">
-            @Html.AntiForgeryToken()
+            <form method="post" asp-action="Create" class="word-create-form">
+                @Html.AntiForgeryToken()
 
-            @* Term *@
-            <div class="mb-3">
-                <label asp-for="Term" class="form-label fw-medium mb-1">
-                    Term <span class="text-danger ms-1">*</span>
-                </label>
-                <input asp-for="Term" class="form-control border-1 shadow-sm rounded-4 py-2" placeholder="Enter word" />
-                <span asp-validation-for="Term" class="text-danger small d-block mt-1"></span>
-            </div>
-
-            @* Category - Custom dropdown with new category support *@
-            <div class="mb-3 position-relative" id="category-wrapper">
-                <label asp-for="NewCategory" class="form-label fw-medium mb-1">
-                    Category <span class="text-danger ms-1">*</span>
-                </label>
-
-                <div class="category-combo position-relative">
-                    <input asp-for="NewCategory"
-                           id="category-input"
-                           class="form-control border-1 shadow-sm rounded-4 py-2 pe-5"
-                           placeholder="Select or type a new category..."
-                           autocomplete="off"
-                           required />
-
-                    <button type="button" id="category-toggle"
-                            class="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent p-0 text-muted"
-                            tabindex="-1" aria-label="Toggle list">
-                        <i class="bi bi-chevron-down" id="category-chevron" style="transition: transform .2s;"></i>
-                    </button>
+                <div class="mb-4">
+                    <label asp-for="Term" class="form-label">Term <span class="text-danger ms-1">*</span></label>
+                    <input asp-for="Term" class="form-control form-control-custom" placeholder="Enter word" />
+                    <span asp-validation-for="Term" class="text-danger small d-block mt-1"></span>
                 </div>
 
-                <ul id="category-dropdown"
-                    class="list-unstyled mb-0 mt-1 border rounded-4 shadow-sm bg-white position-absolute w-100 overflow-auto"
-                    style="display:none; max-height:200px; z-index:1050;">
-                </ul>
+                <div class="mb-4">
+                    <label class="form-label">Category <span class="text-danger ms-1">*</span></label>
+                    <div class="dropdown custom-dropdown-container" id="category-dropdown-container" data-bs-auto-close="outside">
+                        <button class="btn-dropdown rounded-4" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="categoryBtn">
+                            <span class="selected-items-display text-muted" id="category-selected-text">Any</span>
+                            <i class="bi bi-chevron-down opacity-50 small"></i>
+                        </button>
+                        <input asp-for="NewCategory" type="hidden" id="NewCategory" />
+                        <div class="dropdown-menu dropdown-menu-custom shadow rounded-4 w-100" id="category-dropdown">
+                            <div class="dropdown-list-items" id="category-list">
+                                <a href="#" class="dropdown-item dropdown-item-custom category-item rounded-4 mx-1 px-3 py-2" data-category-name="" data-category-label="Any" style="width: auto;">
+                                    <span>Any</span>
+                                    <i class="bi bi-check2 opacity-0"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
 
-                <span asp-validation-for="NewCategory" class="text-danger small d-block mt-1"></span>
-                <small class="text-muted">Choose from existing or type a new category name.</small>
-            </div>
+                    <div class="mt-3 d-none" id="manual-category-wrapper">
+                        <label for="manual-category-input" class="form-label mb-2">New category name</label>
+                        <input type="text" id="manual-category-input" class="form-control form-control-custom" placeholder="Type a new category name..." autocomplete="off" />
+                    </div>
 
-            <div class="row">
-                <div class="col-md-6">
-                    @* Difficulty Level *@
-                    <div class="mb-3">
-                        <label asp-for="DifficultyLevel" class="form-label fw-medium mb-1">Difficulty Level</label>
-                        <select asp-for="DifficultyLevel" class="form-select border-1 shadow-sm rounded-4 py-2">
-                            <option value="">Select Level...</option>
-                            <option value="A1">A1</option>
-                            <option value="A2">A2</option>
-                            <option value="B1">B1</option>
-                            <option value="B2">B2</option>
-                            <option value="C1">C1</option>
-                            <option value="C2">C2</option>
-                        </select>
+                    <span asp-validation-for="NewCategory" class="text-danger small d-block mt-1"></span>
+                    <small class="text-muted">Pick an existing category or choose new category and type a name.</small>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="DifficultyLevel" class="form-label">Difficulty Level</label>
+                        <div class="dropdown custom-dropdown-container" id="difficulty-dropdown-container" data-bs-auto-close="outside">
+                            <button class="btn-dropdown rounded-4" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="selected-items-display text-muted">Select Level...</span>
+                                <i class="bi bi-chevron-down opacity-50 small"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-custom shadow rounded-4">
+                                <div class="dropdown-list-items">
+                                    <div class="dropdown-item-custom" data-value="" data-label="Select Level...">
+                                        <span>Select Level...</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                    <div class="dropdown-item-custom" data-value="A1" data-label="A1">
+                                        <span>A1</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                    <div class="dropdown-item-custom" data-value="A2" data-label="A2">
+                                        <span>A2</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                    <div class="dropdown-item-custom" data-value="B1" data-label="B1">
+                                        <span>B1</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                    <div class="dropdown-item-custom" data-value="B2" data-label="B2">
+                                        <span>B2</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                    <div class="dropdown-item-custom" data-value="C1" data-label="C1">
+                                        <span>C1</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                    <div class="dropdown-item-custom" data-value="C2" data-label="C2">
+                                        <span>C2</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input asp-for="DifficultyLevel" type="hidden" id="DifficultyLevel" />
                         <span asp-validation-for="DifficultyLevel" class="text-danger small d-block mt-1"></span>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    @* Part of Speech *@
-                    <div class="mb-3">
-                        <label asp-for="PartOfSpeech" class="form-label fw-medium mb-1">Part of Speech</label>
-                        <select asp-for="PartOfSpeech" class="form-select border-1 shadow-sm rounded-4 py-2">
-                            <option value="">Select POS...</option>
-                            <option value="noun">Noun</option>
-                            <option value="verb">Verb</option>
-                            <option value="adjective">Adjective</option>
-                            <option value="adverb">Adverb</option>
-                            <option value="pronoun">Pronoun</option>
-                            <option value="preposition">Preposition</option>
-                            <option value="conjunction">Conjunction</option>
-                            <option value="interjection">Interjection</option>
-                        </select>
+                    <div class="col-md-6">
+                        <label asp-for="PartOfSpeech" class="form-label">Part of Speech</label>
+                        <div class="dropdown custom-dropdown-container" id="pos-dropdown-container" data-bs-auto-close="outside">
+                            <button class="btn-dropdown rounded-4" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="selected-items-display text-muted">Select POS...</span>
+                                <i class="bi bi-chevron-down opacity-50 small"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-custom shadow rounded-4">
+                                <div class="dropdown-list-items">
+                                    <div class="dropdown-item-custom" data-value="" data-label="Select POS...">
+                                        <span>Select POS...</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                    <div class="dropdown-item-custom" data-value="noun" data-label="Noun">
+                                        <span>Noun</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                    <div class="dropdown-item-custom" data-value="verb" data-label="Verb">
+                                        <span>Verb</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                    <div class="dropdown-item-custom" data-value="adjective" data-label="Adjective">
+                                        <span>Adjective</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                    <div class="dropdown-item-custom" data-value="adverb" data-label="Adverb">
+                                        <span>Adverb</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                    <div class="dropdown-item-custom" data-value="pronoun" data-label="Pronoun">
+                                        <span>Pronoun</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                    <div class="dropdown-item-custom" data-value="preposition" data-label="Preposition">
+                                        <span>Preposition</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                    <div class="dropdown-item-custom" data-value="conjunction" data-label="Conjunction">
+                                        <span>Conjunction</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                    <div class="dropdown-item-custom" data-value="interjection" data-label="Interjection">
+                                        <span>Interjection</span>
+                                        <i class="bi bi-check2 opacity-0"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input asp-for="PartOfSpeech" type="hidden" id="PartOfSpeech" />
                         <span asp-validation-for="PartOfSpeech" class="text-danger small d-block mt-1"></span>
                     </div>
                 </div>
-            </div>
 
-            @* Translation *@
-            <div class="mb-3">
-                <label asp-for="Translation" class="form-label fw-medium mb-1">Translation</label>
-                <input asp-for="Translation" class="form-control border-1 shadow-sm rounded-4 py-2" placeholder="Enter translation" />
-                <span asp-validation-for="Translation" class="text-danger small d-block mt-1"></span>
-            </div>
+                <div class="mb-4">
+                    <label asp-for="Translation" class="form-label">Translation</label>
+                    <input asp-for="Translation" class="form-control form-control-custom" placeholder="Enter translation" />
+                    <span asp-validation-for="Translation" class="text-danger small d-block mt-1"></span>
+                </div>
 
-            @* Transcription *@
-            <div class="mb-3">
-                <label asp-for="Transcription" class="form-label fw-medium mb-1">Transcription</label>
-                <input asp-for="Transcription" class="form-control border-1 shadow-sm rounded-4 py-2" placeholder="e.g. /ˌserənˈdɪpɪti/" />
-                <span asp-validation-for="Transcription" class="text-danger small d-block mt-1"></span>
-            </div>
+                <div class="mb-4">
+                    <label asp-for="Transcription" class="form-label">Transcription</label>
+                    <input asp-for="Transcription" class="form-control form-control-custom" placeholder="e.g. /ˌserənˈdɪpɪti/" />
+                    <span asp-validation-for="Transcription" class="text-danger small d-block mt-1"></span>
+                </div>
 
-            @* Meaning *@
-            <div class="mb-3">
-                <label asp-for="Meaning" class="form-label fw-medium mb-1">Meaning</label>
-                <textarea asp-for="Meaning" class="form-control border-1 shadow-sm rounded-4 py-2" rows="2" placeholder="Definition or meaning"></textarea>
-                <span asp-validation-for="Meaning" class="text-danger small d-block mt-1"></span>
-            </div>
+                <div class="mb-4">
+                    <label asp-for="Meaning" class="form-label">Meaning</label>
+                    <textarea asp-for="Meaning" class="form-control form-control-custom" rows="2" placeholder="Definition or meaning"></textarea>
+                    <span asp-validation-for="Meaning" class="text-danger small d-block mt-1"></span>
+                </div>
 
-            @* Example *@
-            <div class="mb-4">
-                <label asp-for="Example" class="form-label fw-medium mb-1">Example</label>
-                <textarea asp-for="Example" class="form-control border-1 shadow-sm rounded-4 py-2" rows="2" placeholder="Example sentence"></textarea>
-                <span asp-validation-for="Example" class="text-danger small d-block mt-1"></span>
-            </div>
+                <div class="mb-4">
+                    <label asp-for="Example" class="form-label">Example</label>
+                    <textarea asp-for="Example" class="form-control form-control-custom" rows="2" placeholder="Example sentence"></textarea>
+                    <span asp-validation-for="Example" class="text-danger small d-block mt-1"></span>
+                </div>
 
-            <div class="d-flex gap-3">
-                <button type="submit" class="btn btn-success rounded-4 px-5 fw-medium shadow-sm">
-                    <i class="bi bi-plus-circle me-1"></i> Add Word
-                </button>
-                <a asp-action="Index" class="btn btn-outline-secondary rounded-4 px-4 shadow-sm">Cancel</a>
-            </div>
-        </form>
+                <div class="d-flex gap-3 justify-content-center pt-4 border-top flex-wrap">
+                    <button type="submit" class="btn-action-success rounded-4">
+                        <i class="bi bi-plus-circle me-2"></i> Add Word
+                    </button>
+                    <a asp-action="Index" class="btn-action-outline-success rounded-4">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        (() => {
-            const input    = document.getElementById('category-input');
-            const dropdown = document.getElementById('category-dropdown');
-            const toggle   = document.getElementById('category-toggle');
-            const chevron  = document.getElementById('category-chevron');
-            let allCategories = [];
-
-            async function fetchCategories() {
-                try {
-                    const res = await fetch('/Word/GetCategories');
-                    if (res.ok) allCategories = await res.json();
-                } catch (e) {
-                    console.error('Error loading categories:', e);
-                }
-            }
-
-            function escapeHtml(str) {
-                return str
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;');
-            }
-
-            function renderDropdown() {
-                const val = input.value.trim().toLowerCase();
-
-                const matches = allCategories.filter(c =>
-                    c.name.toLowerCase().includes(val)
-                );
-
-                dropdown.innerHTML = '';
-
-                const exactMatch = allCategories.some(c =>
-                    c.name.toLowerCase() === val
-                );
-                if (val && !exactMatch) {
-                    const li = document.createElement('li');
-                    li.className = 'px-3 py-2 d-flex align-items-center gap-2 category-item new-item';
-                    li.setAttribute('tabindex', '0');
-                    li.innerHTML = `<i class="bi bi-plus-circle"></i>
-                                    <span>Create <strong>"${escapeHtml(input.value.trim())}"</strong></span>`;
-                    li.addEventListener('mousedown', e => {
-                        e.preventDefault();
-                        input.value = input.value.trim();
-                        closeDropdown();
-                    });
-                    li.addEventListener('keydown', handleItemKeydown);
-                    dropdown.appendChild(li);
-                }
-
-                matches.forEach(c => {
-                    const li = document.createElement('li');
-                    li.className = 'px-3 py-2 category-item';
-                    li.setAttribute('tabindex', '0');
-                    li.textContent = c.name;
-                    li.addEventListener('mousedown', e => {
-                        e.preventDefault();
-                        input.value = c.name;
-                        closeDropdown();
-                    });
-                    li.addEventListener('keydown', handleItemKeydown);
-                    dropdown.appendChild(li);
-                });
-
-                const hasItems = dropdown.children.length > 0;
-                dropdown.style.display = hasItems ? 'block' : 'none';
-                chevron.style.transform = hasItems ? 'rotate(180deg)' : '';
-            }
-
-            function handleItemKeydown(e) {
-                const items = [...dropdown.querySelectorAll('.category-item')];
-                const idx   = items.indexOf(document.activeElement);
-                if (e.key === 'ArrowDown' && idx < items.length - 1) {
-                    items[idx + 1].focus(); e.preventDefault();
-                } else if (e.key === 'ArrowUp') {
-                    idx > 0 ? items[idx - 1].focus() : input.focus();
-                    e.preventDefault();
-                } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    document.activeElement.dispatchEvent(new MouseEvent('mousedown'));
-                } else if (e.key === 'Escape') {
-                    input.focus(); closeDropdown();
-                }
-            }
-
-            function openDropdown()  { renderDropdown(); }
-            function closeDropdown() {
-                dropdown.style.display = 'none';
-                chevron.style.transform = '';
-            }
-
-            // --- events ---
-            input.addEventListener('focus', openDropdown);
-            input.addEventListener('input', renderDropdown);
-
-            input.addEventListener('keydown', e => {
-                if (e.key === 'Escape') { closeDropdown(); return; }
-                if (e.key === 'ArrowDown') {
-                    const first = dropdown.querySelector('.category-item');
-                    if (first) { first.focus(); e.preventDefault(); }
-                }
-            });
-
-            toggle.addEventListener('mousedown', e => {
-                e.preventDefault();
-                dropdown.style.display === 'none' ? openDropdown() : closeDropdown();
-            });
-
-            document.addEventListener('mousedown', e => {
-                if (!document.getElementById('category-wrapper').contains(e.target)) {
-                    closeDropdown();
-                }
-            });
-
-            document.addEventListener('DOMContentLoaded', fetchCategories);
-        })();
-    </script>
+    <script src="~/js/admin-word-create.js" asp-append-version="true"></script>
 }

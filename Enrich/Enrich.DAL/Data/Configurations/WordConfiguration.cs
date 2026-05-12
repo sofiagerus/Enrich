@@ -16,7 +16,7 @@ namespace Enrich.DAL.Data.Configurations
             _ = builder.Property(w => w.Meaning).HasMaxLength(1000);
             _ = builder.Property(w => w.PartOfSpeech).HasMaxLength(30);
             _ = builder.Property(w => w.Example).HasMaxLength(500);
-            _ = builder.Property(w => w.ImageUrl).HasMaxLength(500);
+            _ = builder.Property(w => w.ImageUrl).HasColumnType("text");
             _ = builder.Property(w => w.DifficultyLevel).HasMaxLength(5);
             _ = builder.Property(w => w.IsGlobal).HasDefaultValue(false);
             _ = builder.Property(w => w.CreatedAt)

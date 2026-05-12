@@ -956,7 +956,7 @@ namespace Enrich.BLL.Services
                 Status = BundleStatus.Published, // Системні бандли відразу опубліковані
                 IsSystem = true,                 // Головна відмінність!
                 IsPublic = true,
-                OwnerId = "SYSTEM",              // Власник - система
+                OwnerId = null,                   // Системні бандли не прив'язані до користувача
                 CreatedAt = now,
                 UpdatedAt = now,
                 Words = new List<Word>(),
