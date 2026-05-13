@@ -1,4 +1,5 @@
 let searchTimeout;
+let offcanvasInstance = null;
 
 function getFilters() {
     return {
@@ -29,15 +30,36 @@ async function loadBundles(page = 1) {
         if (response.ok) {
             const html = await response.text();
             document.getElementById('bundles-list-container').innerHTML = html;
+            closeOffcanvas();
         }
     } catch (err) { console.error(err); }
 }
 
 function onFilterChange() { loadBundles(1); }
+
+function closeOffcanvas() {
+    if (offcanvasInstance) {
+        offcanvasInstance.hide();
+    }
+}
+
+function initOffcanvas() {
+    const offcanvasElement = document.getElementById('sidebarFilters');
+    if (offcanvasElement && !offcanvasInstance) {
+        offcanvasInstance = new bootstrap.Offcanvas(offcanvasElement);
+    }
+}
+
+// Initialize offcanvas on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initOffcanvas();
+});
+
 function debounceSearch() {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => onFilterChange(), 500);
 }
+
 function changePage(page) {
     loadBundles(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });

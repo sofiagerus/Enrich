@@ -18,6 +18,14 @@
 <div class="container-fluid py-4">
     <div class="row align-items-start">
         <div class="col-lg-9">
+            <!-- Burger Menu Button (видна тільки на мобілі) -->
+            <div class="d-lg-none mb-3">
+                <button class="btn btn-outline-success" type="button" 
+                        data-bs-toggle="offcanvas" data-bs-target="#sidebarFilters">
+                    <i class="bi bi-funnel me-2"></i> Filters
+                </button>
+            </div>
+
             <div class="d-flex flex-wrap gap-3 mb-4 align-items-center">
                 <div class="input-group flex-grow-1 search-box overflow-hidden" style="max-width: 600px;">
                     <span class="input-group-text border-0 bg-transparent ps-3">
@@ -36,8 +44,20 @@
             </div>
         </div>
 
-        <div class="col-lg-3 ps-lg-4">
+        <!-- Sidebar для десктопу (видна тільки на lg+) -->
+        <div class="col-lg-3 ps-lg-4 d-none d-lg-block">
             <partial name="_CollectionFiltersPartial" model="Model.Categories" />
+        </div>
+
+        <!-- Offcanvas для мобілі (видна тільки на мобілі) -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarFilters">
+            <div class="offcanvas-header bg-success text-white">
+                <h5 class="offcanvas-title">Filters</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body p-0">
+                <partial name="_CollectionFiltersPartial" model="Model.Categories" />
+            </div>
         </div>
     </div>
 </div>
@@ -45,6 +65,7 @@
 @section Scripts {
     <script>
         let currentPage = 1;
+        let offcanvasInstance = null;
 
         function getFilters() {
             const searchTerm = document.getElementById('searchTerm').value;
@@ -80,6 +101,7 @@
                 if (response.ok) {
                     const html = await response.text();
                     document.getElementById('bundles-list-container').innerHTML = html;
+                    closeOffcanvas();
                 }
             } catch (err) {
                 console.error("Failed to load collections", err);
@@ -94,6 +116,20 @@
             loadBundles(page);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+
+        function closeOffcanvas() {
+            if (offcanvasInstance) {
+                offcanvasInstance.hide();
+            }
+        }
+
+        // Initialize offcanvas instance
+        document.addEventListener('DOMContentLoaded', function() {
+            const offcanvasElement = document.getElementById('sidebarFilters');
+            if (offcanvasElement) {
+                offcanvasInstance = new bootstrap.Offcanvas(offcanvasElement);
+            }
+        });
 
         document.getElementById('searchTerm').addEventListener('input', debounce(() => {
             onFilterChange();
@@ -128,13 +164,13 @@
                 if (response.ok) {
                     if (btnElement) {
                         const icon = btnElement.querySelector('i');
-                        
+
                         icon.classList.remove('bi-star');
                         icon.classList.add('bi-star-fill');
-                        
+
                         btnElement.classList.remove('text-secondary');
                         btnElement.classList.add('text-warning'); 
-                        
+
                         btnElement.title = "Saved";
                         btnElement.disabled = true;
                         btnElement.style.opacity = '1';

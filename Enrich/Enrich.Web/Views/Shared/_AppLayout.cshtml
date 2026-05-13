@@ -50,7 +50,7 @@
 <body>
     <div class="d-flex flex-nowrap vh-100 overflow-hidden">
 
-        <div class="sidebar-container d-flex flex-column p-2 h-100 bg-success" style="width: 280px; flex-shrink: 0; --bs-bg-opacity: .05;">
+        <div class="sidebar-container d-none d-md-flex flex-column p-2 h-100 bg-success" style="width: 280px; flex-shrink: 0; --bs-bg-opacity: .05;">
 
             <a href="/" class="d-flex align-items-center mb-5 text-dark text-decoration-none px-3 flex-shrink-0">
                 <span class="fs-4 text-dark" style="font-weight: 600;">Enrich</span>
@@ -182,9 +182,144 @@
         </div>
 
         <main class="flex-grow-1 p-4 bg-success overflow-auto h-100" style="--bs-bg-opacity: .03;">
+            <div class="d-md-none mb-3">
+                <button class="btn btn-outline-success border-0 px-2 shadow-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMainMenu" aria-controls="mobileMainMenu">
+                    <i class="bi bi-list fs-3"></i>
+                </button>
+            </div>
             @RenderBody()
         </main>
 
+    </div>
+
+    <!-- Mobile Offcanvas Menu -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMainMenu" aria-labelledby="mobileMainMenuLabel" style="width: 280px;">
+        <div class="offcanvas-header bg-success" style="--bs-bg-opacity: .1;">
+            <h5 class="offcanvas-title fw-bold" id="mobileMainMenuLabel">Enrich</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0 bg-success h-100 d-flex flex-column" style="--bs-bg-opacity: .05;">
+            <div class="flex-grow-1 overflow-y-auto p-2">
+                <div class="text-secondary mb-2 px-3 mt-3" style="font-size: 0.85rem; font-weight: 600;">Main menu</div>
+                <ul class="nav flex-column nav-pills gap-1 mb-3">
+                    <li class="nav-item">
+                        <a asp-controller="Word" asp-action="Index" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentAction == "Index" && currentController == "Word" ? activeClass : inactiveClass)"
+                           style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-book me-3 fs-6"></i>Words
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="Collection" asp-action="Index" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "Collection" && currentAction == "Index" ? activeClass : inactiveClass)"
+                           style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-collection me-3 fs-6"></i>Collections
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="Word" asp-action="MyWords"
+                           class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "Word" && (currentAction == "MyWords" || currentAction == "Create" || currentAction == "Edit") ? activeClass : inactiveClass)"
+                           style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-bookmark me-3 fs-6"></i>My words
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="Bundle" asp-action="Index"
+                           class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "Bundle" && (currentAction == "Index" || currentAction == "Details" || currentAction == "Edit" || currentAction == "Create") ? activeClass : inactiveClass)"
+                           style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-folder me-3 fs-6"></i>My collections
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="Collection" asp-action="Community" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "Collection" && currentAction == "Community" ? activeClass : inactiveClass)"
+                           style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-people me-3 fs-6"></i>Community
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="Bundle" asp-action="Generator" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentAction == "Generator" && currentController == "Bundle" ? activeClass : inactiveClass)"
+                           style="font-weight: 500; font-size: 0.95rem;">
+                            <i class="bi bi-stars me-3 fs-6"></i>Generator
+                        </a>
+                    </li>
+                </ul>
+
+                @if (roles.Contains("Admin"))
+                {
+                    <div class="text-secondary mb-2 px-3 mt-4" style="font-size: 0.85rem; font-weight: 600;">Administration</div>
+                    <ul class="nav flex-column nav-pills gap-1 mb-1">
+                        <li class="nav-item">
+                            <a asp-controller="Admin" asp-action="Browse"
+                               class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "Admin" && currentAction != "PendingBundles" ? activeClass : inactiveClass)"
+                               style="font-weight: 500; font-size: 0.95rem;">
+                                <i class="bi bi-person-gear me-3 fs-6"></i>Manage users
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Category" asp-action="Index"
+                               class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "Category" ? activeClass : inactiveClass)"
+                               style="font-weight: 500; font-size: 0.95rem;">
+                                <i class="bi bi-tags-fill me-3 fs-6"></i>Manage categories
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="AdminWord" asp-action="Index"
+                               class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "AdminWord" ? activeClass : inactiveClass)"
+                               style="font-weight: 500; font-size: 0.95rem;">
+                                <i class="bi bi-book-fill me-3 fs-6"></i>Manage words
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="AdminBundle" asp-action="Index"
+                               class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "AdminBundle" && currentAction != "Community" ? activeClass : inactiveClass)"
+                               style="font-weight: 500; font-size: 0.95rem;">
+                                <i class="bi bi-folder-fill me-3 fs-6"></i>Manage collections
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="AdminBundle" asp-action="Community"
+                               class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "AdminBundle" && currentAction == "Community" ? activeClass : inactiveClass)"
+                               style="font-weight: 500; font-size: 0.95rem;">
+                                <i class="bi bi-globe me-3 fs-6"></i>Manage community
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Admin" asp-action="PendingBundles" class="nav-link d-flex align-items-center rounded-4 py-2 px-3 ms-2 me-3 @(currentController == "Admin" && currentAction == "PendingBundles" ? activeClass : inactiveClass)" style="font-weight: 500; font-size: 0.95rem;">
+                                <i class="bi bi-hourglass-split me-3 fs-6"></i>Pending collections
+                            </a>
+                        </li>
+                    </ul>
+                }
+            </div>
+
+            <div class="mt-auto pt-2 pb-3 flex-shrink-0 p-2 border-top">
+                <div class="text-secondary mb-2 px-3" style="font-size: 0.85rem; font-weight: 600;">Account</div>
+
+                <div class="d-flex align-items-center px-3 py-2 text-dark">
+                    <a asp-controller="Notification" asp-action="Index" class="position-relative text-decoration-none">
+                        <div class="bg-secondary text-white rounded-circle me-3 d-flex justify-content-center align-items-center flex-shrink-0" style="width: 40px; height: 40px; opacity: 0.8;">
+                            <i class="bi bi-person-fill fs-5"></i>
+                        </div>
+                        <span id="notifBadgeMobile"
+                              class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-danger"
+                              style="font-size: 0.6rem; display: none;"></span>
+                    </a>
+
+                    <div class="lh-1 overflow-hidden">
+                        <a asp-controller="Account" asp-action="Settings" asp-route-tab="profile"
+                           class="text-decoration-none text-dark d-block text-truncate @(currentAction == "Settings" ? "text-success" : "")"
+                           style="font-weight: 600; font-size: 0.95rem; margin-bottom: 2px;">
+                            @(currentUser?.UserName ?? "Guest")
+                        </a>
+                        <div class="text-muted mt-1 text-truncate" style="font-size: 0.8rem;">@displayRole</div>
+                    </div>
+
+                    <a asp-controller="Account" asp-action="Settings"
+                       class="nav-link d-flex align-items-center justify-content-center rounded-4 ms-auto me-1"
+                       style="width: 38px; height: 38px; padding: 0;">
+                        <i class="bi bi-gear fs-5"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100">
@@ -229,12 +364,20 @@
                     .catch(() => { });
 
                 function updateBadge(count) {
+                    const badgeMobile = document.getElementById('notifBadgeMobile');
                     if (!badge) return;
                     if (count > 0) {
                         badge.textContent = count > 99 ? '99+' : count;
                         badge.style.display = '';
+                        if(badgeMobile) {
+                            badgeMobile.textContent = count > 99 ? '99+' : count;
+                            badgeMobile.style.display = '';
+                        }
                     } else {
                         badge.style.display = 'none';
+                        if(badgeMobile) {
+                            badgeMobile.style.display = 'none';
+                        }
                     }
                 }
 
