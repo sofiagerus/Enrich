@@ -645,7 +645,7 @@ namespace Enrich.UnitTests.Services
                 r => r.CreateBundleAsync(It.Is<Bundle>(b =>
                 b.Title == "New System Collection" &&
                 b.IsSystem &&
-                b.OwnerId == "SYSTEM" &&
+                b.OwnerId == null &&
                 b.Status == BundleStatus.Published)),
                 Times.Once);
 
