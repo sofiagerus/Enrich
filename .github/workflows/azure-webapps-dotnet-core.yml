@@ -55,6 +55,9 @@ jobs:
       - name: Build with dotnet
         run: dotnet build Enrich/Enrich.sln --configuration Release
 
+      - name: run unit tests
+        run: dotnet test Enrich/Enrich.sln --configuration Release --no-build --verbosity normal
+
       - name: dotnet publish
         run: dotnet publish Enrich/Enrich.Web/Enrich.Web.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
