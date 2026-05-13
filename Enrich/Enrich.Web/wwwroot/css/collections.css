@@ -23,6 +23,92 @@
   margin: 16px -20px;
 }
 
+/* ===== OFFCANVAS STYLES FOR MOBILE ===== */
+.offcanvas {
+  --bs-offcanvas-zindex: 1060;
+}
+
+.offcanvas-body {
+  padding: 16px !important;
+}
+
+.offcanvas-body .sidebar-panel {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin-top: 0 !important;
+}
+
+.offcanvas-body .sidebar-divider {
+  margin: 16px 0;
+}
+
+.offcanvas-body .sidebar-panel h6 {
+  margin-top: 12px;
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 991px) {
+  /* Container fluid padding на моб≥л≥ */
+  .container-fluid {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* Sidebar panel на моб≥л≥ */
+  .sidebar-panel {
+    padding: 16px;
+  }
+
+  .sidebar-divider {
+    margin: 16px -16px;
+  }
+
+  /* Bundle card адаптивна на моб≥л≥ */
+  .bundle-card {
+    min-height: 180px;
+  }
+
+  /* Bundle image на моб≥л≥ - ман≥ша */
+  .bundle-image-horizontal {
+    width: 100px;
+    height: 100px;
+  }
+
+  .bundle-image-horizontal i {
+    font-size: 2.5rem;
+  }
+
+  /* Difficulty container на моб≥л≥ */
+  .difficulty-container {
+    width: 100px;
+  }
+
+  /* Ўрифти меньше на моб≥л≥ */
+  .bundle-title {
+    font-size: 0.95rem;
+  }
+
+  .bundle-wordcount {
+    font-size: 0.7rem;
+  }
+
+  .bundle-description {
+    font-size: 0.75rem;
+  }
+
+  /* Search box на моб≥л≥ */
+  .search-box {
+    max-width: 100% !important;
+  }
+
+  /* Button адаптивна на моб≥л≥ */
+  .btn-action {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
 /* Bundle Card */
 .bundle-card {
   background: #ffffff !important;
