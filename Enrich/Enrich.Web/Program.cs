@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Enrich.BLL;
 using Enrich.DAL;
 using Enrich.DAL.Data;
@@ -20,6 +21,14 @@ try
     Log.Information("Запуск веб-хоста...");
 
     WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+    if (builder.Environment.IsProduction())
+    {
+        Log.Information("Configuring Azure Key Vault...");
+        builder.Configuration.AddAzureKeyVault(
+            new Uri($"https://{builder.Configuration["KeyVaultName"]}.vault.azure.net/"),
+            new DefaultAzureCredential(new DefaultAzureCredentialOptions()));
+    }
 
     if (builder.Environment.IsStaging() || builder.Environment.IsProduction())
     {
@@ -91,7 +100,14 @@ try
 
     WebApplication app = builder.Build();
 
-    await DataSeeder.SeedRolesAndAdminAsync(app.Services);
+    try
+    {
+        await DataSeeder.SeedDatabaseAsync(app.Services);
+    }
+    catch (Exception ex)
+    {
+        Log.Warning(ex, "Failed to seed database or database is not available. Skipping seeding.");
+    }
 
     var envLabel = app.Configuration["Environment:Label"] ?? "unknown";
     Log.Information(

@@ -8,7 +8,7 @@ namespace Enrich.Web.Seeders
 {
     public static class DataSeeder
     {
-        public static async Task SeedRolesAndAdminAsync(IServiceProvider serviceProvider)
+        public static async Task SeedDatabaseAsync(IServiceProvider serviceProvider)
         {
             using var scope = serviceProvider.CreateScope();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -24,10 +24,13 @@ namespace Enrich.Web.Seeders
                 }
             }
 
-            var adminEmail = "admin@enrich.com";
+            var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+            var adminEmail = configuration["AdminSettings:Email"] ?? "admin@enrich.com";
+            var adminPassword = configuration["AdminSettings:Password"];
+
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
-            if (adminUser == null)
+            if (adminUser == null && !string.IsNullOrEmpty(adminPassword))
             {
                 var newAdmin = new User
                 {
@@ -36,7 +39,7 @@ namespace Enrich.Web.Seeders
                     EmailConfirmed = true,
                 };
 
-                var createPowerUser = await userManager.CreateAsync(newAdmin, "AdminPassword123!");
+                var createPowerUser = await userManager.CreateAsync(newAdmin, adminPassword);
                 if (createPowerUser.Succeeded)
                 {
                     await userManager.AddToRoleAsync(newAdmin, "Admin");
