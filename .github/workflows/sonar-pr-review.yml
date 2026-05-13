@@ -22,5 +22,5 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           dotnet-sonarscanner begin /k:"bohdanstetsyshyn_enrich" /o:"bohdanstetsyshyn" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          dotnet build
+          dotnet build Enrich/Enrich.sln
           dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
