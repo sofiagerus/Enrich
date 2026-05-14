@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="~/css/word-create.min.css" asp-append-version="true" />
 }
 
-<div class="container d-flex justify-content-start py-4">
+<div class="container d-flex justify-content-center py-4">
     <div class="w-100" style="max-width: 640px;">
-        
+
         <div class="d-flex align-items-center mb-4 gap-3">
             <a asp-controller="Word" asp-action="MyWords" class="text-dark text-decoration-none fs-5">
                 <i class="bi bi-arrow-left"></i>
@@ -43,27 +43,38 @@
                                    class="form-control py-2 border-light-subtle border-end-0 custom-focus"
                                    placeholder="e.g. Serendipity"
                                    style="border-top-left-radius: 0.75rem; border-bottom-left-radius: 0.75rem; box-shadow: none;" />
-                            <button type="button" id="btn-lookup-word" class="btn border border-light-subtle bg-light text-primary d-flex align-items-center gap-1 px-4 fw-medium hover-bg-light z-0" style="border-top-right-radius: 0.75rem; border-bottom-right-radius: 0.75rem;">
+                            <button type="button" id="btn-lookup-word"
+                                    class="btn border border-light-subtle bg-light text-primary d-flex align-items-center gap-1 px-4 fw-medium z-0"
+                                    style="border-top-right-radius: 0.75rem; border-bottom-right-radius: 0.75rem;">
                                 <i class="bi bi-search"></i> Auto-fill
                             </button>
                         </div>
                         <span asp-validation-for="Term" class="text-danger small d-block mt-1"></span>
                     </div>
 
-                    @* Category *@
+                    @* Category — pure dropdown, no text search *@
                     <div class="mb-4 position-relative" id="category-wrapper">
                         <label asp-for="NewCategory" class="form-label fw-medium text-dark small mb-2">
                             Category <span class="text-danger">*</span>
                         </label>
 
                         <div class="category-combo position-relative">
+                            @* Hidden input carries the value to the server *@
                             <input asp-for="NewCategory"
                                    id="category-input"
-                                   class="form-control rounded-4 py-2 border-light-subtle pe-5 custom-focus"
-                                   placeholder="Select or type a new category..."
-                                   autocomplete="off"
-                                   style="box-shadow: none;"
-                                   required />
+                                   type="hidden" />
+
+                            @* Visible trigger *@
+                            <div id="category-display"
+                                 tabindex="0"
+                                 role="combobox"
+                                 aria-haspopup="listbox"
+                                 aria-expanded="false"
+                                 class="form-control rounded-4 py-2 border-light-subtle pe-5 d-flex align-items-center"
+                                 style="cursor: pointer; box-shadow: none; user-select: none; min-height: 42px;">
+                                <span id="category-display-text" class="text-muted">Select category...</span>
+                            </div>
+
                             <button type="button" id="category-toggle"
                                     class="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent p-0 text-muted"
                                     tabindex="-1" aria-label="Toggle list">
@@ -72,10 +83,12 @@
                         </div>
 
                         <ul id="category-dropdown"
+                            role="listbox"
                             class="list-unstyled mb-0 mt-1 border border-light-subtle rounded-4 bg-white position-absolute w-100 overflow-auto shadow-sm"
                             style="display:none; max-height:200px; z-index:1050;">
                         </ul>
 
+                        @* Client-side required validation shim — shown if hidden input empty on submit *@
                         <span asp-validation-for="NewCategory" class="text-danger small d-block mt-1"></span>
                     </div>
 
@@ -145,9 +158,8 @@
 
                     <hr class="mt-5 mb-4 border-light-subtle" />
 
-                    @* Кнопки форми *@
                     <div class="d-flex gap-3 justify-content-center">
-                        <button type="submit" class="btn btn-success btn-action-success rounded-pill px-5 py-2 fw-medium d-flex align-items-center gap-2" style="background-color: #1a7b54; border-color: #1a7b54; transition: all 0.2s;">
+                        <button type="submit" class="btn btn-success btn-action-success rounded-pill px-5 py-2 fw-medium d-flex align-items-center gap-2">
                             <i class="bi bi-plus-circle"></i> Add Word
                         </button>
                         <a asp-controller="Word" asp-action="MyWords" class="btn btn-outline-secondary rounded-pill px-5 py-2 fw-medium">
@@ -158,6 +170,7 @@
                 </form>
             </div>
         </div>
+
     </div>
 </div>
 

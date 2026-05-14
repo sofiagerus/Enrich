@@ -1,13 +1,16 @@
-function initWordCreate() {
-    var input = document.getElementById('category-input');
+﻿function initWordCreate() {
+    var display = document.getElementById('category-display');
+    var displayTxt = document.getElementById('category-display-text');
+    var hiddenInput = document.getElementById('category-input');
     var dropdown = document.getElementById('category-dropdown');
     var toggle = document.getElementById('category-toggle');
     var chevron = document.getElementById('category-chevron');
     var wrapper = document.getElementById('category-wrapper');
 
-    if (!input || !dropdown || !toggle) return;
+    if (!display || !dropdown || !hiddenInput) return;
 
     var allCategories = [];
+    var selectedCategory = null;
 
     fetch('/Word/GetCategories')
         .then(function (res) {
@@ -18,52 +21,43 @@ function initWordCreate() {
             allCategories = data.map(function (c) {
                 return typeof c === 'string' ? c : c.name;
             });
-            if (document.activeElement === input) renderDropdown();
         })
         .catch(function (e) {
             console.error('Error loading categories:', e);
         });
 
-    function escapeHtml(str) {
-        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-
     function renderDropdown() {
-        var val = input.value.trim().toLowerCase();
-        var matches = allCategories.filter(function (c) {
-            return c.toLowerCase().includes(val);
-        });
         dropdown.innerHTML = '';
-        var exactMatch = allCategories.some(function (c) {
-            return c.toLowerCase() === val;
-        });
 
-        if (val && !exactMatch) {
+        allCategories.forEach(function (c) {
             var li = document.createElement('li');
-            li.className = 'px-3 py-2 d-flex align-items-center gap-2 category-item new-item dropdown-item';
-            li.setAttribute('tabindex', '0');
-            li.style.cursor = 'pointer';
-            li.innerHTML = '<i class="bi bi-plus-circle"></i><span>Create <strong>"' + escapeHtml(input.value.trim()) + '"</strong></span>';
-            li.addEventListener('mousedown', function (e) {
-                e.preventDefault();
-                input.value = input.value.trim();
-                closeDropdown();
-            });
-            li.addEventListener('keydown', handleItemKeydown);
-            dropdown.appendChild(li);
-        }
-
-        matches.forEach(function (c) {
-            var li = document.createElement('li');
-            li.className = 'px-3 py-2 category-item dropdown-item';
+            var isSelected = (c === selectedCategory);
+            li.className = 'px-3 py-2 category-item dropdown-item' + (isSelected ? ' selected-item' : '');
             li.setAttribute('tabindex', '0');
             li.style.cursor = 'pointer';
             li.textContent = c;
-            li.addEventListener('mousedown', function (e) {
+
+
+            li.addEventListener('click', function (e) {
                 e.preventDefault();
-                input.value = c;
-                closeDropdown();
+                e.stopPropagation();
+
+                var allItems = Array.prototype.slice.call(dropdown.querySelectorAll('.category-item'));
+                allItems.forEach(function (i) { i.classList.remove('selected-item'); });
+
+                li.classList.add('selected-item');
+
+                selectedCategory = c;
+                hiddenInput.value = c;
+                displayTxt.textContent = c;
+                displayTxt.classList.remove('text-muted');
+
+                setTimeout(function () {
+                    closeDropdown();
+                    display.focus();
+                }, 120);
             });
+
             li.addEventListener('keydown', handleItemKeydown);
             dropdown.appendChild(li);
         });
@@ -79,13 +73,13 @@ function initWordCreate() {
         if (e.key === 'ArrowDown' && idx < items.length - 1) {
             items[idx + 1].focus(); e.preventDefault();
         } else if (e.key === 'ArrowUp') {
-            if (idx > 0) { items[idx - 1].focus(); } else { input.focus(); }
+            if (idx > 0) { items[idx - 1].focus(); } else { display.focus(); }
             e.preventDefault();
-        } else if (e.key === 'Enter') {
+        } else if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            document.activeElement.dispatchEvent(new MouseEvent('mousedown'));
+            document.activeElement.click();
         } else if (e.key === 'Escape') {
-            input.focus(); closeDropdown();
+            display.focus(); closeDropdown();
         }
     }
 
@@ -95,27 +89,34 @@ function initWordCreate() {
         if (chevron) chevron.style.transform = '';
     }
 
-    input.addEventListener('focus', openDropdown);
-    input.addEventListener('input', renderDropdown);
-    input.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') { closeDropdown(); return; }
-        if (e.key === 'ArrowDown') {
-            var first = dropdown.querySelector('.category-item');
-            if (first) { first.focus(); e.preventDefault(); }
-        }
-    });
-
-    toggle.addEventListener('mousedown', function (e) {
+    display.addEventListener('mousedown', function (e) {
         e.preventDefault();
         if (dropdown.style.display === 'none') { openDropdown(); } else { closeDropdown(); }
-        input.focus();
+        display.focus();
+    });
+
+    if (toggle) {
+        toggle.addEventListener('mousedown', function (e) {
+            e.preventDefault();
+            if (dropdown.style.display === 'none') { openDropdown(); } else { closeDropdown(); }
+            display.focus();
+        });
+    }
+
+    display.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { closeDropdown(); return; }
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+            if (dropdown.style.display === 'none') { openDropdown(); }
+            var first = dropdown.querySelector('.category-item');
+            if (first) { first.focus(); }
+            e.preventDefault();
+        }
     });
 
     document.addEventListener('mousedown', function (e) {
         if (wrapper && !wrapper.contains(e.target)) closeDropdown();
     });
 
-    // Auto-fill
     var lookupBtn = document.getElementById('btn-lookup-word');
     var termInput = document.getElementById('term-input');
     var transInput = document.getElementById('transcription-input');
